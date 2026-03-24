@@ -60,10 +60,13 @@ form.addEventListener("submit", async (e) => {
 	game.reset();
 
 	runBtn.setAttribute("disabled", "disabled");
+	const runBtnText = runBtn.textContent;
+	runBtn.textContent = "Running...";
 
 	const naive = new GreedyNaive();
 	await naive.run();
 
+	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
 });
 
