@@ -3,26 +3,84 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Document</title>
+		<title>Cookie Clicker Benchmarking Tool</title>
 
 		<link rel="stylesheet" href="style.css" />
 		<link rel="shortcut icon" href="images/cookie.png" type="image/x-icon" />
-		<script src="script.js"></script>
+		<script src="script.js" type="module"></script>
 	</head>
 	<body>
 		<header>
 			<img src="images/cookie.png" alt="" />
 			<h1>Cookie Clicker Benchmarking Tool</h1>
 		</header>
+
 		<main>
-			<form action="#">
-				<div>
-					<input type="checkbox" name="naive" checked />
-					<label for="naive">Naive</label>
+			<form>
+				<section>
+					<h2>Algorithm Selection</h2>
+					<div class="field">
+						<p class="algorithm-selected" id="algorithm-count">
+							0 algorithms selected
+						</p>
+						<label for="algorithm-select"
+							>Select one or more algorithms to benchmark</label
+						>
+						<select id="algorithm-select" multiple>
+							<option value="immediate">[Greedy] Immediate Purchase</option>
+							<option value="greedy">[Greedy] Payback Period</option>
+							<option value="greedy">[Greedy] Greedy Time</option>
+							<option value="brute-force">[Brute Force] Segmented</option>
+						</select>
+						<p class="algorithm-hint">
+							Hold <kbd>CTRL</kbd> or <kbd>CMD</kbd> to select multiple
+							algorithms.
+						</p>
+					</div>
+
+					<div class="conditional field" id="brute-force-conditions">
+						<label for="bruteforce-segment">Brute-force segment size</label>
+						<input type="number" id="bruteforce-segment" min="1" value="5" />
+					</div>
+				</section>
+
+				<section>
+					<h2>Benchmark Objective</h2>
+					<div class="grid-2">
+						<div class="field">
+							<label for="objective-type">Objective type</label>
+							<select id="objective-type">
+								<option value="cookies">Cookies</option>
+								<option value="production">Production Rate</option>
+							</select>
+						</div>
+						<div class="field">
+							<label for="objective-value">Objective value</label>
+							<input type="number" id="objective-value" min="0" value="1000" />
+						</div>
+					</div>
+				</section>
+
+				<section>
+					<h2>Simulation Constraints</h2>
+					<div class="field">
+						<label for="max-sim-time">Max Simulation Time (s)</label>
+						<input type="number" id="max-sim-time" min="1" value="3600" />
+					</div>
+				</section>
+
+				<div class="actions">
+					<button type="submit">Run Benchmark</button>
+					<button type="reset">Reset</button>
 				</div>
-				<button type="submit">Run Benchmark</button>
 			</form>
 		</main>
+
+		<span class="toast">
+			<h2>Toast Title</h2>
+			<p>Toast Message</p>
+		</span>
+
 		<footer></footer>
 	</body>
 </html>
