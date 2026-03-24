@@ -1,1 +1,0 @@
-class Building extends Purchaseable {}

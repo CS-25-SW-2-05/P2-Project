@@ -1,7 +1,7 @@
-class Purchaseable {
+class Purchasable {
 	constructor() {
-		if (new.target != Purchaseable) return;
-		throw new Error("Cannot instantiate abstract class Purchaseable directly.");
+		if (new.target != Purchasable) return;
+		throw new Error("Cannot instantiate abstract class Purchasable directly.");
 	}
 
 	getPrice() {
