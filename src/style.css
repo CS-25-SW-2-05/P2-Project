@@ -71,3 +71,7 @@ button {
 	border-width: 0px;
 	border-radius: 8px;
 }
+
+button:disabled {
+	opacity: 0.5;
+}

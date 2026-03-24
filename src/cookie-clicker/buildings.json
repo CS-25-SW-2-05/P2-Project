@@ -1,0 +1,7 @@
+{
+    "cursor": {
+        "baseCost": 15,
+        "baseCpS": 0.1,
+        "maxBuildCount": 100
+    }
+}
