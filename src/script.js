@@ -1,40 +1,59 @@
-const algoSelect = document.getElementById('algo-select');
-const algoCount = document.getElementById('algo-count');
-const bruteforceCond = document.getElementById('cond-bruteforce');
-const toast = document.getElementById('toast');
+const algorithmSelect = document.getElementById("algorithm-select");
+const algorithmCount = document.getElementById("algorithm-count");
+const bruteForceConditions = document.getElementById("brute-force-conditions");
 
-function updateCount() {
-    const count = algoSelect.selectedOptions.length;
-    algoCount.textContent = count + ' algorithm' + (count === 1 ? '' : 's') + ' selected';
-    bruteforceCond.classList.toggle('visible', 
-        Array.from(algoSelect.selectedOptions).some(o => o.value === 'bruteforce'));
+function updateForm() {
+	const runBtn = form.querySelector("button[type='submit']");
+	const count = getActiveAlgorithms();
+	if (count <= 0) runBtn.setAttribute("disabled", "disabled");
+	else runBtn.removeAttribute("disabled");
+	updateAlgorithmSection();
 }
 
-function show(msg) {
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2000);
+function updateAlgorithmSection() {
+	// Update count
+	const count = getActiveAlgorithms();
+	const algorithmCountText = `${count} algorithm${count === 1 ? "" : "s"} selected`;
+	algorithmCount.textContent = algorithmCountText;
+
+	// Update brute force conditions
+	const selectionArray = [...algorithmSelect.selectedOptions];
+	bruteForceConditions.classList.toggle(
+		"show",
+		selectionArray.some((o) => o.value === "brute-force"),
+	);
 }
 
-algoSelect.addEventListener('change', updateCount);
+function getActiveAlgorithms() {
+	const count = algorithmSelect.selectedOptions.length;
+	return count;
+}
 
-document.getElementById('btn-run').addEventListener('click', () => {
-    if (algoSelect.selectedOptions.length === 0) {
-        show('Select at least one algorithm');
-        return;
-    }
-    show('Running benchmark...')
-    // TODO: Run benchmark
+function show(title, msg) {
+	const toast = document.querySelector(".toast");
+	const toastTitle = toast.querySelector("h2");
+	const toastMsg = toast.querySelector("p");
+
+	toastTitle.textContent = title;
+	toastMsg.textContent = msg;
+	toast.classList.add("show");
+	setTimeout(() => toast.classList.remove("show"), 4000);
+}
+
+const form = document.querySelector("form");
+form.addEventListener("submit", (e) => {
+	e.preventDefault();
+	show("Running benchmark...");
 });
 
-document.getElementById('btn-reset').addEventListener('click', () => {
-    algoSelect.selectedIndex = -1;
-    document.getElementById('bruteforce-segment').value = 5;
-    document.getElementById('target-type').value = 'cookies';
-    document.getElementById('target-value').value = 1000;
-    document.getElementById('max-sim-time').value = 3600;
-    updateCount();
-    show('Reset');
+form.addEventListener("reset", () => {
+	// Timeout to push the execution to after values has been reset
+	setTimeout(() => {
+		show("Reset", "The form has been reset...");
+		updateForm();
+	}, 0);
 });
 
-updateCount();
+form.addEventListener("change", updateForm);
+
+updateForm();

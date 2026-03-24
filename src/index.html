@@ -7,74 +7,80 @@
 
 		<link rel="stylesheet" href="style.css" />
 		<link rel="shortcut icon" href="images/cookie.png" type="image/x-icon" />
+		<script src="script.js" type="module"></script>
 	</head>
 	<body>
-
 		<header>
 			<img src="images/cookie.png" alt="" />
 			<h1>Cookie Clicker Benchmarking Tool</h1>
 		</header>
-		
+
 		<main>
-			<div class="config-menu">
-				<div class="section">
-					<div class="section-title">Algorithm Selection</div>
+			<form>
+				<section>
+					<h2>Algorithm Selection</h2>
 					<div class="field">
-						<p class="algo-selected" id="algo-count">0 algorithms selected</p>
-						<label for="algo-select">Select one or more algorithms to benchmark</label>
-						<select id="algo-select" multiple>
-							<option value="immediate">[Greedy] Immediate Purchase Strategy</option>
-							<option value="greedy">[Greedy] Payback Period / Greedy Time</option>
-							<option value="bruteforce">[Modified] Brute Force</option>
-							<option value="dp">Dynamic Programming</option>
+						<p class="algorithm-selected" id="algorithm-count">
+							0 algorithms selected
+						</p>
+						<label for="algorithm-select"
+							>Select one or more algorithms to benchmark</label
+						>
+						<select id="algorithm-select" multiple>
+							<option value="immediate">[Greedy] Immediate Purchase</option>
+							<option value="greedy">[Greedy] Payback Period</option>
+							<option value="greedy">[Greedy] Greedy Time</option>
+							<option value="brute-force">[Brute Force] Segmented</option>
 						</select>
-						<p class="algo-hint">Hold Ctrl / Cmd to select multiple algorithms.</p>
+						<p class="algorithm-hint">
+							Hold <kbd>CTRL</kbd> or <kbd>CMD</kbd> to select multiple
+							algorithms.
+						</p>
 					</div>
 
-					<div class="conditional" id="cond-bruteforce">
-						<div class="field">
-							<label for="bruteforce-segment">Brute-force segment size</label>
-							<input type="number" id="bruteforce-segment" min="1" value="5">
-						</div>
+					<div class="conditional field" id="brute-force-conditions">
+						<label for="bruteforce-segment">Brute-force segment size</label>
+						<input type="number" id="bruteforce-segment" min="1" value="5" />
 					</div>
-				</div>
+				</section>
 
-				<div class="section">
-					<div class="section-title">Benchmark Target</div>
-					<div class="grid2">
+				<section>
+					<h2>Benchmark Objective</h2>
+					<div class="grid-2">
 						<div class="field">
-							<label for="target-type">Target type</label>
-							<select id="target-type">
-								<option value="cookies">Reach X cookies</option>
-								<option value="production">Reach X production rate</option>
+							<label for="objective-type">Objective type</label>
+							<select id="objective-type">
+								<option value="cookies">Cookies</option>
+								<option value="production">Production Rate</option>
 							</select>
 						</div>
 						<div class="field">
-							<label for="target-value">Target value</label>
-							<input type="number" id="target-value" min="0" value="1000">
+							<label for="objective-value">Objective value</label>
+							<input type="number" id="objective-value" min="0" value="1000" />
 						</div>
 					</div>
-				</div>
+				</section>
 
-				<div class="section">
-					<div class="section-title">Simulation Constraints</div>
+				<section>
+					<h2>Simulation Constraints</h2>
 					<div class="field">
-						<label for="max-sim-time">Max simulation time (seconds)</label>
-						<input type="number" id="max-sim-time" min="1" value="3600">
+						<label for="max-sim-time">Max Simulation Time (s)</label>
+						<input type="number" id="max-sim-time" min="1" value="3600" />
 					</div>
-				</div>
+				</section>
 
 				<div class="actions">
-					<button class="btn-primary" id="btn-run">Run benchmark</button>
-					<button class="btn-reset" id="btn-reset">Reset</button>
-					<span class="toast" id="toast"></span>
+					<button type="submit">Run Benchmark</button>
+					<button type="reset">Reset</button>
 				</div>
-			</div>
-
+			</form>
 		</main>
-		
+
+		<span class="toast">
+			<h2>Toast Title</h2>
+			<p>Toast Message</p>
+		</span>
+
 		<footer></footer>
-		
-		<script src="script.js"></script>
 	</body>
 </html>
