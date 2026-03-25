@@ -3,13 +3,22 @@ import {
 	loadBuildings,
 } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
-import GreedyNaive from "./algorithms/greedy-naive.js";
-import GreedyPayback from "./algorithms/greedy-payback.js";
+import { getPlural } from "./utils.js";
+import "./algorithms/greedy-naive.js";
+import "./algorithms/greedy-payback.js";
+import "./algorithms/greedy-time.js";
+import "./algorithms/brute-force-segmented.js";
 
 const algorithmCount = document.getElementById("algorithm-count");
+const algorithmsContainer = document.querySelector(".algorithms");
+const form = document.querySelector("form");
+const runBtn = form.querySelector("button[type='submit']");
+
+const toast = document.querySelector(".toast");
+const toastTitle = toast.querySelector("h2");
+const toastMsg = toast.querySelector("p");
 
 function updateForm() {
-	const runBtn = form.querySelector("button[type='submit']");
 	const count = getActiveAlgorithms();
 	if (count <= 0) runBtn.setAttribute("disabled", "disabled");
 	else runBtn.removeAttribute("disabled");
@@ -19,21 +28,16 @@ function updateForm() {
 function updateAlgorithmSection() {
 	// Update count
 	const count = getActiveAlgorithms();
-	const algorithmCountText = `${count} algorithm${count === 1 ? "" : "s"} selected`;
+	const algorithmCountText = `${count} ${getPlural("algorithm", count)} selected`;
 	algorithmCount.textContent = algorithmCountText;
 }
 
-const algorithmsContainer = document.querySelector(".algorithms");
 function getActiveAlgorithms() {
 	const count = document.querySelectorAll("label:has(input:checked)").length;
 	return count;
 }
 
 function show(title, msg) {
-	const toast = document.querySelector(".toast");
-	const toastTitle = toast.querySelector("h2");
-	const toastMsg = toast.querySelector("p");
-
 	toastTitle.textContent = title;
 	toastMsg.textContent = msg;
 	toast.classList.add("show");
@@ -54,7 +58,6 @@ for (const algorithm of Algorithm.derived) {
 console.log("Buildings", Buildings);
 console.log("Algorithms", Algorithm.derived);
 
-const form = document.querySelector("form");
 form.addEventListener("submit", async (e) => {
 	e.preventDefault();
 

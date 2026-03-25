@@ -1,3 +1,4 @@
+import { round } from "../../utils.js";
 import Purchasable from "./purchasable.js";
 
 class Building extends Purchasable {
@@ -22,8 +23,9 @@ class Building extends Purchasable {
 		return this.owned < this.maxBuildCount;
 	}
 
-	onPurchase() {
+	onPurchase(game) {
 		this.owned++;
+		game.cps = round(game.cps + this.baseCpS, 1);
 	}
 }
 

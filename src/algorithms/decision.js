@@ -1,3 +1,5 @@
+import { round } from "../utils.js";
+
 export default class Decision {
 	isValid = false;
 	#game = null;
@@ -28,6 +30,10 @@ export default class Decision {
 		this.#game.realTime += this.#wait;
 		this.#game.cookies += this.#purchaseable.cost;
 
+		const oldCpS = this.#game.cps;
 		this.#purchaseable.purchase(this.#game);
+		const cpsIncrease = round(this.#game.cps - oldCpS, 1);
+
+		console.log("Result:", "CpS", this.#game.cps, "increased by", cpsIncrease);
 	}
 }

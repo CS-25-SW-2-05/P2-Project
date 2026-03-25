@@ -18,7 +18,7 @@ export default class Purchasable {
 		);
 	}
 
-	onPurchase() {
+	onPurchase(game) {
 		throw new Error(
 			`Method '${this.onPurchase.name}' must be implemented by subclass.`,
 		);
@@ -35,7 +35,7 @@ export default class Purchasable {
 		const canAfford = this.cost <= game.cookies;
 		if (!canAfford) return false;
 
-		this.onPurchase();
+		this.onPurchase(game);
 		game.cookies -= this.cost;
 		this.cost = this.calcCost();
 		return true;
