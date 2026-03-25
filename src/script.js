@@ -2,12 +2,12 @@ import {
 	buildings,
 	loadBuildings,
 } from "./cookie-clicker/purchasables/building.js";
-import GreedyNaive from "./algorithms/greedy-naive.js";
 import game from "./cookie-clicker/game.js";
+import Algorithm from "./algorithms/algorithm.js";
+import GreedyNaive from "./algorithms/greedy-naive.js";
+import GreedyPayback from "./algorithms/greedy-payback.js";
 
-const algorithmSelect = document.getElementById("algorithm-select");
 const algorithmCount = document.getElementById("algorithm-count");
-const bruteForceConditions = document.getElementById("brute-force-conditions");
 
 function updateForm() {
 	const runBtn = form.querySelector("button[type='submit']");
@@ -22,17 +22,11 @@ function updateAlgorithmSection() {
 	const count = getActiveAlgorithms();
 	const algorithmCountText = `${count} algorithm${count === 1 ? "" : "s"} selected`;
 	algorithmCount.textContent = algorithmCountText;
-
-	// Update brute force conditions
-	const selectionArray = [...algorithmSelect.selectedOptions];
-	bruteForceConditions.classList.toggle(
-		"show",
-		selectionArray.some((o) => o.value === "brute-force"),
-	);
 }
 
+const algorithmsContainer = document.querySelector(".algorithms");
 function getActiveAlgorithms() {
-	const count = algorithmSelect.selectedOptions.length;
+	const count = document.querySelectorAll("label:has(input:checked)").length;
 	return count;
 }
 
@@ -48,6 +42,17 @@ function show(title, msg) {
 }
 
 await loadBuildings();
+console.log(Algorithm.derived);
+for (const algorithm of Algorithm.derived) {
+	algorithmsContainer.innerHTML += `
+		<div>
+			<label for="${algorithm}">${algorithm}
+				<input type="checkbox" class="hide" id="${algorithm}" name="${algorithm}" />
+			</label>
+		</div>
+	`;
+}
+
 console.log(buildings);
 
 const form = document.querySelector("form");

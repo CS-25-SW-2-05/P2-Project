@@ -1,15 +1,38 @@
 :root {
-	--algorithm-count: 4;
-	--background-bg: #121212;
-	--color-background-primary: #212121;
-	--color-background-secondary: #484848;
-	--color-background-tertiary: #383838;
-	--color-text-primary: #ededed;
-	--color-text-secondary: #cacaca;
-	--color-border-secondary: #353535;
-	--color-border-tertiary: #282828;
-	--border-radius-lg: 5px;
-	--border-radius-md: 5px;
+	--radius: 0.65rem;
+	--radius-md: calc(var(--radius) * 0.8);
+	--title-size: 24px;
+	--background: oklch(0.145 0 0);
+	--foreground: oklch(0.985 0 0);
+	--card: oklch(0.205 0 0);
+	--card-foreground: oklch(0.985 0 0);
+	--popover: oklch(0.205 0 0);
+	--popover-foreground: oklch(0.985 0 0);
+	--primary: oklch(0.922 0 0);
+	--primary-foreground: oklch(0.205 0 0);
+	--secondary: oklch(0.269 0 0);
+	--secondary-foreground: oklch(0.985 0 0);
+	--muted: oklch(0.269 0 0);
+	--muted-foreground: oklch(0.708 0 0);
+	--accent: oklch(0.269 0 0);
+	--accent-foreground: oklch(0.985 0 0);
+	--destructive: oklch(0.704 0.191 22.216);
+	--border: oklch(1 0 0 / 10%);
+	--input: oklch(1 0 0 / 15%);
+	--ring: oklch(0.556 0 0);
+	--chart-1: oklch(0.488 0.243 264.376);
+	--chart-2: oklch(0.696 0.17 162.48);
+	--chart-3: oklch(0.769 0.188 70.08);
+	--chart-4: oklch(0.627 0.265 303.9);
+	--chart-5: oklch(0.645 0.246 16.439);
+	--sidebar: oklch(0.205 0 0);
+	--sidebar-foreground: oklch(0.985 0 0);
+	--sidebar-primary: oklch(0.488 0.243 264.376);
+	--sidebar-primary-foreground: oklch(0.985 0 0);
+	--sidebar-accent: oklch(0.269 0 0);
+	--sidebar-accent-foreground: oklch(0.985 0 0);
+	--sidebar-border: oklch(1 0 0 / 10%);
+	--sidebar-ring: oklch(0.556 0 0);
 }
 
 * {
@@ -28,11 +51,16 @@
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 }
 
 html {
-	background-color: var(--background-bg);
-	color: white;
+	background-color: var(--background);
+	color: var(--foreground);
 	width: 100vw;
 	height: 100vh;
 }
@@ -43,23 +71,26 @@ body {
 	height: 100%;
 }
 
-/* Header - Nav */
 header {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	padding: 4px 12px;
 	gap: 12px;
-	height: 42px;
-	border-bottom: solid 1px #1e1e1e;
-}
-
-header > img {
-	height: 24px;
+	border-bottom: solid 1px var(--primary-foreground);
 }
 
 h1 {
 	font-weight: lighter;
-	font-size: 24px;
+	font-size: var(--title-size);
+}
+
+header > img {
+	height: var(--title-size);
+}
+
+img {
+	pointer-events: none;
 }
 
 main {
@@ -77,9 +108,9 @@ form {
 }
 
 section {
-	background: var(--color-background-primary);
-	border: 0.5px solid var(--color-border-tertiary);
-	border-radius: var(--border-radius-lg);
+	background: var(--card);
+	border: 0.5px solid var(--border);
+	border-radius: var(--radius);
 	padding: 1.25rem 1.5rem;
 	margin-bottom: 1rem;
 }
@@ -101,59 +132,38 @@ label {
 	display: block;
 	font-size: 13px;
 	color: var(--color-text-secondary);
+}
+
+label:has(input[type="text"]) > p,
+label:has(input[type="number"]) > p,
+label:has(select) > p {
 	margin-bottom: 5px;
 }
 
 input,
 select {
 	width: 100%;
-	background: var(--color-background-secondary);
-	border: 1px solid var(--color-border-tertiary);
-	border-radius: var(--border-radius-md);
+	background: var(--input);
+	color: var(--accent-foreground);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
 	padding: 8px 12px;
 	font-size: 14px;
-	color: var(--color-text-primary);
 }
 
-select[multiple] {
-	height: calc(var(--algorithm-count) * 2.425em + 16px);
-	padding: 8px;
+input:focus {
+	outline: solid 3px var(--ring);
 }
 
-select[multiple] option {
+option {
+	color: var(--primary-foreground);
 	padding: 6px 8px;
-	border-radius: 4px;
-	margin: 2px 0;
 }
 
 .grid-2 {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 0.75rem;
-}
-
-.algorithm-selected {
-	font-size: 13px;
-	color: var(--color-text-primary);
-	margin-bottom: 8px;
-	font-weight: 500;
-}
-
-.algorithm-hint {
-	font-size: 11px;
-	color: var(--color-text-secondary);
-	margin-top: 6px;
-}
-
-.conditional {
-	border-left: 2px solid var(--color-border-secondary);
-	padding-left: 1rem;
-	margin-top: 0.85rem;
-	display: none;
-}
-
-.conditional.show {
-	display: block;
 }
 
 .actions {
@@ -163,22 +173,27 @@ select[multiple] option {
 }
 
 button {
-	flex: 1;
 	padding: 8px 12px;
-	background: var(--color-text-primary);
-	color: var(--color-background-primary);
-	border: none;
-	border-radius: var(--border-radius-md);
+	background: var(--input);
+	color: var(--accent-foreground);
+	border: solid 1px var(--border);
+	border-radius: var(--radius-md);
 	font-size: 14px;
 	font-weight: 500;
 	cursor: pointer;
 }
 
+button[type="submit"] {
+	flex: 1;
+	background: var(--primary);
+	color: var(--primary-foreground);
+	border: none;
+}
+
 button[type="reset"] {
-	flex: unset;
-	background: transparent;
-	color: var(--color-text-secondary);
-	border: 0.5px solid var(--color-border-secondary);
+	background: var(--destructive);
+	color: var(--secondary-foreground);
+	border: none;
 }
 
 button:disabled {
@@ -190,21 +205,26 @@ button:disabled {
 	right: 24px;
 	bottom: 24px;
 	font-size: 12px;
-	color: var(--color-text-secondary);
-	background-color: var(--color-background-primary);
+	background-color: var(--card);
+	color: var(--card-foreground);
 	padding: 12px;
 	border-radius: 8px;
 	align-self: center;
 	opacity: 0;
 	transition: opacity 1s;
+	pointer-events: none;
 }
 
 .toast h2 {
 	margin-bottom: 4px;
 }
 
-.toast.show {
+.show {
 	opacity: 1;
+}
+
+.hide {
+	display: none;
 }
 
 input::-webkit-outer-spin-button,
@@ -237,4 +257,32 @@ kbd {
 
 button:disabled {
 	opacity: 0.5;
+}
+
+.algorithms {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.algorithms > div {
+	text-align: center;
+}
+
+.algorithms > div > label {
+	background-color: var(--accent);
+	outline: solid 1px var(--input);
+	color: var(--accent-foreground);
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.algorithms > div > label:has(:checked) {
+	background-color: var(--primary);
+	color: var(--primary-foreground);
 }

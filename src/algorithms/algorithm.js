@@ -1,4 +1,5 @@
 export default class Algorithm {
+	static derived = new Set();
 	#isRunning = false;
 	#runPromise = null;
 
