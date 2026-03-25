@@ -1,5 +1,6 @@
 import Game from "../cookie-clicker/game.js";
 import { cloneBuildings } from "../cookie-clicker/purchasables/building.js";
+import { sleep } from "../utils.js";
 
 export default class Algorithm {
 	static derived = new Set();
@@ -19,8 +20,8 @@ export default class Algorithm {
 
 	async run() {
 		if (this.#isRunning) return this.#runPromise;
-
 		this.#isRunning = true;
+
 		const game = new Game();
 		const buildings = cloneBuildings();
 
@@ -29,7 +30,7 @@ export default class Algorithm {
 				const decision = this.getNextDecision(game, buildings);
 				if (!decision.isValid) break;
 				decision.perform();
-				await new Promise((r) => setTimeout(r, 0));
+				await sleep(0);
 			}
 			this.#isRunning = false;
 			this.#runPromise = null;
