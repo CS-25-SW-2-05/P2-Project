@@ -1,6 +1,6 @@
-import { buildings } from "./purchasables/building.js";
+import { Buildings } from "./purchasables/building.js";
 
-class Game {
+export default class Game {
 	cookies = 0;
 	cps = 6;
 	realTime = 0;
@@ -10,12 +10,9 @@ class Game {
 		this.cps = 6;
 		this.realTime = 0;
 
-		for (const key of Object.keys(buildings)) {
-			buildings[key].owned = 0;
-			buildings[key].cost = buildings[key].baseCost;
+		for (const key of Object.keys(Buildings)) {
+			Buildings[key].owned = 0;
+			Buildings[key].cost = Buildings[key].baseCost;
 		}
 	}
 }
-
-const game = new Game();
-export default game;

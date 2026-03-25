@@ -1,13 +1,14 @@
-import Game from "../cookie-clicker/game.js";
-
 export default class Decision {
 	isValid = false;
+	#game = null;
 	#purchaseable = null;
 	#wait = 0;
 
-	constructor(purchaseable) {
+	constructor(game, purchaseable) {
+		this.#game = game;
 		this.#purchaseable = purchaseable;
-		this.#wait = purchaseable.cost / Game.cps;
+		this.#wait = purchaseable.cost / game.cps;
+
 		this.isValid =
 			this.#purchaseable != null &&
 			this.#purchaseable.canPurchase() &&
@@ -17,14 +18,16 @@ export default class Decision {
 	perform() {
 		console.log(
 			"Decision:",
+			"purchase",
 			this.#purchaseable.name,
 			"after",
-			this.#wait + "s",
+			Math.round(this.#wait),
+			"seconds",
 		);
 
-		Game.realTime += this.#wait;
-		Game.cookies += this.#purchaseable.cost;
+		this.#game.realTime += this.#wait;
+		this.#game.cookies += this.#purchaseable.cost;
 
-		this.#purchaseable.purchase();
+		this.#purchaseable.purchase(this.#game);
 	}
 }

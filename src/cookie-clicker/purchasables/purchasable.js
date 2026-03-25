@@ -1,5 +1,3 @@
-import Game from "../game.js";
-
 export default class Purchasable {
 	name = "";
 	cost = 0;
@@ -32,13 +30,13 @@ export default class Purchasable {
 		);
 	}
 
-	purchase() {
+	purchase(game) {
 		if (!this.canPurchase()) return;
-		const canAfford = this.cost <= Game.cookies;
+		const canAfford = this.cost <= game.cookies;
 		if (!canAfford) return false;
 
 		this.onPurchase();
-		Game.cookies -= this.cost;
+		game.cookies -= this.cost;
 		this.cost = this.calcCost();
 		return true;
 	}

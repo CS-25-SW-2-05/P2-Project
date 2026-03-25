@@ -1,12 +1,15 @@
 import Algorithm from "./algorithm.js";
-import { buildings } from "../cookie-clicker/purchasables/building.js";
 import Decision from "./decision.js";
 
 export default class GreedyNaive extends Algorithm {
 	static algorithmTitle = "[Greedy] Immediate Purchase";
-	static dummy = Algorithm.derived.add(this.algorithmTitle);
+	static dummy = Algorithm.derived.add({
+		name: this.name,
+		title: this.algorithmTitle,
+		instance: new GreedyNaive(),
+	});
 
-	getNextDecision() {
-		return new Decision(buildings["cursor"]);
+	getNextDecision(game, buildings) {
+		return new Decision(game, buildings["cursor"]);
 	}
 }

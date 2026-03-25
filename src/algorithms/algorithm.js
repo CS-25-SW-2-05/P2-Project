@@ -1,3 +1,6 @@
+import Game from "../cookie-clicker/game.js";
+import { cloneBuildings } from "../cookie-clicker/purchasables/building.js";
+
 export default class Algorithm {
 	static derived = new Set();
 	#isRunning = false;
@@ -8,7 +11,7 @@ export default class Algorithm {
 		throw new Error("Cannot instantiate abstract class Algorithm directly.");
 	}
 
-	getNextDecision() {
+	getNextDecision(game, buildings) {
 		throw new Error(
 			`Method '${this.getNextDecision.name}' must be implemented by subclass.`,
 		);
@@ -16,11 +19,14 @@ export default class Algorithm {
 
 	async run() {
 		if (this.#isRunning) return this.#runPromise;
+
 		this.#isRunning = true;
+		const game = new Game();
+		const buildings = cloneBuildings();
 
 		this.#runPromise = (async () => {
 			while (true) {
-				const decision = this.getNextDecision();
+				const decision = this.getNextDecision(game, buildings);
 				if (!decision.isValid) break;
 				decision.perform();
 				await new Promise((r) => setTimeout(r, 0));
