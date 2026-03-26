@@ -200,12 +200,13 @@ button {
 	transition-property: opacity, filter;
 }
 
-button:hover {
+button:hover:not(:disabled) {
 	filter: brightness(0.9);
 }
 
 button:disabled {
 	opacity: 0.5;
+	cursor: not-allowed;
 }
 
 button[type="submit"] {
