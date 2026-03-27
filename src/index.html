@@ -11,7 +11,7 @@
 	</head>
 	<body>
 		<header>
-			<img src="images/cookie.png" alt="" />
+			<img src="images/cookie.png" alt="Cookie Image" />
 			<h1>Cookie Clicker Benchmarking Tool</h1>
 		</header>
 
@@ -26,21 +26,7 @@
 						<label for="algorithm-select"
 							>Select one or more algorithms to benchmark</label
 						>
-						<select id="algorithm-select" multiple>
-							<option value="immediate">[Greedy] Immediate Purchase</option>
-							<option value="greedy">[Greedy] Payback Period</option>
-							<option value="greedy">[Greedy] Greedy Time</option>
-							<option value="brute-force">[Brute Force] Segmented</option>
-						</select>
-						<p class="algorithm-hint">
-							Hold <kbd>CTRL</kbd> or <kbd>CMD</kbd> to select multiple
-							algorithms.
-						</p>
-					</div>
-
-					<div class="conditional field" id="brute-force-conditions">
-						<label for="bruteforce-segment">Brute-force segment size</label>
-						<input type="number" id="bruteforce-segment" min="1" value="5" />
+						<div class="algorithms"></div>
 					</div>
 				</section>
 
@@ -48,15 +34,24 @@
 					<h2>Benchmark Objective</h2>
 					<div class="grid-2">
 						<div class="field">
-							<label for="objective-type">Objective type</label>
-							<select id="objective-type">
-								<option value="cookies">Cookies</option>
-								<option value="production">Production Rate</option>
-							</select>
+							<label for="objective-type">
+								<p>Objective type</p>
+								<select id="objective-type">
+									<option value="cookies">Cookies</option>
+									<option value="production">Production Rate</option>
+								</select>
+							</label>
 						</div>
 						<div class="field">
-							<label for="objective-value">Objective value</label>
-							<input type="number" id="objective-value" min="0" value="1000" />
+							<label for="objective-value">
+								<p>Objective value</p>
+								<input
+									type="number"
+									id="objective-value"
+									min="0"
+									value="1000"
+								/>
+							</label>
 						</div>
 					</div>
 				</section>
@@ -64,13 +59,15 @@
 				<section>
 					<h2>Simulation Constraints</h2>
 					<div class="field">
-						<label for="max-sim-time">Max Simulation Time (s)</label>
-						<input type="number" id="max-sim-time" min="1" value="3600" />
+						<label for="max-sim-time">
+							<p>Max Simulation Time (s)</p>
+							<input type="number" id="max-sim-time" min="1" value="3600" />
+						</label>
 					</div>
 				</section>
 
 				<div class="actions">
-					<button type="submit">Run Benchmark</button>
+					<button type="submit" disabled>Run Benchmark</button>
 					<button type="reset">Reset</button>
 				</div>
 			</form>

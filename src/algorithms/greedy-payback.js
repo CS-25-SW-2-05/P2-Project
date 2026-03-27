@@ -1,17 +1,17 @@
 import Algorithm from "./algorithm.js";
 import Decision from "./decision.js";
 
-export default class GreedyNaive extends Algorithm {
-	static algorithmTitle = "[Greedy] Immediate Purchase";
+export default class GreedyPayback extends Algorithm {
+	static algorithmTitle = "[Greedy] Payback";
 	static dummy = Algorithm.derived.add({
 		name: this.name,
 		title: this.algorithmTitle,
-		instance: new GreedyNaive(),
+		instance: new GreedyPayback(),
 	});
 
 	getNextDecision(gameState, buildings) {
 
-		// implementer naive greedy algoritme, erstat "buildings["cursor"]" herunder
+		// implementer "Dum" payback greedy algoritme, erstat "buildings["cursor"]" herunder
 		return new Decision(gameState, buildings["cursor"]);
 	}
 }

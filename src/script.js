@@ -1,9 +1,24 @@
-const algorithmSelect = document.getElementById("algorithm-select");
+import {
+	Buildings,
+	loadBuildings,
+} from "./cookie-clicker/purchasables/building.js";
+import Algorithm from "./algorithms/algorithm.js";
+import { getPlural } from "./utils.js";
+import "./algorithms/greedy-naive.js";
+import "./algorithms/greedy-payback.js";
+import "./algorithms/greedy-time.js";
+import "./algorithms/brute-force-segmented.js";
+
 const algorithmCount = document.getElementById("algorithm-count");
-const bruteForceConditions = document.getElementById("brute-force-conditions");
+const algorithmsContainer = document.querySelector(".algorithms");
+const form = document.querySelector("form");
+const runBtn = form.querySelector("button[type='submit']");
+
+const toast = document.querySelector(".toast");
+const toastTitle = toast.querySelector("h2");
+const toastMsg = toast.querySelector("p");
 
 function updateForm() {
-	const runBtn = form.querySelector("button[type='submit']");
 	const count = getActiveAlgorithms();
 	if (count <= 0) runBtn.setAttribute("disabled", "disabled");
 	else runBtn.removeAttribute("disabled");
@@ -13,37 +28,60 @@ function updateForm() {
 function updateAlgorithmSection() {
 	// Update count
 	const count = getActiveAlgorithms();
-	const algorithmCountText = `${count} algorithm${count === 1 ? "" : "s"} selected`;
+	const algorithmCountText = `${count} ${getPlural("algorithm", count)} selected`;
 	algorithmCount.textContent = algorithmCountText;
-
-	// Update brute force conditions
-	const selectionArray = [...algorithmSelect.selectedOptions];
-	bruteForceConditions.classList.toggle(
-		"show",
-		selectionArray.some((o) => o.value === "brute-force"),
-	);
 }
 
 function getActiveAlgorithms() {
-	const count = algorithmSelect.selectedOptions.length;
+	const count = document.querySelectorAll("label:has(input:checked)").length;
 	return count;
 }
 
 function show(title, msg) {
-	const toast = document.querySelector(".toast");
-	const toastTitle = toast.querySelector("h2");
-	const toastMsg = toast.querySelector("p");
-
 	toastTitle.textContent = title;
 	toastMsg.textContent = msg;
 	toast.classList.add("show");
 	setTimeout(() => toast.classList.remove("show"), 4000);
 }
 
-const form = document.querySelector("form");
-form.addEventListener("submit", (e) => {
+await loadBuildings();
+for (const algorithm of Algorithm.derived) {
+	algorithmsContainer.innerHTML += `
+		<div>
+			<label for="${algorithm.name}">${algorithm.title}
+				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" />
+			</label>
+		</div>
+	`;
+}
+
+console.log("Buildings", Buildings);
+console.log("Algorithms", Algorithm.derived);
+
+form.addEventListener("submit", async (e) => {
 	e.preventDefault();
-	show("Running benchmark...");
+
+	const runBtn = form.querySelector("button[type='submit']");
+	console.log("Running Benchmark...");
+
+	runBtn.setAttribute("disabled", "disabled");
+	const runBtnText = runBtn.textContent;
+	runBtn.textContent = "Running...";
+
+	const runs = [];
+	for (const algorithm of Algorithm.derived) {
+		const active =
+			document.querySelector(`#${algorithm.name}:checked`) !== null;
+
+		if (!active) continue;
+
+		runs.push(algorithm.instance.run());
+	}
+
+	await Promise.all(runs);
+
+	runBtn.textContent = runBtnText;
+	runBtn.removeAttribute("disabled");
 });
 
 form.addEventListener("reset", () => {
