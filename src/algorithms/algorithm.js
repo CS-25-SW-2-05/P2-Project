@@ -1,6 +1,7 @@
 import GameState from "../cookie-clicker/game-state.js";
 import { cloneBuildings } from "../cookie-clicker/purchasables/building.js";
 import { sleep } from "../utils.js";
+// import Objective from "./objective.js";
 
 export default class Algorithm {
 	static derived = new Set();
@@ -29,6 +30,8 @@ export default class Algorithm {
 			while (true) {
 				const decision = this.getNextDecision(gameState, buildings);
 				if (!decision.isValid) break;
+				// To do:
+				// If objectiveCompleted break;
 				decision.perform();
 				await sleep(0);
 			}
@@ -39,3 +42,4 @@ export default class Algorithm {
 		return this.#runPromise;
 	}
 }
+

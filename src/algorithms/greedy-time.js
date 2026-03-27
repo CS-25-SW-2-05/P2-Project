@@ -9,7 +9,9 @@ export default class GreedyTime extends Algorithm {
 		instance: new GreedyTime(),
 	});
 
-	getNextDecision(game, buildings) {
-		return new Decision(game, buildings["cursor"]);
+	getNextDecision(gameState, buildings) {
+
+		// implementer "smart" payback greedy algoritme, erstat "buildings["cursor"]" herunder
+		return new Decision(gameState, buildings["cursor"]);
 	}
 }

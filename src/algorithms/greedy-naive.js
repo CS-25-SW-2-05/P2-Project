@@ -9,7 +9,9 @@ export default class GreedyNaive extends Algorithm {
 		instance: new GreedyNaive(),
 	});
 
-	getNextDecision(game, buildings) {
-		return new Decision(game, buildings["cursor"]);
+	getNextDecision(gameState, buildings) {
+
+		// implementer naive greedy algoritme, erstat "buildings["cursor"]" herunder
+		return new Decision(gameState, buildings["cursor"]);
 	}
 }

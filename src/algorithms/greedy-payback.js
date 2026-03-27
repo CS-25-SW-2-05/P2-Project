@@ -9,7 +9,9 @@ export default class GreedyPayback extends Algorithm {
 		instance: new GreedyPayback(),
 	});
 
-	getNextDecision(game, buildings) {
-		return new Decision(game, buildings["cursor"]);
+	getNextDecision(gameState, buildings) {
+
+		// implementer "Dum" payback greedy algoritme, erstat "buildings["cursor"]" herunder
+		return new Decision(gameState, buildings["cursor"]);
 	}
 }
