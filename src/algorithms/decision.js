@@ -2,14 +2,14 @@ import { round } from "../utils.js";
 
 export default class Decision {
 	isValid = false;
-	#game = null;
+	#gameState = null;
 	#purchaseable = null;
 	#wait = 0;
 
-	constructor(game, purchaseable) {
-		this.#game = game;
+	constructor(gameState, purchaseable) {
+		this.#gameState = gameState;
 		this.#purchaseable = purchaseable;
-		this.#wait = purchaseable.cost / game.cps;
+		this.#wait = purchaseable.cost / gameState.cps;
 
 		this.isValid =
 			this.#purchaseable != null &&
@@ -27,13 +27,13 @@ export default class Decision {
 			"seconds",
 		);
 
-		this.#game.realTime += this.#wait;
-		this.#game.cookies += this.#purchaseable.cost;
+		this.#gameState.realTime += this.#wait;
+		this.#gameState.cookies += this.#purchaseable.cost;
 
-		const oldCpS = this.#game.cps;
-		this.#purchaseable.purchase(this.#game);
-		const cpsIncrease = round(this.#game.cps - oldCpS, 1);
+		const oldCpS = this.#gameState.cps;
+		this.#purchaseable.purchase(this.#gameState);
+		const cpsIncrease = round(this.#gameState.cps - oldCpS, 1);
 
-		console.log("Result:", "CpS", this.#game.cps, "increased by", cpsIncrease);
+		console.log("Result:", "CpS", this.#gameState.cps, "increased by", cpsIncrease);
 	}
 }

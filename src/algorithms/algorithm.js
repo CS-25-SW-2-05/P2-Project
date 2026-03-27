@@ -1,4 +1,4 @@
-import Game from "../cookie-clicker/game.js";
+import GameState from "../cookie-clicker/game-state.js";
 import { cloneBuildings } from "../cookie-clicker/purchasables/building.js";
 import { sleep } from "../utils.js";
 
@@ -22,12 +22,12 @@ export default class Algorithm {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
 
-		const game = new Game();
+		const gameState = new GameState();
 		const buildings = cloneBuildings();
 
 		this.#runPromise = (async () => {
 			while (true) {
-				const decision = this.getNextDecision(game, buildings);
+				const decision = this.getNextDecision(gameState, buildings);
 				if (!decision.isValid) break;
 				decision.perform();
 				await sleep(0);

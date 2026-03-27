@@ -1,6 +1,6 @@
 import { Buildings } from "./purchasables/building.js";
 
-export default class Game {
+export default class GameState {
 	cookies = 0;
 	cps = 6;
 	realTime = 0;
