@@ -1,5 +1,5 @@
-import GameState from "../cookie-clicker/game-state";
-import Purchasable from "../cookie-clicker/purchasables/purchasable";
+import GameState from "../cookie-clicker/game-state.js";
+import Purchasable from "../cookie-clicker/purchasables/purchasable.js";
 
 export default class Decision {
 	isValid = false;
