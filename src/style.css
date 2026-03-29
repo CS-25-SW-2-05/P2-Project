@@ -98,6 +98,28 @@ main {
 	justify-content: center;
 	align-items: center;
 	flex: 1;
+	gap: 48px;
+}
+
+main > div {
+	flex: 1;
+}
+
+main > hr {
+	height: 100%;
+	width: 1px;
+}
+
+canvas {
+	width: 100%;
+	aspect-ratio: 16/9;
+	background-color: white;
+	border-radius: var(--radius-md);
+}
+
+hr {
+	all: unset;
+	background-color: var(--primary-foreground);
 }
 
 /* Configuration Menu */
@@ -173,6 +195,27 @@ input:focus {
 option {
 	color: var(--primary-foreground);
 	padding: 6px 8px;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+th {
+	border-bottom: 1px solid;
+}
+
+tbody > tr:nth-child(odd) {
+	background-color: white;
+}
+
+thead > tr > th {
+	font-weight: bold;
+}
+
+tbody > tr > th {
+	font-weight: normal;
 }
 
 .grid-2 {

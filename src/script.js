@@ -13,6 +13,8 @@ const algorithmCount = document.getElementById("algorithm-count");
 const algorithmsContainer = document.querySelector(".algorithms");
 const form = document.querySelector("form");
 const runBtn = form.querySelector("button[type='submit']");
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
 
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
@@ -68,17 +70,14 @@ form.addEventListener("submit", async (e) => {
 	const runBtnText = runBtn.textContent;
 	runBtn.textContent = "Running...";
 
-	const runs = [];
 	for (const algorithm of Algorithm.derived) {
 		const active =
 			document.querySelector(`#${algorithm.name}:checked`) !== null;
 
 		if (!active) continue;
 
-		runs.push(algorithm.instance.run());
+		await algorithm.instance.run();
 	}
-
-	await Promise.all(runs);
 
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
