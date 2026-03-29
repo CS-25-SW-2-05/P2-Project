@@ -1,4 +1,5 @@
-import { round } from "../utils.js";
+import GameState from "../cookie-clicker/game-state";
+import Purchasable from "../cookie-clicker/purchasables/purchasable";
 
 export default class Decision {
 	isValid = false;
@@ -6,10 +7,14 @@ export default class Decision {
 	#purchaseable = null;
 	#wait = 0;
 
+	/**
+	 * @param {GameState} gameState
+	 * @param {Purchasable} purchaseable
+	 */
 	constructor(gameState, purchaseable) {
 		this.#gameState = gameState;
 		this.#purchaseable = purchaseable;
-		this.#wait = purchaseable.cost / gameState.cps;
+		this.#wait = purchaseable.cost / (gameState.cps + gameState.manualCpS);
 
 		this.isValid =
 			this.#purchaseable != null &&
@@ -17,23 +22,16 @@ export default class Decision {
 			this.#wait > 0;
 	}
 
+	/**
+	 * Perform the decision, and update the game state.
+	 */
 	perform() {
-		console.log(
-			"Decision:",
-			"purchase",
-			this.#purchaseable.name,
-			"after",
-			Math.round(this.#wait),
-			"seconds",
-		);
+		console.log("Decision:", this);
 
 		this.#gameState.realTime += this.#wait;
 		this.#gameState.cookies += this.#purchaseable.cost;
 
-		const oldCpS = this.#gameState.cps;
 		this.#purchaseable.purchase(this.#gameState);
-		const cpsIncrease = round(this.#gameState.cps - oldCpS, 1);
-
-		console.log("Result:", "CpS", this.#gameState.cps, "increased by", cpsIncrease);
+		console.log("Result:", this.#gameState);
 	}
 }

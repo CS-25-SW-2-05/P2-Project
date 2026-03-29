@@ -16,63 +16,61 @@
 		</header>
 
 		<main>
-			<div class="benchmark-settings">
-				<form>
-					<section>
-						<h2>Algorithm Selection</h2>
-						<div class="field">
-							<p class="algorithm-selected" id="algorithm-count">
-								0 algorithms selected
-							</p>
-							<label for="algorithm-select"
-								>Select one or more algorithms to benchmark</label
-							>
-							<div class="algorithms"></div>
-						</div>
-					</section>
+			<form>
+				<section>
+					<h2>Algorithm Selection</h2>
+					<div class="field">
+						<p class="algorithm-selected" id="algorithm-count">
+							0 algorithms selected
+						</p>
+						<label for="algorithm-select"
+							>Select one or more algorithms to benchmark</label
+						>
+						<div class="algorithms"></div>
+					</div>
+				</section>
 
-					<section>
-						<h2>Benchmark Objective</h2>
-						<div class="grid-2">
-							<div class="field">
-								<label for="objective-type">
-									<p>Objective type</p>
-									<select id="objective-type">
-										<option value="cookies">Cookies</option>
-										<option value="production">Production Rate</option>
-									</select>
-								</label>
-							</div>
-							<div class="field">
-								<label for="objective-value">
-									<p>Objective value</p>
-									<input
-										type="number"
-										id="objective-value"
-										min="0"
-										value="1000"
-									/>
-								</label>
-							</div>
-						</div>
-					</section>
-
-					<section>
-						<h2>Simulation Constraints</h2>
+				<section>
+					<h2>Benchmark Objective</h2>
+					<div class="grid-2">
 						<div class="field">
-							<label for="max-sim-time">
-								<p>Max Simulation Time (s)</p>
-								<input type="number" id="max-sim-time" min="1" value="3600" />
+							<label for="objective-type">
+								<p>Objective type</p>
+								<select id="objective-type">
+									<option value="cookies">Cookies</option>
+									<option value="production">Production Rate</option>
+								</select>
 							</label>
 						</div>
-					</section>
-
-					<div class="actions">
-						<button type="submit" disabled>Run Benchmark</button>
-						<button type="reset">Reset</button>
+						<div class="field">
+							<label for="objective-value">
+								<p>Objective value</p>
+								<input
+									type="number"
+									id="objective-value"
+									min="0"
+									value="1000"
+								/>
+							</label>
+						</div>
 					</div>
-				</form>
-			</div>
+				</section>
+
+				<section>
+					<h2>Simulation Constraints</h2>
+					<div class="field">
+						<label for="max-sim-time">
+							<p>Max Simulation Time (s)</p>
+							<input type="number" id="max-sim-time" min="1" value="3600" />
+						</label>
+					</div>
+				</section>
+
+				<div class="actions">
+					<button type="submit" disabled>Run Benchmark</button>
+					<button type="reset">Reset</button>
+				</div>
+			</form>
 			<hr />
 			<div class="benchmark-results">
 				<section>
@@ -81,18 +79,41 @@
 					<table>
 						<thead>
 							<tr>
-								<th>AA</th>
-								<th>AA</th>
+								<th>Algorithm</th>
+								<th>Simulation Time</th>
+								<th>Real Time</th>
+								<th>Total Cookies</th>
+								<th>CpS</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr>
-								<th>BB</th>
-								<th>BB</th>
+								<td>[Greedy] Immediate Purchase</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
 							</tr>
 							<tr>
-								<th>CC</th>
-								<th>CC</th>
+								<td>[Greedy] Payback</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+							</tr>
+							<tr>
+								<td>[Greedy] Save+Payback</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+							</tr>
+							<tr>
+								<td>[Brute Force] Segmented</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
+								<td>0</td>
 							</tr>
 						</tbody>
 					</table>

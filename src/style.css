@@ -51,11 +51,6 @@
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-o-user-select: none;
-	user-select: none;
 }
 
 html {
@@ -63,6 +58,12 @@ html {
 	color: var(--foreground);
 	width: 100vw;
 	height: 100vh;
+
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 }
 
 body {
@@ -98,7 +99,6 @@ main {
 	justify-content: center;
 	align-items: center;
 	flex: 1;
-	gap: 48px;
 }
 
 main > div {
@@ -113,7 +113,8 @@ main > hr {
 canvas {
 	width: 100%;
 	aspect-ratio: 16/9;
-	background-color: white;
+	background-color: var(--accent);
+	border: 1px solid var(--border);
 	border-radius: var(--radius-md);
 }
 
@@ -123,7 +124,8 @@ hr {
 }
 
 /* Configuration Menu */
-form {
+form,
+.benchmark-results {
 	padding: 1.5rem;
 	max-width: 720px;
 	width: 100%;
@@ -200,21 +202,34 @@ option {
 table {
 	width: 100%;
 	border-collapse: collapse;
+	text-align: left;
+
+	-webkit-user-select: text;
+	-khtml-user-select: text;
+	-moz-user-select: text;
+	-o-user-select: text;
+	user-select: text;
 }
 
-th {
-	border-bottom: 1px solid;
+tr {
+	height: 40px;
 }
 
-tbody > tr:nth-child(odd) {
-	background-color: white;
+thead tr,
+tbody tr:not(:last-child) {
+	border-bottom: 1px solid var(--border);
 }
 
-thead > tr > th {
-	font-weight: bold;
+th,
+td {
+	padding: 0 8px;
 }
 
-tbody > tr > th {
+thead th {
+	font-weight: 600;
+}
+
+tbody th {
 	font-weight: normal;
 }
 
