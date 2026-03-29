@@ -1,7 +1,7 @@
 import GameState from "../cookie-clicker/game-state.js";
+import Objective from "./objective.js";
 import { cloneBuildings } from "../cookie-clicker/purchasables/building.js";
 import { sleep } from "../utils.js";
-// import Objective from "./objective.js";
 
 export default class Algorithm {
 	static derived = new Set();
@@ -18,8 +18,8 @@ export default class Algorithm {
 			`Method '${this.getNextDecision.name}' must be implemented by subclass.`,
 		);
 	}
-
-	async run() {
+	//  "objective" parameter is passed in from script.js when the form is submitted
+	async run(objective) {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
 
@@ -28,6 +28,11 @@ export default class Algorithm {
 
 		this.#runPromise = (async () => {
 			while (true) {
+				// This now checks, if the objective is completed, and breaks.
+				if (objective.isCompleted(gameState)){
+					console.log("TEST: Objective Completed");
+					break;
+				}	
 				const decision = this.getNextDecision(gameState, buildings);
 				if (!decision.isValid) break;
 				// To do:

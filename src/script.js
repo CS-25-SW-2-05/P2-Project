@@ -3,6 +3,7 @@ import {
 	loadBuildings,
 } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
+import Objective from "./algorithms/objective.js";
 import { getPlural } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
@@ -61,6 +62,9 @@ console.log("Algorithms", Algorithm.derived);
 form.addEventListener("submit", async (e) => {
 	e.preventDefault();
 
+	// Read the form and create an Objective instance right when the user clicks "Run"
+	const objective = Objective.fromForm();
+
 	const runBtn = form.querySelector("button[type='submit']");
 	console.log("Running Benchmark...");
 
@@ -75,7 +79,8 @@ form.addEventListener("submit", async (e) => {
 
 		if (!active) continue;
 
-		runs.push(algorithm.instance.run());
+		// Start the algorithm run, passing the objective in.
+		runs.push(algorithm.instance.run(objective));
 	}
 
 	await Promise.all(runs);
@@ -88,7 +93,9 @@ form.addEventListener("reset", () => {
 	// Timeout to push the execution to after values has been reset
 	setTimeout(() => {
 		show("Reset", "The form has been reset...");
+		console.clear();
 		updateForm();
+		console.log("CCBT has been reset.")
 	}, 0);
 });
 
