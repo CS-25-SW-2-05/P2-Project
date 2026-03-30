@@ -4,7 +4,6 @@ import Building, {
 } from "../cookie-clicker/purchasables/building.js";
 import { sleep } from "../utils.js";
 import Decision from "./decision.js";
-import Objective from "./objective.js";
 
 export default class Algorithm {
 	static derived = new Set();

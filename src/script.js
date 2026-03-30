@@ -83,6 +83,9 @@ form.addEventListener("submit", async (e) => {
 	const runBtnText = runBtn.textContent;
 	runBtn.textContent = "Running...";
 
+	//declared runs, which was throwing an error
+	const runs = [];
+
 	for (const algorithm of Algorithm.derived) {
 		const active =
 			document.querySelector(`#${algorithm.name}:checked`) !== null;
@@ -92,6 +95,9 @@ form.addEventListener("submit", async (e) => {
 		// Start the algorithm run, passing the objective in.
 		runs.push(algorithm.instance.run(objective));
 	}
+
+	//Waits until "run" is finished before toggling btn
+	await Promise.all(runs);
 
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
