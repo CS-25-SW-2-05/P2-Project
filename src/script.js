@@ -83,9 +83,6 @@ form.addEventListener("submit", async (e) => {
 	const runBtnText = runBtn.textContent;
 	runBtn.textContent = "Running...";
 
-	//declared runs, which was throwing an error
-	const runs = [];
-
 	for (const algorithm of Algorithm.derived) {
 		const active =
 			document.querySelector(`#${algorithm.name}:checked`) !== null;
@@ -93,11 +90,8 @@ form.addEventListener("submit", async (e) => {
 		if (!active) continue;
 
 		// Start the algorithm run, passing the objective in.
-		runs.push(algorithm.instance.run(objective));
+		const result = await algorithm.instance.run(objective);
 	}
-
-	//Waits until "run" is finished before toggling btn
-	await Promise.all(runs);
 
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
@@ -107,9 +101,8 @@ form.addEventListener("reset", () => {
 	// Timeout to push the execution to after values has been reset
 	setTimeout(() => {
 		show("Reset", "The form has been reset...");
-		console.clear();
 		updateForm();
-		console.log("CCBT has been reset.")
+		console.log("Form has been reset...");
 	}, 0);
 });
 
