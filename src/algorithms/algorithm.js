@@ -26,14 +26,12 @@ export default class Algorithm {
 			`Method '${this.getNextDecision.name}' must be implemented by subclass.`,
 		);
 	}
-	//  "objective" parameter is passed in from script.js when the form is submitted
-	async run(objective) {
-
 	/**
 	 * Run the algorithm until a non-valid decision occurs.
 	 * @returns {Promise<GameState>} the run process promise.
-	 */
-	async run() {
+	*/
+	//  "objective" parameter is passed in from script.js when the form is submitted
+	async run(objective) {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
 
@@ -43,10 +41,10 @@ export default class Algorithm {
 		this.#runPromise = (async () => {
 			while (true) {
 				// This now checks, if the objective is completed, and breaks.
-				if (objective.isCompleted(gameState)){
+				if (objective.isCompleted(gameState)) {
 					console.log("TEST: Objective Completed");
 					break;
-				}	
+				}
 				const decision = this.getNextDecision(gameState, buildings);
 				if (!decision.isValid) break;
 				// To do:
