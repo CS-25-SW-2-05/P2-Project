@@ -38,8 +38,8 @@ export default class GreedyNaive extends Algorithm {
 
 		//Logging the resultet building
 		console.log(
-			"Cheapest building: " +
-			String(cheapestBuilding.name.padStart(12)));
+			"Cheapest building:    " +
+			String(cheapestBuilding.name));
 
 		return new Decision(gameState, cheapestBuilding);
 	}
