@@ -23,7 +23,7 @@ export default class Objective {
 	isCompleted(gameState) {
 		// If type is "cookies", check gameState.cookies against this.#value
 		if (this.#type == "cookies") {
-			return gameState.totalCookies >= this.#value;
+			return gameState.cookies >= this.#value;
 		}
 		// If type is "production", check gameState.cps against this.#value
 		if (this.#type == "production") {
