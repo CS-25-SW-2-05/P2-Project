@@ -3,6 +3,7 @@ import {
 	loadBuildings,
 } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
+import Objective from "./algorithms/objective.js";
 import { getPlural } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
@@ -72,6 +73,9 @@ console.log("Algorithms", Algorithm.derived);
 form.addEventListener("submit", async (e) => {
 	e.preventDefault();
 
+	// Read the form and create an Objective instance right when the user clicks "Run"
+	const objective = Objective.fromForm();
+
 	const runBtn = form.querySelector("button[type='submit']");
 	console.log("Running Benchmark...");
 
@@ -85,7 +89,8 @@ form.addEventListener("submit", async (e) => {
 
 		if (!active) continue;
 
-		const result = await algorithm.instance.run();
+		// Start the algorithm run, passing the objective in.
+		const result = await algorithm.instance.run(objective);
 	}
 
 	runBtn.textContent = runBtnText;
@@ -97,6 +102,7 @@ form.addEventListener("reset", () => {
 	setTimeout(() => {
 		show("Reset", "The form has been reset...");
 		updateForm();
+		console.log("Form has been reset...");
 	}, 0);
 });
 

@@ -1,5 +1,7 @@
 import Algorithm from "./algorithm.js";
-import Decision from "./decision.js";
+import Decision from "./decisions/decision.js";
+import PurchaseDecision from "./decisions/purchase-decision.js";
+import WaitDecision from "./decisions/wait-decision.js";
 
 export default class GreedyNaive extends Algorithm {
 	// Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
@@ -36,5 +38,8 @@ export default class GreedyNaive extends Algorithm {
 			String(cheapestBuilding.name));
 
 		return new Decision(gameState, cheapestBuilding);
+
+		// return new WaitDecision(gameState, 10);
+
 	}
 }
