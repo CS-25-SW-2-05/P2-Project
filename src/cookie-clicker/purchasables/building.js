@@ -1,4 +1,5 @@
 import { round } from "../../utils.js";
+import GameState from "../game-state.js";
 import Purchasable from "./purchasable.js";
 
 export default class Building extends Purchasable {
@@ -39,7 +40,7 @@ export default class Building extends Purchasable {
 	 */
 	onPurchase(gameState) {
 		this.owned++;
-		gameState.cps = round(gameState.cps + this.baseCpS, 1);
+		gameState.buildingCpS = round(gameState.buildingCpS + this.baseCpS, 1);
 	}
 }
 
