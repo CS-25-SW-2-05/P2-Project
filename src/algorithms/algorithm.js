@@ -1,6 +1,7 @@
 import GameState from "../cookie-clicker/game-state.js";
 import Building, {
 	cloneBuildings,
+	logBuildingStats,
 } from "../cookie-clicker/purchasables/building.js";
 import { sleep } from "../utils.js";
 import Decision from "./decision.js";
@@ -55,21 +56,5 @@ export default class Algorithm {
 		})();
 
 		return this.#runPromise;
-	}
-}
-
-function logBuildingStats(buildings) {
-	//Output building stats
-	for (const key in buildings) {
-		const currentBuilding = buildings[key];
-
-		// Logging current building prices
-		console.log(
-			currentBuilding.name.padEnd(15) +
-			" price: " +
-			String(currentBuilding.calcCost()).padEnd(25) +
-			" owned: " +
-			currentBuilding.owned
-		);
 	}
 }
