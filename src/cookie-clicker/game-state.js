@@ -1,7 +1,7 @@
 export default class GameState {
 	#cookies = 0;
 	totalCookies = 0;
-	cps = 0;
+	buildingCpS = 0;
 	manualCpS = 6;
 	realTime = 0;
 
@@ -15,5 +15,9 @@ export default class GameState {
 
 	get cookies() {
 		return this.#cookies;
+	}
+
+	get cps() {
+		return this.buildingCpS + this.manualCpS;
 	}
 }

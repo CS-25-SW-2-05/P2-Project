@@ -8,7 +8,6 @@ export default class Building extends Purchasable {
 	owned = 0;
 
 	/**
-	 *
 	 * @param {string} name the name of the building.
 	 * @param {number} baseCost the base cost of the building.
 	 * @param {number} baseCpS the CpS increase per owned building.

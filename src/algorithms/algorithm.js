@@ -3,7 +3,8 @@ import Building, {
 	cloneBuildings,
 } from "../cookie-clicker/purchasables/building.js";
 import { sleep } from "../utils.js";
-import Decision from "./decision.js";
+import Decision from "./decisions/decision.js";
+import Objective from "./objective.js";
 
 export default class Algorithm {
 	static derived = new Set();
@@ -27,9 +28,9 @@ export default class Algorithm {
 	}
 	/**
 	 * Run the algorithm until a non-valid decision occurs.
+	 * @param {Objective} objective passed in from script.js when the form is submitted
 	 * @returns {Promise<GameState>} the run process promise.
-	*/
-	//  "objective" parameter is passed in from script.js when the form is submitted
+	 */
 	async run(objective) {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;

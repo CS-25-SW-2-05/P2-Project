@@ -1,5 +1,6 @@
 import Algorithm from "./algorithm.js";
-import Decision from "./decision.js";
+import Decision from "./decisions/decision.js";
+import PurchaseDecision from "./decisions/purchase-decision.js";
 
 export default class GreedyNaive extends Algorithm {
 	// Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
@@ -16,6 +17,6 @@ export default class GreedyNaive extends Algorithm {
 	 */
 	getNextDecision(gameState, buildings) {
 		// implementer naive greedy algoritme, erstat "buildings["cursor"]" herunder
-		return new Decision(gameState, buildings["cursor"]);
+		return new PurchaseDecision(gameState, buildings["cursor"]);
 	}
 }

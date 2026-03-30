@@ -7,7 +7,11 @@ export default class Objective {
 	// Private type: e.g. "cookies" | "production"
 	#type = null;
 
-	// This runs, when you do "new Objective(type, value)"
+	/**
+	 * This runs, when you do "new Objective(type, value)"
+	 * @param {"cookies" | "production"} type
+	 * @param {number} value
+	 */
 	constructor(type, value) {
 		// Save type and value into private field
 		this.#type = type;
@@ -27,7 +31,7 @@ export default class Objective {
 		}
 		// If type is "production", check gameState.cps against this.#value
 		if (this.#type == "production") {
-			return gameState.cps >= this.#value;
+			return gameState.buildingCpS >= this.#value;
 		}
 		// If type is unknown return false (not completed)
 		return false;
