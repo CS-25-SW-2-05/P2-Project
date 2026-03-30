@@ -1,4 +1,5 @@
 import GameState from "../../cookie-clicker/game-state.js";
+import Algorithm from "../algorithm.js";
 
 export default class Decision {
 	isValid = false;
