@@ -1,4 +1,4 @@
-import Decision from "./decision";
+import Decision from "./decision.js";
 
 export default class PurchaseDecision extends Decision {
 	/**
