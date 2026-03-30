@@ -1,6 +1,6 @@
 import Decision from "./decision.js";
 
-export default class PurchaseDecision extends Decision {
+export default class WaitDecision extends Decision {
 	/**
 	 * @param {GameState} gameState
 	 * @param {number} wait
