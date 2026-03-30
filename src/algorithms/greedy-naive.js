@@ -63,13 +63,16 @@ export default class GreedyNaive extends Algorithm {
 		// Calculate overall time to reach objective when buying cheapest building
 		let waitTimeWithBuying = timeToAfford + timeAfterBuy;
 
-		console.log("Time without buy:", waitTimeWithoutBuying);
-		console.log("Time with buy:", waitTimeWithBuying);
+		console.log("Time without buy:", Math.round(waitTimeWithoutBuying), "s");
+		console.log("Time with buy:", Math.round(waitTimeWithBuying), "s");
 
+		//If the time to objective if faster when buying the building
 		if (waitTimeWithBuying < waitTimeWithoutBuying) {
+			// Buy the cheapest building
 			return new PurchaseDecision(gameState, cheapestBuilding);
 		} else {
-			return new WaitDecision(gameState, waitTimeWithoutBuying);
+			// Else wait until the objective is reached
+			return new WaitDecision(gameState, Math.ceil(waitTimeWithoutBuying));
 		}
 	}
 }
