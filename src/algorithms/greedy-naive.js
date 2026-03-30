@@ -23,11 +23,14 @@ export default class GreedyNaive extends Algorithm {
 		for (const key in buildings) {
 			const building = buildings[key];
 
-			// Logging current building prices
-			console.log(
-				building.name.padEnd(15) +
-				"price: " +
-				String(building.calcCost()).padStart(12));
+			// // Logging current building prices
+			// console.log(
+			// 	building.name.padEnd(15) +
+			// 	" price: " +
+			// 	String(building.calcCost()).padEnd(25) +
+			// 	" owned: " +
+			// 	building.owned
+			// );
 
 			// Update cheapest building and cheapest building price
 			if (building.calcCost() < cheapestPrice) {

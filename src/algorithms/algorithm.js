@@ -45,6 +45,7 @@ export default class Algorithm {
 				// To do:
 				// If objectiveCompleted break;
 				decision.perform();
+				logBuildingStats(buildings);
 				await sleep(0);
 			}
 			this.#isRunning = false;
@@ -54,5 +55,21 @@ export default class Algorithm {
 		})();
 
 		return this.#runPromise;
+	}
+}
+
+function logBuildingStats(buildings) {
+	//Output building stats
+	for (const key in buildings) {
+		const currentBuilding = buildings[key];
+
+		// Logging current building prices
+		console.log(
+			currentBuilding.name.padEnd(15) +
+			" price: " +
+			String(currentBuilding.calcCost()).padEnd(25) +
+			" owned: " +
+			currentBuilding.owned
+		);
 	}
 }
