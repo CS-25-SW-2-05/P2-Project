@@ -32,43 +32,40 @@ export default class GreedyPaybackTime extends Algorithm {
 		let paybackSaveUpTime = 0;
 		let numOfBuildingsAssessed = 0;
 
+
+		/* 
+		paybackSaveUpTime is calculated for every building, 
+		and the building with the lowest time is found
+		and sent to the new Decision function thing
+		*/
 		for(let key in buildings){
-
-			//console.log(`building: ` + key);
-
 			paybackTime = buildings[key].cost/buildings[key].baseCpS;
 			
-			//console.log("paybacktime: " + paybackTime);
-
 			saveUpTime = buildings[key].cost/currentCPS;
 
-		    //console.log("Save up time: " + saveUpTime);
-			
 			paybackSaveUpTime = saveUpTime + paybackTime;
 
 			tempDecision = [key, paybackSaveUpTime];
 
-			//console.log("Temp decision value:  " + tempDecision[1]);
-
-			//console.log("paybacksaveuptime: " + paybackSaveUpTime);
-
-			//console.log(tempDecision[0] + " " + tempDecision[1])
-
 			if(numOfBuildingsAssessed == 0){
 				bestDecision[0] = tempDecision[0];
+
 				bestDecision[1] = tempDecision[1];
+
 				numOfBuildingsAssessed++;
+
 				continue;
 			}
 
 			if(tempDecision[1] <= bestDecision[1]){
 				bestDecision[0] = tempDecision[0];
+
 				bestDecision[1] = tempDecision[1];
+				
 			}
 
 			numOfBuildingsAssessed++;
 		}
-		//console.log("Best decision: " + bestDecision[0] + " " + bestDecision[1]);
 
 		return new Decision(gameState, buildings[bestDecision[0]]);
 	}
