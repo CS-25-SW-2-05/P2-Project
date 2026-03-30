@@ -16,29 +16,60 @@ export default class GreedyPaybackTime extends Algorithm {
 	 * @returns {Decision} the next decision to be performed, if it is valid.
 	 */
 	getNextDecision(gameState, buildings) {
-		// implementer "smart" payback greedy algoritme, erstat "buildings["cursor"]" herunder
+		//console.log(buildings);
+		let bestDecision = ["cursor", 0];
+		let tempDecision = ["cursor", 0];
+		let currentCPS = gameState.cps + gameState.manualCpS;
+        //console.log(currentCPS);
 
-		let bestDecision = [buildings["cursor"], 0];
-		let tempDecision = [buildings["cursor"], 0];
+		// just to make sure there are no dividing by 0 shenanigans
+		if (currentCPS == 0){
+			currentCPS += 6;
+		}
+
 		let saveUpTime = 0;
 		let paybackTime = 0;
 		let paybackSaveUpTime = 0;
-		console.log(buildings);
+		let numOfBuildingsAssessed = 0;
 
 		for(let key in buildings){
 
-			paybackTime = buildings[key].cost/buildings[key].baseCpS;
-			saveUpTime = buildings[key].cost/gameState.cps;
-			paybackSaveUpTime = saveUpTime + paybackTime;
-			tempDecision = [buildings[key], paybackSaveUpTime];
+			//console.log(`building: ` + key);
 
-			if(tempDecision[1] >= bestDecision[1]){
+			paybackTime = buildings[key].cost/buildings[key].baseCpS;
+			
+			//console.log("paybacktime: " + paybackTime);
+
+			saveUpTime = buildings[key].cost/currentCPS;
+
+		    //console.log("Save up time: " + saveUpTime);
+			
+			paybackSaveUpTime = saveUpTime + paybackTime;
+
+			tempDecision = [key, paybackSaveUpTime];
+
+			//console.log("Temp decision value:  " + tempDecision[1]);
+
+			//console.log("paybacksaveuptime: " + paybackSaveUpTime);
+
+			//console.log(tempDecision[0] + " " + tempDecision[1])
+
+			if(numOfBuildingsAssessed == 0){
+				bestDecision[0] = tempDecision[0];
+				bestDecision[1] = tempDecision[1];
+				numOfBuildingsAssessed++;
+				continue;
+			}
+
+			if(tempDecision[1] <= bestDecision[1]){
 				bestDecision[0] = tempDecision[0];
 				bestDecision[1] = tempDecision[1];
 			}
-		}
-		console.log(bestDecision[0]);
 
-		return new Decision(gameState, bestDecision[0]);
+			numOfBuildingsAssessed++;
+		}
+		//console.log("Best decision: " + bestDecision[0] + " " + bestDecision[1]);
+
+		return new Decision(gameState, buildings[bestDecision[0]]);
 	}
 }
