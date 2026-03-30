@@ -16,7 +16,7 @@ export default class GreedyNaive extends Algorithm {
 	 * @param {Building} buildings a list of all buildings, in their current state
 	 * @returns {Decision} the next decision to be performed, if it is valid.
 	 */
-	getNextDecision(gameState, buildings) {
+	getNextDecision(gameState, buildings, objective) {
 
 		let cheapestBuilding = null;
 		let cheapestPrice = Infinity;
@@ -32,14 +32,44 @@ export default class GreedyNaive extends Algorithm {
 			}
 		}
 
-		//Logging the resultet building
+		//Logging the result building
 		console.log(
 			"Cheapest building:    " +
 			String(cheapestBuilding.name));
 
-		return new Decision(gameState, cheapestBuilding);
+		// Buy cheapest building, if the objective is production
+		if (objective.type == "production")
+			return new PurchaseDecision(gameState, cheapestBuilding);
 
-		// return new WaitDecision(gameState, 10);
+		// Calculate time to reach objective without buying
+		let waitTimeWithoutBuying = (objective.value - gameState.cookies) / gameState.cps
 
+		// Calculate time to afford cheapest building
+		let timeToAfford = 0;
+
+		if (gameState.cookies < cheapestPrice) {
+			timeToAfford = (cheapestPrice - gameState.cookies) / gameState.cps;
+		}
+
+		// Calculate cookies after buying
+		let cookiesAfterBuy = gameState.cookies + gameState.cps * timeToAfford - cheapestPrice;
+
+		// Calculate new CPS
+		let newCps = gameState.cps + cheapestBuilding.baseCpS;
+
+		// Calculate time to reach objective after buying building
+		let timeAfterBuy = (objective.value - cookiesAfterBuy) / newCps;
+
+		// Calculate overall time to reach objective when buying cheapest building
+		let waitTimeWithBuying = timeToAfford + timeAfterBuy;
+
+		console.log("Time without buy:", waitTimeWithoutBuying);
+		console.log("Time with buy:", waitTimeWithBuying);
+
+		if (waitTimeWithBuying < waitTimeWithoutBuying) {
+			return new PurchaseDecision(gameState, cheapestBuilding);
+		} else {
+			return new WaitDecision(gameState, waitTimeWithoutBuying);
+		}
 	}
 }

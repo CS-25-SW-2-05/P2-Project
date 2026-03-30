@@ -46,7 +46,7 @@ export default class Algorithm {
 					console.log("TEST: Objective Completed");
 					break;
 				}
-				const decision = this.getNextDecision(gameState, buildings);
+				const decision = this.getNextDecision(gameState, buildings, objective);
 				if (!decision.isValid) break;
 				// To do:
 				// If objectiveCompleted break;
