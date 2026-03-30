@@ -26,9 +26,10 @@ export default class GreedyNaive extends Algorithm {
 			const building = buildings[key];
 
 			// Update cheapest building and cheapest building price
-			if (building.calcCost() < cheapestPrice) {
+			const price = building.calcCost();
+			if (price < cheapestPrice) {
 				cheapestBuilding = building;
-				cheapestPrice = building.calcCost();
+				cheapestPrice = price;
 			}
 		}
 
@@ -38,7 +39,7 @@ export default class GreedyNaive extends Algorithm {
 			String(cheapestBuilding.name));
 
 		// Buy cheapest building, if the objective is production
-		if (objective.type == "production")
+		if (objective.type === "production")
 			return new PurchaseDecision(gameState, cheapestBuilding);
 
 		// Calculate time to reach objective without buying
@@ -63,8 +64,8 @@ export default class GreedyNaive extends Algorithm {
 		// Calculate overall time to reach objective when buying cheapest building
 		let waitTimeWithBuying = timeToAfford + timeAfterBuy;
 
-		console.log("Time without buy:", Math.round(waitTimeWithoutBuying), "s");
-		console.log("Time with buy:", Math.round(waitTimeWithBuying), "s");
+		console.log("Time without buy:", Math.round(waitTimeWithoutBuying), "seconds");
+		console.log("Time with buy:", Math.round(waitTimeWithBuying), "seconds");
 
 		//If the time to objective if faster when buying the building
 		if (waitTimeWithBuying < waitTimeWithoutBuying) {
