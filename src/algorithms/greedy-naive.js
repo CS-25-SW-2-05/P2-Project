@@ -15,7 +15,32 @@ export default class GreedyNaive extends Algorithm {
 	 * @returns {Decision} the next decision to be performed, if it is valid.
 	 */
 	getNextDecision(gameState, buildings) {
-		// implementer naive greedy algoritme, erstat "buildings["cursor"]" herunder
-		return new Decision(gameState, buildings["cursor"]);
+
+		let cheapestBuilding = null;
+		let cheapestPrice = Infinity;
+
+		// Looping through buildings in buildings
+		for (const key in buildings) {
+			const building = buildings[key];
+
+			// Logging current building prices
+			console.log(
+				building.name.padEnd(15) +
+				"price: " +
+				String(building.calcCost()).padStart(12));
+
+			// Update cheapest building and cheapest building price
+			if (building.calcCost() < cheapestPrice) {
+				cheapestBuilding = building;
+				cheapestPrice = building.calcCost();
+			}
+		}
+
+		//Logging the resultet building
+		console.log(
+			"Cheapest building: " +
+			String(cheapestBuilding.name.padStart(12)));
+
+		return new Decision(gameState, cheapestBuilding);
 	}
 }
