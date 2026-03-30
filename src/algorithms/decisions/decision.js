@@ -1,5 +1,4 @@
 import GameState from "../../cookie-clicker/game-state.js";
-import Algorithm from "../algorithm.js";
 
 export default class Decision {
 	isValid = false;
@@ -10,7 +9,7 @@ export default class Decision {
 	 * @param {GameState} gameState
 	 */
 	constructor(gameState) {
-		if (new.target == Algorithm)
+		if (new.target == Decision)
 			throw new Error("Cannot instantiate abstract class Decision directly.");
 
 		this._gameState = gameState;
