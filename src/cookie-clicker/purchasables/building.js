@@ -1,12 +1,19 @@
 import { round } from "../../utils.js";
 import Purchasable from "./purchasable.js";
 
-class Building extends Purchasable {
+export default class Building extends Purchasable {
 	baseCost = 0;
 	baseCpS = 0;
 	maxBuildCount = 0;
 	owned = 0;
 
+	/**
+	 *
+	 * @param {string} name the name of the building.
+	 * @param {number} baseCost the base cost of the building.
+	 * @param {number} baseCpS the CpS increase per owned building.
+	 * @param {number} maxBuildCount the max amount of ownable buildings.
+	 */
 	constructor(name, baseCost, baseCpS, maxBuildCount) {
 		super(name, baseCost);
 
@@ -19,16 +26,28 @@ class Building extends Purchasable {
 		return Math.ceil(this.baseCost * 1.15 ** this.owned);
 	}
 
+	/**
+	 * @override false if next building exceeds maxBuildCount.
+	 */
 	canPurchase() {
 		return this.owned < this.maxBuildCount;
 	}
 
-	onPurchase(game) {
+	/**
+	 * Abstract method which is called right before the game state updates.
+	 * @param {GameState} gameState the current game state.
+	 * @override adds a building and updates CpS.
+	 */
+	onPurchase(gameState) {
 		this.owned++;
-		game.cps = round(game.cps + this.baseCpS, 1);
+		gameState.cps = round(gameState.cps + this.baseCpS, 1);
 	}
 }
 
+/**
+ * Reads the 'src\cookie-clicker\buildings.json' file and parses the json data.
+ * @returns the parsed json data.
+ */
 async function getBuildingData() {
 	try {
 		const res = await fetch("./cookie-clicker/buildings.json");
@@ -43,7 +62,15 @@ async function getBuildingData() {
 	}
 }
 
+/**
+ * A list of all available buildings loaded by the loadBuildings function. \
+ * This list should not be mutated. To mutate, please make a clone.
+ */
 export const Buildings = {};
+
+/**
+ * Loads all buildings found in 'src\\cookie-clicker\\buildings.json' into the Buildings list.
+ */
 export async function loadBuildings() {
 	const data = await getBuildingData();
 
@@ -57,6 +84,10 @@ export async function loadBuildings() {
 	}
 }
 
+/**
+ * Clone the Buildings list for possible later mutation.
+ * @returns {Building[]} a clone of Buildings, which can be mutated.
+ */
 export function cloneBuildings() {
 	const copy = {};
 	for (const [key, b] of Object.entries(Buildings)) {
@@ -64,5 +95,6 @@ export function cloneBuildings() {
 		inst.owned = b.owned;
 		copy[key] = inst;
 	}
+
 	return copy;
 }

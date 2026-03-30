@@ -51,11 +51,6 @@
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-o-user-select: none;
-	user-select: none;
 }
 
 html {
@@ -63,6 +58,12 @@ html {
 	color: var(--foreground);
 	width: 100vw;
 	height: 100vh;
+
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 }
 
 body {
@@ -95,13 +96,36 @@ img {
 
 main {
 	display: flex;
-	justify-content: center;
+	justify-content: space-evenly;
 	align-items: center;
 	flex: 1;
 }
 
+main > div {
+	flex: 1;
+}
+
+main > hr {
+	height: 100%;
+	width: 1px;
+}
+
+canvas {
+	width: 100%;
+	aspect-ratio: 16/9;
+	background-color: var(--accent);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+}
+
+hr {
+	all: unset;
+	background-color: var(--primary-foreground);
+}
+
 /* Configuration Menu */
-form {
+form,
+.benchmark-results {
 	padding: 1.5rem;
 	max-width: 720px;
 	width: 100%;
@@ -173,6 +197,40 @@ input:focus {
 option {
 	color: var(--primary-foreground);
 	padding: 6px 8px;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	text-align: left;
+
+	-webkit-user-select: text;
+	-khtml-user-select: text;
+	-moz-user-select: text;
+	-o-user-select: text;
+	user-select: text;
+}
+
+tr {
+	height: 40px;
+}
+
+thead tr,
+tbody tr:not(:last-child) {
+	border-bottom: 1px solid var(--border);
+}
+
+th,
+td {
+	padding: 0 8px;
+}
+
+thead th {
+	font-weight: 600;
+}
+
+tbody th {
+	font-weight: normal;
 }
 
 .grid-2 {

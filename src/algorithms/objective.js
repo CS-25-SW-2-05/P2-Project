@@ -1,1 +1,1 @@
-// (Klasse) Function objectiveCompleted() {
+export default class Objective {}
