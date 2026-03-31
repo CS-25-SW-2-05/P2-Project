@@ -48,11 +48,9 @@ export default class Algorithm {
 				}
 				const decision = this.getNextDecision(gameState, buildings, objective);
 				if (!decision.isValid) break;
-				// To do:
-				// If objectiveCompleted break;
+
 				decision.perform();
 				logBuildingStats(buildings);
-				await sleep(0);
 			}
 			this.#isRunning = false;
 			this.#runPromise = null;
