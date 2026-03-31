@@ -7,7 +7,7 @@ import Objective from "./algorithms/objective.js";
 import { getPlural, remap } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
-import "./algorithms/greedy-time.js";
+import "./algorithms/greedy-payback-time.js";
 import "./algorithms/brute-force-segmented.js";
 import Decision from "./algorithms/decisions/decision.js";
 import GameState from "./cookie-clicker/game-state.js";
