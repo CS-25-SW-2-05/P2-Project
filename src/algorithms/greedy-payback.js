@@ -1,5 +1,6 @@
 import Algorithm from "./algorithm.js";
-import Decision from "./decision.js";
+import Decision from "./decisions/decision.js";
+import PurchaseDecision from "./decisions/purchase-decision.js";
 
 export default class GreedyPayback extends Algorithm {
 	// Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
@@ -67,6 +68,7 @@ export default class GreedyPayback extends Algorithm {
     }
 
 
-		return new Decision(gameState,buildings[bestDecision[0]]);
+		
+		return new PurchaseDecision(gameState, buildings[bestDecision[0]]);
 	}
 }
