@@ -4,11 +4,14 @@ import {
 } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
-import { getPlural } from "./utils.js";
+import { getPlural, remap } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
 import "./algorithms/greedy-payback-time.js";
 import "./algorithms/brute-force-segmented.js";
+import Decision from "./algorithms/decisions/decision.js";
+import GameState from "./cookie-clicker/game-state.js";
+import * as numberformat from "https://esm.sh/swarm-numberformat";
 
 // References
 const algorithmCount = document.getElementById("algorithm-count");
@@ -43,22 +46,76 @@ function getActiveAlgorithms() {
 }
 
 /**
- * @param {{ algorithm: Algorithm, realTime: number, simulationTime: number, totalCookies: number, cps: number}} results
+ * @param {{
+ *   algorithm: Algorithm,
+ *   simulationTime: number,
+ *   data: Array<{decision: Decision, gameState: GameState}>
+ * }[]} results
  */
 function displayResults(results) {
+	console.log(results);
+
 	const tbody = document.querySelector(".result-data > tbody");
 	tbody.innerHTML = "";
 
+	const height = ctx.canvas.height;
+	const width = ctx.canvas.width;
+	ctx.clearRect(0, 0, width, height);
+
+	const cpsValues = results.flatMap((r) =>
+		r.data.map((d) => d.gameState.buildingCpS),
+	);
+	if (cpsValues.length === 0) {
+		console.warn("No CPS data available to compute min/max");
+		return;
+	}
+
+	const min = Math.min(...cpsValues);
+	const max = Math.max(...cpsValues);
+	console.log("min:", min);
+	console.log("max:", max);
+
+	ctx.font = "24px sans-serif";
+	ctx.textBaseline = "top";
+	ctx.fillStyle = "white";
+
+	const margin = 8;
+
+	const minY = height - margin - 20;
+
+	for (let i = 0; i <= 10; i++) {
+		const pct = i / 10;
+		const value = remap(pct, 0, 1, max, min);
+		const y = remap(pct, 0, 1, margin, minY);
+		const valueText = numberformat.formatShort(value);
+		ctx.fillText(valueText, margin, y);
+	}
+
 	for (const r of results) {
+		const lastData = r.data.at(-1);
+
 		tbody.innerHTML += `
         <tr>
             <td>${r.algorithm.title}</td>
-            <td>${r.simulationTime}ms</td>
-            <td>${Math.round(r.realTime)}s</td>
-            <td>${r.totalCookies}</td>
-            <td>${r.cps}</td>
+            <td>${numberformat.formatShort(r.simulationTime)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.realTime)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.cps)}</td>
         </tr>
         `;
+
+		ctx.beginPath();
+		ctx.moveTo(0, height);
+		for (let i = 0; i < r.data.length; i++) {
+			const d = r.data[i];
+			const wPct = i / r.data.length;
+			const hPct = d.gameState.buildingCpS / max;
+
+			ctx.lineTo(width * wPct, height - height * hPct);
+		}
+		ctx.lineWidth = 4;
+		ctx.strokeStyle = "red";
+		ctx.stroke();
 	}
 }
 
@@ -80,7 +137,7 @@ for (const algorithm of Algorithm.derived) {
 	algorithmsContainer.innerHTML += `
 		<div>
 			<label for="${algorithm.name}">${algorithm.title}
-				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" />
+				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${algorithm.name === "GreedyNaive" ? "checked" : ""} />
 			</label>
 		</div>
 	`;
@@ -117,10 +174,8 @@ form.addEventListener("submit", async (e) => {
 
 		results.push({
 			algorithm: algorithm,
-			realTime: data.realTime,
 			simulationTime: simulationTime,
-			totalCookies: data.totalCookies,
-			cps: data.buildingCpS,
+			data: data,
 		});
 	}
 
