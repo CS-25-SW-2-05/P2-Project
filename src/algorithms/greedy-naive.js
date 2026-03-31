@@ -17,7 +17,6 @@ export default class GreedyNaive extends Algorithm {
 	 * @returns {Decision} the next decision to be performed, if it is valid.
 	 */
 	getNextDecision(gameState, buildings, objective) {
-
 		let cheapestBuilding = null;
 		let cheapestPrice = Infinity;
 
@@ -34,37 +33,40 @@ export default class GreedyNaive extends Algorithm {
 		}
 
 		//Logging the result building
-		console.log(
-			"Cheapest building:    " +
-			String(cheapestBuilding.name));
+		console.log("Cheapest building:    " + String(cheapestBuilding.name));
 
 		// Buy cheapest building, if the objective is production
 		if (objective.type === "production")
 			return new PurchaseDecision(gameState, cheapestBuilding);
 
 		// Calculate time to reach objective without buying
-		let waitTimeWithoutBuying = (objective.value - gameState.cookies) / gameState.cps
+		const waitTimeWithoutBuying =
+			(objective.value - gameState.cookies) / gameState.cps;
 
 		// Calculate time to afford cheapest building
-		let timeToAfford = 0;
-
-		if (gameState.cookies < cheapestPrice) {
-			timeToAfford = (cheapestPrice - gameState.cookies) / gameState.cps;
-		}
+		const timeToAfford =
+			gameState.cookies < cheapestPrice
+				? (cheapestPrice - gameState.cookies) / gameState.cps
+				: 0;
 
 		// Calculate cookies after buying
-		let cookiesAfterBuy = gameState.cookies + gameState.cps * timeToAfford - cheapestPrice;
+		const cookiesAfterBuy =
+			gameState.cookies + gameState.cps * timeToAfford - cheapestPrice;
 
 		// Calculate new CPS
-		let newCps = gameState.cps + cheapestBuilding.baseCpS;
+		const newCps = gameState.cps + cheapestBuilding.baseCpS;
 
 		// Calculate time to reach objective after buying building
-		let timeAfterBuy = (objective.value - cookiesAfterBuy) / newCps;
+		const timeAfterBuy = (objective.value - cookiesAfterBuy) / newCps;
 
 		// Calculate overall time to reach objective when buying cheapest building
-		let waitTimeWithBuying = timeToAfford + timeAfterBuy;
+		const waitTimeWithBuying = timeToAfford + timeAfterBuy;
 
-		console.log("Time without buy:", Math.round(waitTimeWithoutBuying), "seconds");
+		console.log(
+			"Time without buy:",
+			Math.round(waitTimeWithoutBuying),
+			"seconds",
+		);
 		console.log("Time with buy:", Math.round(waitTimeWithBuying), "seconds");
 
 		//If the time to objective if faster when buying the building
