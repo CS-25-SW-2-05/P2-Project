@@ -41,7 +41,7 @@ export default class GreedyPaybackTime extends Algorithm {
 		for(let key in buildings){
 			paybackTime = buildings[key].cost/buildings[key].baseCpS;
 			
-			saveUpTime = buildings[key].cost/currentCPS;
+			saveUpTime = (buildings[key].cost - gameState.cookies)/currentCPS;
 
 			paybackSaveUpTime = saveUpTime + paybackTime;
 
@@ -66,6 +66,8 @@ export default class GreedyPaybackTime extends Algorithm {
 
 			numOfBuildingsAssessed++;
 		}
+		console.log("Decision: " + bestDecision[0]);
+		console.log("Payback + save up time: " + bestDecision[1] + "s");
 
 		return new Decision(gameState, buildings[bestDecision[0]]);
 	}
