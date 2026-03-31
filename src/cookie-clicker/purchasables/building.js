@@ -1,4 +1,5 @@
 import { round } from "../../utils.js";
+import GameState from "../game-state.js";
 import Purchasable from "./purchasable.js";
 
 export default class Building extends Purchasable {
@@ -8,7 +9,6 @@ export default class Building extends Purchasable {
 	owned = 0;
 
 	/**
-	 *
 	 * @param {string} name the name of the building.
 	 * @param {number} baseCost the base cost of the building.
 	 * @param {number} baseCpS the CpS increase per owned building.
@@ -40,7 +40,7 @@ export default class Building extends Purchasable {
 	 */
 	onPurchase(gameState) {
 		this.owned++;
-		gameState.cps = round(gameState.cps + this.baseCpS, 1);
+		gameState.buildingCpS = round(gameState.buildingCpS + this.baseCpS, 1);
 	}
 }
 
@@ -80,6 +80,26 @@ export async function loadBuildings() {
 			value.baseCost,
 			value.baseCpS,
 			value.maxBuildCount,
+		);
+	}
+}
+
+/**
+ * Will log all building stats available in the the the array to the console.
+ * @param {Building[]} buildings buildings to log.
+ */
+export function logBuildingStats(buildings) {
+	//Output building stats
+	for (const key in buildings) {
+		const currentBuilding = buildings[key];
+
+		// Logging current building prices
+		console.log(
+			currentBuilding.name.padEnd(15) +
+				" price: " +
+				String(currentBuilding.calcCost()).padEnd(25) +
+				" owned: " +
+				currentBuilding.owned,
 		);
 	}
 }
