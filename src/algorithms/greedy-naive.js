@@ -69,7 +69,7 @@ export default class GreedyNaive extends Algorithm {
 		);
 		console.log("Time with buy:", Math.round(waitTimeWithBuying), "seconds");
 
-		//If the time to objective if faster when buying the building
+		//If the time to objective is faster when buying the building
 		if (waitTimeWithBuying < waitTimeWithoutBuying) {
 			// Buy the cheapest building
 			return new PurchaseDecision(gameState, cheapestBuilding);
