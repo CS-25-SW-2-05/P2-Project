@@ -3,9 +3,9 @@ import GameState from "../cookie-clicker/game-state.js";
 // Exportable class, so other files can acces/import
 export default class Objective {
 	// Private value: e.g. 1000
-	#value = 0;
+	value = 0;
 	// Private type: e.g. "cookies" | "production"
-	#type = null;
+	type = null;
 
 	/**
 	 * This runs, when you do "new Objective(type, value)"
@@ -14,9 +14,9 @@ export default class Objective {
 	 */
 	constructor(type, value) {
 		// Save type and value into private field
-		this.#type = type;
+		this.type = type;
 		// Save, an convert to number since form values are strings
-		this.#value = Number(value);
+		this.value = Number(value);
 	}
 
 	/**
@@ -26,12 +26,12 @@ export default class Objective {
 	 */
 	isCompleted(gameState) {
 		// If type is "cookies", check gameState.cookies against this.#value
-		if (this.#type == "cookies") {
-			return gameState.cookies >= this.#value;
+		if (this.type == "cookies") {
+			return gameState.cookies >= this.value;
 		}
 		// If type is "production", check gameState.cps against this.#value
-		if (this.#type == "production") {
-			return gameState.buildingCpS >= this.#value;
+		if (this.type == "production") {
+			return gameState.buildingCpS >= this.value;
 		}
 		// If type is unknown return false (not completed)
 		return false;

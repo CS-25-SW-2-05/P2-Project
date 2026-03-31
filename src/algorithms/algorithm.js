@@ -1,6 +1,7 @@
 import GameState from "../cookie-clicker/game-state.js";
 import Building, {
 	cloneBuildings,
+	logBuildingStats,
 } from "../cookie-clicker/purchasables/building.js";
 import { sleep } from "../utils.js";
 import Decision from "./decisions/decision.js";
@@ -45,11 +46,12 @@ export default class Algorithm {
 					console.log("TEST: Objective Completed");
 					break;
 				}
-				const decision = this.getNextDecision(gameState, buildings);
+				const decision = this.getNextDecision(gameState, buildings, objective);
 				if (!decision.isValid) break;
 				// To do:
 				// If objectiveCompleted break;
 				decision.perform();
+				logBuildingStats(buildings);
 				await sleep(0);
 			}
 			this.#isRunning = false;
