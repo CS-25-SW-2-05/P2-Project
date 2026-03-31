@@ -16,6 +16,57 @@ export default class GreedyPayback extends Algorithm {
 	 */
 	getNextDecision(gameState, buildings) {
 		// implementer "Dum" payback greedy algoritme, erstat "buildings["cursor"]" herunder
-		return new Decision(gameState, buildings["cursor"]);
+		             
+    let paybackTime = 0;                   
+    let numOfBuildingsAssessed = 0;   
+
+    let bestDecision = {
+        buildingKey: "cursor",
+        paybackTime: Infinity
+    }
+    let tempDecision = {
+        buildingKey: "cursor",
+        paybackTime: 0
+    }
+
+    for (let key in buildings) {
+
+      
+        let b = buildings[key];
+
+        if (!b.canPurchase()) continue;
+
+        let cost = b.cost;
+
+    
+        let gain = b.baseCps;
+
+  
+        if (gain <= 0) continue;
+
+        paybackTime = cost / gain;
+
+        tempDecision[0] = key;
+        tempDecision[1] = paybackTime;
+
+
+        if (numOfBuildingsAssessed === 0) {
+            bestDecision[0] = tempDecision[0];
+            bestDecision[1] = tempDecision[1];
+            numOfBuildingsAssessed++;
+            continue;
+        }
+
+   
+        if (tempDecision[1] < bestDecision[1]) {
+            bestDecision[0] = tempDecision[0];
+            bestDecision[1] = tempDecision[1];
+        }
+
+        numOfBuildingsAssessed++;
+    }
+
+
+		return new Decision(gameState,buildings[bestDecision[0]]);
 	}
 }
