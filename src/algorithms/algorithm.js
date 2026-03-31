@@ -41,8 +41,10 @@ export default class Algorithm {
 		const buildings = cloneBuildings();
 
 		this.#runPromise = (async () => {
+			const data = [];
+
 			while (true) {
-				// This now checks, if the objective is completed, and breaks.
+				// This now checks, if the objective is completed, and breaks if it is.
 				if (objective.isCompleted(gameState)) {
 					console.log("TEST: Objective Completed");
 					break;
@@ -71,11 +73,14 @@ export default class Algorithm {
 
 				// console.log the stats of validBuildings
 				logBuildingStats(validBuildings);
+
+				const gameStateCopy = gameState.copy();
+				data.push({ decision: decision, gameState: gameStateCopy });
 			}
 			this.#isRunning = false;
 			this.#runPromise = null;
 
-			return gameState;
+			return data;
 		})();
 
 		return this.#runPromise;
