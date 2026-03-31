@@ -22,8 +22,8 @@ export default class Building extends Purchasable {
 		this.maxBuildCount = maxBuildCount;
 	}
 
-	calcCost() {
-		return Math.ceil(this.baseCost * 1.15 ** this.owned);
+	updateCost() {
+		this.cost = Math.ceil(this.baseCost * 1.15 ** this.owned);
 	}
 
 	/**
@@ -97,7 +97,7 @@ export function logBuildingStats(buildings) {
 		console.log(
 			currentBuilding.name.padEnd(15) +
 				" price: " +
-				String(currentBuilding.calcCost()).padEnd(25) +
+				String(currentBuilding.cost).padEnd(25) +
 				" owned: " +
 				currentBuilding.owned,
 		);

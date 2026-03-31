@@ -25,7 +25,7 @@ export default class GreedyNaive extends Algorithm {
 			const building = buildings[key];
 
 			// Update cheapest building and cheapest building price
-			const price = building.calcCost();
+			const price = building.cost;
 			if (price < cheapestPrice) {
 				cheapestBuilding = building;
 				cheapestPrice = price;
@@ -73,9 +73,9 @@ export default class GreedyNaive extends Algorithm {
 		if (waitTimeWithBuying < waitTimeWithoutBuying) {
 			// Buy the cheapest building
 			return new PurchaseDecision(gameState, cheapestBuilding);
-		} else {
-			// Else wait until the objective is reached
-			return new WaitDecision(gameState, Math.ceil(waitTimeWithoutBuying));
 		}
+
+		// Else wait until the objective is reached
+		return new WaitDecision(gameState, Math.ceil(waitTimeWithoutBuying));
 	}
 }

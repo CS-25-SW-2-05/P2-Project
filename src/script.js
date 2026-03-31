@@ -43,6 +43,26 @@ function getActiveAlgorithms() {
 }
 
 /**
+ * @param {{ algorithm: Algorithm, realTime: number, simulationTime: number, totalCookies: number, cps: number}} results
+ */
+function displayResults(results) {
+	const tbody = document.querySelector(".result-data > tbody");
+	tbody.innerHTML = "";
+
+	for (const r of results) {
+		tbody.innerHTML += `
+        <tr>
+            <td>${r.algorithm.title}</td>
+            <td>${r.simulationTime}ms</td>
+            <td>${Math.round(r.realTime)}s</td>
+            <td>${r.totalCookies}</td>
+            <td>${r.cps}</td>
+        </tr>
+        `;
+	}
+}
+
+/**
  * Show a toast in the lower-right corner of the screen.
  * @param {string} title title of the toast.
  * @param {string} msg message of the toast.
@@ -83,26 +103,39 @@ form.addEventListener("submit", async (e) => {
 	const runBtnText = runBtn.textContent;
 	runBtn.textContent = "Running...";
 
+	const results = [];
 	for (const algorithm of Algorithm.derived) {
 		const active =
 			document.querySelector(`#${algorithm.name}:checked`) !== null;
 
 		if (!active) continue;
 
+		const beforeTime = Date.now();
 		// Start the algorithm run, passing the objective in.
-		const result = await algorithm.instance.run(objective);
+		const data = await algorithm.instance.run(objective);
+		const simulationTime = Date.now() - beforeTime;
+
+		results.push({
+			algorithm: algorithm,
+			realTime: data.realTime,
+			simulationTime: simulationTime,
+			totalCookies: data.totalCookies,
+			cps: data.buildingCpS,
+		});
 	}
+
+	displayResults(results);
 
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
 });
 
 form.addEventListener("reset", () => {
+	show("Reset", "The form has been reset...");
+
 	// Timeout to push the execution to after values has been reset
 	setTimeout(() => {
-		show("Reset", "The form has been reset...");
 		updateForm();
-		console.log("Form has been reset...");
 	}, 0);
 });
 
