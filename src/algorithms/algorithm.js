@@ -3,7 +3,7 @@ import Building, {
 	cloneBuildings,
 	logBuildingStats,
 } from "../cookie-clicker/purchasables/building.js";
-import { sleep } from "../utils.js";
+import { sleep, yieldFrame } from "../utils.js";
 import Decision from "./decisions/decision.js";
 import Objective from "./objective.js";
 
@@ -32,7 +32,7 @@ export default class Algorithm {
 	 * @param {Objective} objective passed in from script.js when the form is submitted
 	 * @returns {Promise<GameState>} the run process promise.
 	 */
-	async run(objective) {
+	run(objective) {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
 
@@ -42,6 +42,8 @@ export default class Algorithm {
 		this.#runPromise = (async () => {
 			const data = [];
 
+			let iterations = 0;
+			const awaitIteration = 500;
 			while (true) {
 				// This now checks, if the objective is completed, and breaks.
 				if (objective.isCompleted(gameState)) {
@@ -56,6 +58,10 @@ export default class Algorithm {
 
 				const gameStateCopy = gameState.copy();
 				data.push({ decision: decision, gameState: gameStateCopy });
+
+				const shouldYield = iterations % awaitIteration === 0;
+				if (shouldYield) await yieldFrame();
+				iterations++;
 			}
 			this.#isRunning = false;
 			this.#runPromise = null;

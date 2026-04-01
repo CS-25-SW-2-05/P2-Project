@@ -10,3 +10,5 @@ export const round = (value, decimals) => {
 export function remap(value, srcMin, srcMax, destMin, destMax) {
 	return ((value - srcMin) / (srcMax - srcMin)) * (destMax - destMin) + destMin;
 }
+
+export const yieldFrame = () => new Promise((r) => requestAnimationFrame(r));

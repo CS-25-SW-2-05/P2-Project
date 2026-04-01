@@ -96,6 +96,7 @@ img {
 
 main {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-evenly;
 	align-items: center;
 	flex: 1;
@@ -103,11 +104,6 @@ main {
 
 main > div {
 	flex: 1;
-}
-
-main > hr {
-	height: 100%;
-	width: 1px;
 }
 
 canvas {

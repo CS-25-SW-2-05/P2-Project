@@ -53,45 +53,12 @@ function getActiveAlgorithms() {
  * }[]} results
  */
 function displayResults(results) {
-	console.log(results);
+	if (results) console.log(results);
 
+	// Table Results
 	const tbody = document.querySelector(".result-data > tbody");
 	tbody.innerHTML = "";
-
-	const height = ctx.canvas.height;
-	const width = ctx.canvas.width;
-	ctx.clearRect(0, 0, width, height);
-
-	const cpsValues = results.flatMap((r) =>
-		r.data.map((d) => d.gameState.buildingCpS),
-	);
-	if (cpsValues.length === 0) {
-		console.warn("No CPS data available to compute min/max");
-		return;
-	}
-
-	const min = Math.min(...cpsValues);
-	const max = Math.max(...cpsValues);
-	console.log("min:", min);
-	console.log("max:", max);
-
-	ctx.font = "24px sans-serif";
-	ctx.textBaseline = "top";
-	ctx.fillStyle = "white";
-
-	const margin = 8;
-
-	const minY = height - margin - 20;
-
-	for (let i = 0; i <= 10; i++) {
-		const pct = i / 10;
-		const value = remap(pct, 0, 1, max, min);
-		const y = remap(pct, 0, 1, margin, minY);
-		const valueText = numberformat.formatShort(value);
-		ctx.fillText(valueText, margin, y);
-	}
-
-	for (const r of results) {
+	for (const r of results || []) {
 		const lastData = r.data.at(-1);
 
 		tbody.innerHTML += `
@@ -100,23 +67,127 @@ function displayResults(results) {
             <td>${numberformat.formatShort(r.simulationTime)}</td>
             <td>${numberformat.formatShort(lastData.gameState.realTime)}</td>
             <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.cps)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.buildingCpS)}</td>
         </tr>
         `;
-
-		ctx.beginPath();
-		ctx.moveTo(0, height);
-		for (let i = 0; i < r.data.length; i++) {
-			const d = r.data[i];
-			const wPct = i / r.data.length;
-			const hPct = d.gameState.buildingCpS / max;
-
-			ctx.lineTo(width * wPct, height - height * hPct);
-		}
-		ctx.lineWidth = 4;
-		ctx.strokeStyle = "red";
-		ctx.stroke();
 	}
+
+	// Graph Results
+	const graphColors = ["#1447e6", "#00bc7d", "#fe9a00", "#ad46ff", "#ff2056"];
+
+	const height = ctx.canvas.height;
+	const width = ctx.canvas.width;
+
+	const cpsValues = results?.flatMap((r) =>
+		r.data.map((d) => d.gameState.buildingCpS),
+	);
+
+	const minValue = Math.min(...(cpsValues || []));
+	const maxValue = Math.max(...(cpsValues || []));
+	const maxLength = Math.max(...(results?.flatMap((r) => r.data.length) || []));
+
+	const margin = { t: 64, b: 128, l: 160, r: 64 };
+
+	const clear = () => {
+		const color = getComputedStyle(canvas).getPropertyValue("--accent").trim();
+		ctx.fillStyle = color;
+		ctx.fillRect(0, 0, width, height);
+	};
+
+	const drawGrid = () => {
+		ctx.beginPath();
+		for (let i = 0; i < 10; i++) {
+			const pct = i / 9;
+			const x = (width - margin.l - margin.r) * pct + margin.l;
+			const y = (height - margin.t - margin.b) * pct + margin.t;
+
+			// Horizontal Line
+			ctx.moveTo(margin.l, y);
+			ctx.lineTo(width - margin.r, y);
+
+			// Vertical Line
+			ctx.moveTo(x, margin.t);
+			ctx.lineTo(x, height - margin.b);
+		}
+
+		const color = getComputedStyle(canvas).getPropertyValue("--border").trim();
+		ctx.strokeStyle = color;
+		ctx.lineWidth = 2;
+		ctx.stroke();
+	};
+
+	const drawYLabels = () => {
+		for (let i = 0; i < 10; i++) {
+			const pct = i / (10 - 1);
+
+			const value = remap(pct, 0, 1, maxValue, minValue);
+			const valueText = numberformat.formatShort(value);
+			const measure = ctx.measureText(valueText);
+
+			const x = margin.l - measure.actualBoundingBoxRight - 12;
+			const y =
+				remap(pct, 0, 1, margin.t, height - margin.b) -
+				measure.actualBoundingBoxDescent * 0.5;
+			ctx.fillText(valueText, x, y);
+		}
+	};
+
+	const drawXLabels = () => {
+		for (let i = 0; i < 10; i++) {
+			const pct = i / (10 - 1);
+
+			const value = remap(pct, 0, 1, 0, maxLength);
+			const valueText = numberformat.formatShort(value);
+			const measure = ctx.measureText(valueText);
+
+			const x =
+				remap(pct, 0, 1, margin.l, width - margin.r) -
+				measure.actualBoundingBoxRight * 0.5;
+			const y = height - margin.b + 12;
+			ctx.fillText(valueText, x, y);
+		}
+	};
+
+	const drawLabels = () => {
+		if (!results) return;
+
+		ctx.font = "24px sans-serif";
+		ctx.textBaseline = "top";
+		ctx.fillStyle = "white";
+
+		drawXLabels();
+		drawYLabels();
+	};
+
+	const drawDataLines = () => {
+		for (let i = 0; i < results?.length; i++) {
+			const r = results[i];
+
+			ctx.beginPath();
+			ctx.moveTo(margin.l, height - margin.b);
+			for (let j = 0; j < r.data.length; j++) {
+				const d = r.data[j];
+				const wPct = j / (maxLength - 1);
+				const hPct = d.gameState.buildingCpS / maxValue;
+				const x = (width - margin.l - margin.r) * wPct + margin.l;
+				const y = height - margin.b - (height - margin.t - margin.b) * hPct;
+
+				ctx.lineTo(x, y);
+			}
+			ctx.lineWidth = 4;
+			ctx.strokeStyle = graphColors[i];
+			ctx.stroke();
+		}
+	};
+
+	const drawGraph = () => {
+		clear();
+		drawGrid();
+		drawDataLines();
+		drawLabels();
+	};
+
+	drawGraph();
 }
 
 /**
@@ -134,10 +205,14 @@ function show(title, msg) {
 // Initialize
 await loadBuildings();
 for (const algorithm of Algorithm.derived) {
+	const activeByDefault =
+		["GreedyNaive", "GreedyPaybackTime"].findIndex(
+			(i) => i === algorithm.name,
+		) !== -1;
 	algorithmsContainer.innerHTML += `
 		<div>
 			<label for="${algorithm.name}">${algorithm.title}
-				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${algorithm.name === "GreedyNaive" ? "checked" : ""} />
+				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
 			</label>
 		</div>
 	`;
@@ -196,3 +271,4 @@ form.addEventListener("reset", () => {
 
 form.addEventListener("change", updateForm);
 updateForm();
+displayResults();
