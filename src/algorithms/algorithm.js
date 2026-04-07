@@ -33,7 +33,7 @@ export default class Algorithm {
 	 * @param {Objective} objective passed in from script.js when the form is submitted
 	 * @returns {Promise<GameState>} the run process promise.
 	 */
-	async run(objective) {
+	async run(objective, isBruteForce) {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
 
@@ -43,6 +43,45 @@ export default class Algorithm {
 		this.#runPromise = (async () => {
 			const data = [];
 
+			//Greedy algorithms
+			if(!isBruteForce){
+				while (true) {
+				// This now checks, if the objective is completed, and breaks if it is.
+				if (objective.isCompleted(gameState)) {
+					console.log("TEST: Objective Completed");
+					break;
+				}
+				// Filter buildings for buildings that reached max level 
+				// or reached price of infinity
+				const validBuildings = filterValid(buildings);
+
+				// Break the loop if no more buildings are available
+				if (Object.keys(validBuildings).length === 0) {
+					console.log("All buildings have reached max level or price of infinity. Terminating algorithm...");
+					break;
+				}
+
+				// Choose a decision based on current policy/algorithm
+				const decision = this.getNextDecision(gameState, validBuildings, objective);
+
+				// Break the loop if the decision i invalid
+				if (!decision.isValid) {
+					console.log("Error: Invalid decision. Terminating algorithm...")
+					break;
+				}
+
+				// Perform the decision
+				decision.perform();
+
+				// console.log the stats of validBuildings
+				logBuildingStats(validBuildings);
+
+				const gameStateCopy = gameState.copy();
+				data.push({ decision: decision, gameState: gameStateCopy });
+			}
+			}
+			
+			//Brute force algorithm
 			while (true) {
 				// This now checks, if the objective is completed, and breaks if it is.
 				if (objective.isCompleted(gameState)) {
@@ -77,6 +116,7 @@ export default class Algorithm {
 				const gameStateCopy = gameState.copy();
 				data.push({ decision: decision, gameState: gameStateCopy });
 			}
+
 			this.#isRunning = false;
 			this.#runPromise = null;
 
