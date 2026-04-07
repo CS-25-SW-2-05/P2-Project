@@ -28,6 +28,13 @@ export default class Algorithm {
 			`Method '${this.getNextDecision.name}' must be implemented by subclass.`,
 		);
 	}
+
+	getBruteForceSegmentedSolution(){
+		throw new Error(
+			`Method '${this.getBruteForceSegmentedSolution.name}' must be implemented by subclass.`,
+		);
+	}
+
 	/**
 	 * Run the algorithm until a non-valid decision occurs.
 	 * @param {Objective} objective passed in from script.js when the form is submitted
@@ -79,9 +86,18 @@ export default class Algorithm {
 				const gameStateCopy = gameState.copy();
 				data.push({ decision: decision, gameState: gameStateCopy });
 			}
+			this.#isRunning = false;
+			this.#runPromise = null;
+
+			return data;
 			}
 			
+			/*--------------------*/
 			//Brute force algorithm
+			const segmentedSearchDepth = 5;
+
+			const BruteForceSegmentedSolution = getBruteForceSegmentedSolution();
+
 			while (true) {
 				// This now checks, if the objective is completed, and breaks if it is.
 				if (objective.isCompleted(gameState)) {
