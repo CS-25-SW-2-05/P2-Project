@@ -1,6 +1,7 @@
 import GameState from "../cookie-clicker/game-state.js";
 import Building, {
 	cloneBuildings,
+	filterValid,
 	logBuildingStats,
 } from "../cookie-clicker/purchasables/building.js";
 import { sleep, yieldFrame } from "../utils.js";
@@ -45,16 +46,35 @@ export default class Algorithm {
 			let iterations = 0;
 			const awaitIteration = 500;
 			while (true) {
-				// This now checks, if the objective is completed, and breaks.
+				// This now checks, if the objective is completed, and breaks if it is.
 				if (objective.isCompleted(gameState)) {
 					console.log("TEST: Objective Completed");
 					break;
 				}
-				const decision = this.getNextDecision(gameState, buildings, objective);
-				if (!decision.isValid) break;
+				// Filter buildings for buildings that reached max level 
+				// or reached price of infinity
+				const validBuildings = filterValid(buildings);
 
+				// Break the loop if no more buildings are available
+				if (Object.keys(validBuildings).length === 0) {
+					console.log("All buildings have reached max level or price of infinity. Terminating algorithm...");
+					break;
+				}
+
+				// Choose a decision based on current policy/algorithm
+				const decision = this.getNextDecision(gameState, validBuildings, objective);
+
+				// Break the loop if the decision i invalid
+				if (!decision.isValid) {
+					console.log("Error: Invalid decision. Terminating algorithm...")
+					break;
+				}
+
+				// Perform the decision
 				decision.perform();
-				logBuildingStats(buildings);
+
+				// console.log the stats of validBuildings
+				logBuildingStats(validBuildings);
 
 				const gameStateCopy = gameState.copy();
 				data.push({ decision: decision, gameState: gameStateCopy });
