@@ -33,9 +33,9 @@ export default class Objective {
 		if (this.type === "production") {
 			return gameState.buildingCpS >= this.value;
 		}
-		// If type is "time limit", check gameState.realTime against this.value
-		if(this.type === "time limit"){
-			return gameState.realTime >= this.value; // Stops when simulated time runs out
+		// If type is "time limit", check gameState.simulationTime against this.value
+		if (this.type === "time limit") {
+			return gameState.simulationTime >= this.value; // Stops when simulated time runs out
 		}
 		// If type is unknown return false (not completed)
 		return false;

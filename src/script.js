@@ -4,7 +4,7 @@ import {
 } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
-import { getPlural, remap } from "./utils.js";
+import { formatTime, getPlural, remap } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
 import "./algorithms/greedy-payback-time.js";
@@ -12,14 +12,13 @@ import "./algorithms/brute-force-segmented.js";
 import Decision from "./algorithms/decisions/decision.js";
 import GameState from "./cookie-clicker/game-state.js";
 import * as numberformat from "https://esm.sh/swarm-numberformat";
+import Graph from "./benchmark/graph.js";
 
 // References
 const algorithmCount = document.getElementById("algorithm-count");
 const algorithmsContainer = document.querySelector(".algorithms");
 const form = document.querySelector("form");
 const runBtn = form.querySelector("button[type='submit']");
-const canvas = document.querySelector("canvas");
-const ctx = canvas.getContext("2d");
 
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
@@ -64,8 +63,8 @@ function displayResults(results) {
 		tbody.innerHTML += `
         <tr>
             <td>${r.algorithm.title}</td>
-            <td>${numberformat.formatShort(r.simulationTime)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.realTime)}</td>
+            <td>${numberformat.formatShort(r.benchmarkTime)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.simulationTime)}</td>
             <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
             <td>${numberformat.formatShort(lastData.gameState.buildingCpS)}</td>
         </tr>
@@ -73,121 +72,50 @@ function displayResults(results) {
 	}
 
 	// Graph Results
-	const graphColors = ["#1447e6", "#00bc7d", "#fe9a00", "#ad46ff", "#ff2056"];
+	const cpsCanvas = document.querySelector("#cps-graph");
+	const cookieCanvas = document.querySelector("#cookie-graph");
+	const cpsGraph = new Graph(cpsCanvas, "Time (s)", "CpS");
+	const cookieGraph = new Graph(cookieCanvas, "Time (s)", "Cookies");
 
-	const height = ctx.canvas.height;
-	const width = ctx.canvas.width;
+	for (let i = 0; i < results?.length; i++) {
+		const r = results[i];
+		const label = r.algorithm.title;
 
-	const cpsValues = results?.flatMap((r) =>
-		r.data.map((d) => d.gameState.buildingCpS),
-	);
+		const x = [0];
+		const y = [0];
+		for (let j = 0; j < r.data.length; j++) {
+			const d = r.data[j];
 
-	const minValue = Math.min(...(cpsValues || []));
-	const maxValue = Math.max(...(cpsValues || []));
-	const maxLength = Math.max(...(results?.flatMap((r) => r.data.length) || []));
-
-	const margin = { t: 64, b: 128, l: 160, r: 64 };
-
-	const clear = () => {
-		const color = getComputedStyle(canvas).getPropertyValue("--accent").trim();
-		ctx.fillStyle = color;
-		ctx.fillRect(0, 0, width, height);
-	};
-
-	const drawGrid = () => {
-		ctx.beginPath();
-		for (let i = 0; i < 10; i++) {
-			const pct = i / 9;
-			const x = (width - margin.l - margin.r) * pct + margin.l;
-			const y = (height - margin.t - margin.b) * pct + margin.t;
-
-			// Horizontal Line
-			ctx.moveTo(margin.l, y);
-			ctx.lineTo(width - margin.r, y);
-
-			// Vertical Line
-			ctx.moveTo(x, margin.t);
-			ctx.lineTo(x, height - margin.b);
+			x.push(d.gameState.simulationTime);
+			y.push(d.gameState.buildingCpS);
 		}
 
-		const color = getComputedStyle(canvas).getPropertyValue("--border").trim();
-		ctx.strokeStyle = color;
-		ctx.lineWidth = 2;
-		ctx.stroke();
-	};
+		cpsGraph.add(label, x, y);
+	}
 
-	const drawYLabels = () => {
-		for (let i = 0; i < 10; i++) {
-			const pct = i / (10 - 1);
+	for (let i = 0; i < results?.length; i++) {
+		const r = results[i];
+		const label = r.algorithm.title;
 
-			const value = remap(pct, 0, 1, maxValue, minValue);
-			const valueText = numberformat.formatShort(value);
-			const measure = ctx.measureText(valueText);
+		const x = [0];
+		const y = [0];
+		for (let j = 0; j < r.data.length; j++) {
+			const d = r.data[j];
+			const isLast = j == r.data.length - 1;
 
-			const x = margin.l - measure.actualBoundingBoxRight - 12;
-			const y =
-				remap(pct, 0, 1, margin.t, height - margin.b) -
-				measure.actualBoundingBoxDescent * 0.5;
-			ctx.fillText(valueText, x, y);
+			x.push(d.gameState.simulationTime);
+			y.push(d.decision.afterCookies);
+
+			if (isLast) continue;
+			x.push(d.gameState.simulationTime);
+			y.push(d.decision.beforeCookies);
 		}
-	};
 
-	const drawXLabels = () => {
-		for (let i = 0; i < 10; i++) {
-			const pct = i / (10 - 1);
+		cookieGraph.add(label, x, y);
+	}
 
-			const value = remap(pct, 0, 1, 0, maxLength);
-			const valueText = numberformat.formatShort(value);
-			const measure = ctx.measureText(valueText);
-
-			const x =
-				remap(pct, 0, 1, margin.l, width - margin.r) -
-				measure.actualBoundingBoxRight * 0.5;
-			const y = height - margin.b + 12;
-			ctx.fillText(valueText, x, y);
-		}
-	};
-
-	const drawLabels = () => {
-		if (!results) return;
-
-		ctx.font = "24px sans-serif";
-		ctx.textBaseline = "top";
-		ctx.fillStyle = "white";
-
-		drawXLabels();
-		drawYLabels();
-	};
-
-	const drawDataLines = () => {
-		for (let i = 0; i < results?.length; i++) {
-			const r = results[i];
-
-			ctx.beginPath();
-			ctx.moveTo(margin.l, height - margin.b);
-			for (let j = 0; j < r.data.length; j++) {
-				const d = r.data[j];
-				const wPct = j / (maxLength - 1);
-				const hPct = d.gameState.buildingCpS / maxValue;
-				const x = (width - margin.l - margin.r) * wPct + margin.l;
-				const y = height - margin.b - (height - margin.t - margin.b) * hPct;
-
-				ctx.lineTo(x, y);
-			}
-			ctx.lineWidth = 4;
-			ctx.strokeStyle = graphColors[i];
-			ctx.stroke();
-		}
-	};
-
-	const drawGraph = () => {
-		clear();
-		drawGrid();
-		drawDataLines();
-		drawLabels();
-	};
-
-	drawGraph();
+	cpsGraph.draw();
+	cookieGraph.draw();
 }
 
 /**
@@ -245,11 +173,11 @@ form.addEventListener("submit", async (e) => {
 		const beforeTime = Date.now();
 		// Start the algorithm run, passing the objective in.
 		const data = await algorithm.instance.run(objective);
-		const simulationTime = Date.now() - beforeTime;
+		const benchmarkTime = Date.now() - beforeTime;
 
 		results.push({
 			algorithm: algorithm,
-			simulationTime: simulationTime,
+			benchmarkTime: benchmarkTime,
 			data: data,
 		});
 	}
