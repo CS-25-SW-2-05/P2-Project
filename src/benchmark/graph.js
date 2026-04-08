@@ -63,11 +63,11 @@ export default class Graph {
 		const xs = this.#data.flatMap((d) => d.x);
 		const ys = this.#data.flatMap((d) => d.y);
 
-		const xMin = Math.min(...(xs || []));
-		const xMax = Math.max(...(xs || []));
+		const xMin = Math.min(...xs);
+		const xMax = Math.max(...xs);
 		const xLength = Math.max(...this.#data.flatMap((d) => d.x.length));
-		const yMin = Math.min(...(ys || []));
-		const yMax = Math.max(...(ys || []));
+		const yMin = Math.min(...ys);
+		const yMax = Math.max(...ys);
 		const yLength = Math.max(...this.#data.flatMap((d) => d.y.length));
 
 		const margin = { t: 64, b: 156, l: 160, r: 64 };
@@ -209,6 +209,9 @@ export default class Graph {
 
 		const drawDataLines = () => {
 			const dataSetCount = this.#data.length;
+			ctx.lineWidth = 4;
+			ctx.lineCap = "round";
+			ctx.lineJoin = "round";
 
 			for (let i = 0; i < dataSetCount; i++) {
 				const d = this.#data[i];
@@ -231,7 +234,6 @@ export default class Graph {
 					ctx.lineTo(x, y);
 				}
 
-				ctx.lineWidth = 4;
 				ctx.strokeStyle = graphColors[i];
 				ctx.stroke();
 			}
