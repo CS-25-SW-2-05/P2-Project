@@ -15,7 +15,7 @@ export default class GreedyPayback extends Algorithm {
 	 * @param {Building} buildings a list of all buildings, in their current state
 	 * @returns {Decision} the next decision to be performed, if it is valid.
 	 */
-	getNextDecision(gameState, buildings) {
+	getNextDecision(gameState, buildings, objective) {
 		// implementer "Dum" payback greedy algoritme, erstat "buildings["cursor"]" herunder
 		             
     let paybackTime = 0;                   
@@ -23,7 +23,7 @@ export default class GreedyPayback extends Algorithm {
 
     let bestDecision = {
         buildingKey: "cursor",
-        paybackTime: Infinity
+        paybackTime: 0
     }
     let tempDecision = {
         buildingKey: "cursor",
@@ -35,40 +35,59 @@ export default class GreedyPayback extends Algorithm {
       
         let b = buildings[key];
 
-        if (!b.canPurchase()) continue;
+        //if (!b.canPurchase()) continue;
 
         let cost = b.cost;
-
+console.log(cost);
     
-        let gain = b.baseCps;
+        let gain = b.baseCpS;
 
-  
+  console.log(gain);
         if (gain <= 0) continue;
 
         paybackTime = cost / gain;
+        console.log(paybackTime);
 
-        tempDecision[0] = key;
-        tempDecision[1] = paybackTime;
+        tempDecision.buildingKey = key;
+        tempDecision.paybackTime = paybackTime;
 
 
         if (numOfBuildingsAssessed === 0) {
-            bestDecision[0] = tempDecision[0];
-            bestDecision[1] = tempDecision[1];
+            bestDecision.buildingKey = tempDecision.buildingKey;
+            bestDecision.paybackTime = tempDecision.paybackTime;
             numOfBuildingsAssessed++;
             continue;
         }
 
    
-        if (tempDecision[1] < bestDecision[1]) {
-            bestDecision[0] = tempDecision[0];
-            bestDecision[1] = tempDecision[1];
+        if (tempDecision.paybackTime < bestDecision.paybackTime) {
+            bestDecision.buildingKey = tempDecision.buildingKey;
+            bestDecision.paybackTime = tempDecision.paybackTime;
         }
 
         numOfBuildingsAssessed++;
     }
 
+const bestBuilding = buildings[bestDecision.buildingKey]
 
-		
-		return new PurchaseDecision(gameState, buildings[bestDecision[0]]);
+if (!bestBuilding) {
+    return new WaitDecision(gameState, 1);
+}
+
+if (bestBuilding.canPurchase()) {
+    return new PurchaseDecision(gameState, bestBuilding);
+}
+
+
+let waitTime;
+
+if (bestBuilding.cost > gameState.cookies) {
+    waitTime = (bestBuilding.cost - gameState.cookies) / gameState.cps;
+} else {
+    waitTime = 0;
+}
+
+return new WaitDecision(gameState, waitTime);
+
 	}
 }
