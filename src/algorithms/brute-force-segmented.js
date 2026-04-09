@@ -25,7 +25,7 @@ export default class BruteForceSegmented extends Algorithm {
 		return new PurchaseDecision(gameState, buildings["grandma"]);
 		return new WaitDecision(gameState, wait);
 	}
-
+/*
 	getAllDecisionPermutations(segmentedSearchDepth, decisionArr, decisions, permutationMarker, permutation) {
 
 		if(!(permutationMarker === segmentedSearchDepth - 1)){
@@ -53,23 +53,42 @@ export default class BruteForceSegmented extends Algorithm {
 		permutation[permutationMarker] = 0;
 		return;
 	}
-
+*/
 
 	getAllDecisionPermutationsDUMBEDITION(segmentedSearchDepth, decisionArr, decisions, permutation){
 
+		console.log(permutation);
+		let solutionNumber = 0;
+		let i, j, k, l = 0;
 
-		for(let i = 0; i < decisions.length; i++){
-			for(let j = 0;;){
-				for(let k = 0;;){
-					for(let l = 0;;){
-						for(let m = 0;;){
-
+		for(let i = 1; i <= decisions.length; i++){
+			for(let j = 1; j <= decisions.length; j++){
+				for(let k = 1; k <= decisions.length; k++){
+					for(let l = 1; l <= decisions.length; l++){
+						for(let m = 0; m <= decisions.length; m++){
+							permutation[4] = m;
+							decisionArr[solutionNumber] = [
+								permutation[0], permutation[1], permutation[2], permutation[3], permutation[4]
+							];	
+							solutionNumber++;
+							//console.log(permutation);
+							
 						}
+						permutation[3] = l;
 					}
-				}
-			}
-		}
+					permutation[3] = l;
+					permutation[2] = k;
 
+				}
+				permutation[3] = l;
+				permutation[2] = k;
+				permutation[1] = j;
+			}
+			permutation[3] = l;
+			permutation[2] = k;
+			permutation[1] = j;
+			permutation[0] = i;
+		}
 	}
 
 
@@ -78,12 +97,12 @@ export default class BruteForceSegmented extends Algorithm {
 	getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth){
 
 
-		let decisionArr = [];
-		let permutation = [];
-				
+		let decisionArr = [[]];
+		let permutation = []
+				/*
 		for (let j = 0; j < segmentedSearchDepth; j++){
 			decisionArr[j] = [];
-		}
+		}*/
 
 		for (let j = 0; j < segmentedSearchDepth; j++){
 			permutation[j] = 0;
@@ -91,10 +110,14 @@ export default class BruteForceSegmented extends Algorithm {
 
 		let permutationMarker = 0;
 
+		this.getAllDecisionPermutationsDUMBEDITION(
+			segmentedSearchDepth, decisionArr, decisions, permutation
+		);
+/*
 		this.getAllDecisionPermutations(
 			segmentedSearchDepth, decisionArr, decisions, permutationMarker, permutation
 		);
-
+*/
 		console.log(decisionArr);
 
 
@@ -143,8 +166,9 @@ export default class BruteForceSegmented extends Algorithm {
 		decisions[i] = "wait";
 		console.log(decisions);
 
+		this.getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth)
 		
-
+/*
 		for (let i = 0; i < segmentedSearchDepth; i++){
 			this.getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth)
 			
@@ -152,7 +176,7 @@ export default class BruteForceSegmented extends Algorithm {
 
 		}
 
-		
+		*/
 
 		return 1;
 
