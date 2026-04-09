@@ -54,41 +54,43 @@ export default class BruteForceSegmented extends Algorithm {
 		return;
 	}
 */
-
-	getAllDecisionPermutationsDUMBEDITION(segmentedSearchDepth, decisionArr, decisions, permutation){
+	//
+	getAllDecisionPermutationsDUMBEDITION(segmentedSearchDepth, decisionArr, decisions){
 
 		console.log(permutation);
 		let solutionNumber = 0;
-		let i, j, k, l = 0;
+		let i = 0, j = 0, k = 0, l = 0, m = 0;
+		const S = decisions.length;
 
-		for(let i = 1; i <= decisions.length; i++){
-			for(let j = 1; j <= decisions.length; j++){
-				for(let k = 1; k <= decisions.length; k++){
-					for(let l = 1; l <= decisions.length; l++){
-						for(let m = 0; m <= decisions.length; m++){
-							permutation[4] = m;
-							decisionArr[solutionNumber] = [
-								permutation[0], permutation[1], permutation[2], permutation[3], permutation[4]
-							];	
-							solutionNumber++;
-							//console.log(permutation);
-							
-						}
-						permutation[3] = l;
-					}
-					permutation[3] = l;
-					permutation[2] = k;
+		while(true){
+			decisionArr[solutionNumber] = [i, j, k, l, m];
+			solutionNumber++;
 
-				}
-				permutation[3] = l;
-				permutation[2] = k;
-				permutation[1] = j;
+			m++;
+
+			if(m == S + 1){
+				m = 0;
+				l += 1;
 			}
-			permutation[3] = l;
-			permutation[2] = k;
-			permutation[1] = j;
-			permutation[0] = i;
+			if(l == S + 1){
+				l = 0;
+				k += 1;
+			}
+			if(k == S + 1){
+				k = 0;
+				j += 1;
+			}
+			if(j == S + 1){
+				j = 0;
+				i += 1;
+			}
+			if(i == S + 1){
+				break
+			}
+			//console.log([i, j, k, l, m])
+			
 		}
+		return;
 	}
 
 
@@ -96,50 +98,24 @@ export default class BruteForceSegmented extends Algorithm {
 	// finds the solution to each segment
 	getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth){
 
-
 		let decisionArr = [[]];
-		let permutation = []
-				/*
-		for (let j = 0; j < segmentedSearchDepth; j++){
-			decisionArr[j] = [];
-		}*/
 
-		for (let j = 0; j < segmentedSearchDepth; j++){
-			permutation[j] = 0;
-		}
-
-		let permutationMarker = 0;
-
+		// find all decision permutations
 		this.getAllDecisionPermutationsDUMBEDITION(
-			segmentedSearchDepth, decisionArr, decisions, permutation
+			segmentedSearchDepth, decisionArr, decisions,
 		);
-/*
-		this.getAllDecisionPermutations(
-			segmentedSearchDepth, decisionArr, decisions, permutationMarker, permutation
-		);
-*/
 		console.log(decisionArr);
 
 
-		//
-		/*
-		for (let j = 0; j < segmentedSearchDepth; j++){
-			decisionArr[j] = 0;
-		}
-		*/
+		let i = 0;
+		// runs through 
+		while(true){
 
-		// find all decision permutations
-		
+			
+			decisionArr[i];
+			
 
-
-
-
-		while(false){
-			if(
-				decisionArr
-
-
-			){}
+			i++;
 
 
 
