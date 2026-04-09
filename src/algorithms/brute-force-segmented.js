@@ -36,7 +36,7 @@ export default class BruteForceSegmented extends Algorithm {
 
 		let permutationDepth = (segmentedSearchDepth - 1) - permutationMarker;
 
-		for(let l = 0; l < permutationDepth; l++){
+		for(let l = segmentedSearchDepth - 1; l < permutationDepth; l++){
 			for(let k = 0; k < decisions.length; k++){
 				permutation[permutationMarker] = k;
 				console.log(permutation);
@@ -55,6 +55,22 @@ export default class BruteForceSegmented extends Algorithm {
 	}
 
 
+	getAllDecisionPermutationsDUMBEDITION(segmentedSearchDepth, decisionArr, decisions, permutation){
+
+
+		for(let i = 0; i < decisions.length; i++){
+			for(let j = 0;;){
+				for(let k = 0;;){
+					for(let l = 0;;){
+						for(let m = 0;;){
+
+						}
+					}
+				}
+			}
+		}
+
+	}
 
 
 
