@@ -13,6 +13,7 @@ import Decision from "./algorithms/decisions/decision.js";
 import GameState from "./cookie-clicker/game-state.js";
 import * as numberformat from "https://esm.sh/swarm-numberformat";
 import Graph from "./benchmark/graph.js";
+import Chart from "https://esm.sh/chart.js/auto";
 
 // References
 const algorithmCount = document.getElementById("algorithm-count");
@@ -23,6 +24,7 @@ const runBtn = form.querySelector("button[type='submit']");
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
+let buildingGraph = null;
 
 // Functions
 function updateForm() {
@@ -52,7 +54,10 @@ function getActiveAlgorithms() {
  * }[]} results
  */
 function displayResults(results) {
-	if (results) console.log(results);
+	if (results) {
+		console.log(results);
+		console.log(results[0].data[0].decision.purchaseable.name);
+	}
 
 	// Table Results
 	const tbody = document.querySelector(".result-data > tbody");
@@ -74,8 +79,23 @@ function displayResults(results) {
 	// Graph Results
 	const cpsCanvas = document.querySelector("#cps-graph");
 	const cookieCanvas = document.querySelector("#cookie-graph");
+	const buildingConvas = document.querySelector("#building-graph");
+	const buildingGraphConfig = {
+		type: "bar",
+		data: {
+			labels: Object.keys(Buildings),
+			datasets: [{ label: "naive", data: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1] }]
+		}
+	}
 	const cpsGraph = new Graph(cpsCanvas, "Time (s)", "CpS");
 	const cookieGraph = new Graph(cookieCanvas, "Time (s)", "Cookies");
+
+	if (buildingGraph) {
+		buildingGraph.destroy();
+	}
+
+	buildingGraph = new Chart(buildingConvas, buildingGraphConfig)
+
 
 	for (let i = 0; i < results?.length; i++) {
 		const r = results[i];

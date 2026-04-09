@@ -1,7 +1,7 @@
 import Decision from "./decision.js";
 
 export default class PurchaseDecision extends Decision {
-	#purchaseable = null;
+	purchaseable = null;
 
 	/**
 	 * @param {GameState} gameState
@@ -10,21 +10,21 @@ export default class PurchaseDecision extends Decision {
 	constructor(gameState, purchaseable) {
 		super(gameState);
 
-		this.#purchaseable = purchaseable;
+		this.purchaseable = purchaseable;
 		this._wait = purchaseable.cost / gameState.cps;
 		this.isValid =
-			this.#purchaseable != null &&
-			this.#purchaseable.canPurchase() &&
+			this.purchaseable != null &&
+			this.purchaseable.canPurchase() &&
 			this._wait > 0;
 	}
 
 	perform() {
 		this.beforeCookies = this._gameState.cookies;
 		this._gameState.simulationTime += this._wait;
-		this._gameState.cookies += this.#purchaseable.cost;
+		this._gameState.cookies += this.purchaseable.cost;
 		this.afterCookies = this._gameState.cookies;
 
-		const wasSuccesful = this.#purchaseable.purchase(this._gameState);
+		const wasSuccesful = this.purchaseable.purchase(this._gameState);
 		console.log("Result:", this._gameState);
 		return wasSuccesful;
 	}
