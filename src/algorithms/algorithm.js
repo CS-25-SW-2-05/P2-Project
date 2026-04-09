@@ -23,13 +23,13 @@ export default class Algorithm {
 	 * @param {Building} buildings a list of all buildings, in their current state
 	 * @returns {Decision} the next decision to be performed, if it is valid.
 	 */
-	getNextDecision(game, buildings) {
+	getNextDecision(gameState, buildings) {
 		throw new Error(
 			`Method '${this.getNextDecision.name}' must be implemented by subclass.`,
 		);
 	}
 
-	getBruteForceSegmentedSolution(){
+	getBruteForceSegmentedSolution(segmentedSearchDepth, objective, gameState, buildings){
 		throw new Error(
 			`Method '${this.getBruteForceSegmentedSolution.name}' must be implemented by subclass.`,
 		);
@@ -94,9 +94,7 @@ export default class Algorithm {
 			
 			/*--------------------*/
 			//Brute force algorithm
-			const segmentedSearchDepth = 5;
-
-			const BruteForceSegmentedSolution = getBruteForceSegmentedSolution();
+			const solutionArr = this.getBruteForceSegmentedSolution(objective, gameState, buildings);
 
 			while (true) {
 				// This now checks, if the objective is completed, and breaks if it is.
