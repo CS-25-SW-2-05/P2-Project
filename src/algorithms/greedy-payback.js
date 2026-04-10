@@ -1,6 +1,7 @@
 import Algorithm from "./algorithm.js";
 import Decision from "./decisions/decision.js";
 import PurchaseDecision from "./decisions/purchase-decision.js";
+import WaitDecision from "./decisions/wait-decision.js";
 
 export default class GreedyPayback extends Algorithm {
 	// Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
@@ -15,8 +16,75 @@ export default class GreedyPayback extends Algorithm {
 	 * @param {Building} buildings a list of all buildings, in their current state
 	 * @returns {Decision} the next decision to be performed, if it is valid.
 	 */
-	getNextDecision(gameState, buildings) {
+	getNextDecision(gameState, buildings, objective) {
 		// implementer "Dum" payback greedy algoritme, erstat "buildings["cursor"]" herunder
-		return new PurchaseDecision(gameState, buildings["cursor"]);
-	}
+		             
+    let paybackTime = 0;                   
+    let numOfBuildingsAssessed = 0;   
+
+    let bestDecision = {
+        buildingKey: "cursor",
+        paybackTime: 0
+    }
+    let tempDecision = {
+        buildingKey: "cursor",
+        paybackTime: 0
+    }
+
+    for (let key in buildings) {
+
+      
+        let b = buildings[key];
+
+        //if (!b.canPurchase()) continue;
+
+        let cost = b.cost;
+
+    
+        let gain = b.baseCpS;
+
+        if (gain <= 0) continue;
+
+        paybackTime = cost / gain;
+     
+
+        tempDecision.buildingKey = key;
+        tempDecision.paybackTime = paybackTime;
+
+
+        if (numOfBuildingsAssessed === 0) {
+            bestDecision.buildingKey = tempDecision.buildingKey;
+            bestDecision.paybackTime = tempDecision.paybackTime;
+            numOfBuildingsAssessed++;
+            continue;
+        }
+
+   
+        if (tempDecision.paybackTime < bestDecision.paybackTime) {
+            bestDecision.buildingKey = tempDecision.buildingKey;
+            bestDecision.paybackTime = tempDecision.paybackTime;
+        }
+
+        numOfBuildingsAssessed++;
+    }
+
+    if(objective.type !== "cookies"){
+            console.log("Decision: " + bestDecision.buildingKey);
+            console.log("Payback + wait time: " + bestDecision.paybackTime + "s");
+            return new PurchaseDecision(gameState, buildings[bestDecision.buildingKey]);
+        }
+
+        const waitTime = (objective.value/gameState.cps);
+
+        if(waitTime <= bestDecision.paybackTime){
+            console.log("Decision: wait");
+            console.log("Wait time: " + waitTime + "s");
+            return new WaitDecision(gameState, Math.ceil(waitTime));
+        }
+
+        console.log("Decision: " + bestDecision.buildingKey);
+        console.log("Payback + save up time: " + bestDecision.paybackTime + "s");
+        return new PurchaseDecision(gameState, buildings[bestDecision.buildingKey]);
+    }
 }
+    
