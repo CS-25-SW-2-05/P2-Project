@@ -68,26 +68,6 @@ console.log(cost);
         numOfBuildingsAssessed++;
     }
 
-const bestBuilding = buildings[bestDecision.buildingKey]
 
-if (!bestBuilding) {
-    return new WaitDecision(gameState, 1);
 }
-
-if (bestBuilding.canPurchase()) {
-    return new PurchaseDecision(gameState, bestBuilding);
-}
-
-
-let waitTime;
-
-if (bestBuilding.cost > gameState.cookies) {
-    waitTime = (bestBuilding.cost - gameState.cookies) / gameState.cps;
-} else {
-    waitTime = 0;
-}
-
-return new WaitDecision(gameState, waitTime);
-
-	}
-}
+    
