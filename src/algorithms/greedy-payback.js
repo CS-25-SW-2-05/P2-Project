@@ -39,15 +39,14 @@ export default class GreedyPayback extends Algorithm {
         //if (!b.canPurchase()) continue;
 
         let cost = b.cost;
-console.log(cost);
+
     
         let gain = b.baseCpS;
 
-  console.log(gain);
         if (gain <= 0) continue;
 
         paybackTime = cost / gain;
-        console.log(paybackTime);
+     
 
         tempDecision.buildingKey = key;
         tempDecision.paybackTime = paybackTime;
