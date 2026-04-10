@@ -2,8 +2,12 @@ export default class GameState {
 	#cookies = 0;
 	totalCookies = 0;
 	buildingCpS = 0;
-	manualCpS = 6;
+	manualCpS = 1;
 	simulationTime = 0;
+
+	constructor(manualCpS = 1) {
+		this.manualCpS = manualCpS;
+	}
 
 	/**
 	 * @param {GameState} gameState

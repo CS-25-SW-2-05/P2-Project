@@ -98,11 +98,12 @@ main {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
-	align-items: center;
+	/* align-items: center; */
 	flex: 1;
 }
 
-main > div {
+main > div,
+main > form {
 	flex: 1;
 }
 
@@ -112,6 +113,33 @@ canvas {
 	background-color: var(--accent);
 	border: 1px solid var(--border);
 	border-radius: var(--radius-md);
+}
+
+canvas:hover {
+	cursor: zoom-in;
+}
+
+canvas.zoomed {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	translate: -50% -50%;
+	width: auto;
+	height: auto;
+	max-height: calc(100% - 48px);
+	max-width: calc(100% - 48px);
+	cursor: zoom-out;
+}
+
+.previews {
+	display: grid;
+	gap: 4px;
+	grid-template-columns: repeat(5, 1fr);
+}
+
+.previews > canvas:hover {
+	cursor: pointer;
+	filter: brightness(1.1);
 }
 
 hr {
@@ -149,9 +177,20 @@ h2 {
 }
 
 label {
-	display: block;
+	display: flex;
+	flex-direction: column;
 	font-size: 13px;
 	color: var(--color-text-secondary);
+}
+
+label > div {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+label output {
+	width: 2ch;
 }
 
 label:has(input[type="text"]) > p,
@@ -162,7 +201,7 @@ label:has(select) > p {
 
 input,
 select {
-	width: 100%;
+	flex: 1;
 	background-color: color-mix(in oklab, var(--input) 30%, transparent);
 	color: var(--accent-foreground);
 	border: 1px solid var(--border);
@@ -186,7 +225,7 @@ select:hover {
 	background-color: color-mix(in oklab, var(--input) 50%, transparent);
 }
 
-input:focus {
+input:not([type="range"]):focus {
 	outline: solid 3px var(--ring);
 }
 

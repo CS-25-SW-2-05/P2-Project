@@ -37,7 +37,8 @@ export default class Algorithm {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
 
-		const gameState = new GameState();
+		const baseCpS = document.querySelector("#base-cps").valueAsNumber;
+		const gameState = new GameState(baseCpS);
 		const buildings = cloneBuildings();
 
 		this.#runPromise = (async () => {

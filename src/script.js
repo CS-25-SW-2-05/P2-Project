@@ -12,11 +12,16 @@ import "./algorithms/brute-force-segmented.js";
 import Decision from "./algorithms/decisions/decision.js";
 import GameState from "./cookie-clicker/game-state.js";
 import * as numberformat from "https://esm.sh/swarm-numberformat";
-import Graph from "./benchmark/graph.js";
+import LineChart from "./benchmark/line-chart.js";
 
 // References
-const algorithmCount = document.getElementById("algorithm-count");
+/** @type {HTMLCanvasElement} */
+const chartCanvas = document.querySelector("#chart");
+const chartContext = chartCanvas.getContext("2d");
+const algorithmCount = document.querySelector("#algorithm-count");
 const algorithmsContainer = document.querySelector(".algorithms");
+const buildingLengthInput = document.querySelector("#building-length");
+const benchmarkResults = document.querySelector(".benchmark-results");
 const form = document.querySelector("form");
 const runBtn = form.querySelector("button[type='submit']");
 
@@ -71,11 +76,11 @@ function displayResults(results) {
         `;
 	}
 
-	// Graph Results
-	const cpsCanvas = document.querySelector("#cps-graph");
-	const cookieCanvas = document.querySelector("#cookie-graph");
-	const cpsGraph = new Graph(cpsCanvas, "Time (s)", "CpS");
-	const cookieGraph = new Graph(cookieCanvas, "Time (s)", "Cookies");
+	// Chart Results
+	const cpsCanvas = document.querySelector("#cps-chart");
+	const cookieCanvas = document.querySelector("#cookie-chart");
+	const cpsChart = new LineChart(cpsCanvas, "Time (s)", "Production (CpS)");
+	const cookieChart = new LineChart(cookieCanvas, "Time (s)", "Cookies");
 
 	for (let i = 0; i < results?.length; i++) {
 		const r = results[i];
@@ -90,7 +95,7 @@ function displayResults(results) {
 			y.push(d.gameState.buildingCpS);
 		}
 
-		cpsGraph.add(label, x, y);
+		cpsChart.add(label, x, y);
 	}
 
 	for (let i = 0; i < results?.length; i++) {
@@ -111,11 +116,12 @@ function displayResults(results) {
 			y.push(d.decision.beforeCookies);
 		}
 
-		cookieGraph.add(label, x, y);
+		cookieChart.add(label, x, y);
 	}
 
-	cpsGraph.draw();
-	cookieGraph.draw();
+	cpsChart.draw();
+	cookieChart.draw();
+	chartContext.drawImage(cpsCanvas, 0, 0);
 }
 
 /**
@@ -131,7 +137,6 @@ function show(title, msg) {
 }
 
 // Initialize
-await loadBuildings();
 for (const algorithm of Algorithm.derived) {
 	const activeByDefault =
 		["GreedyNaive", "GreedyPaybackTime"].findIndex(
@@ -146,7 +151,6 @@ for (const algorithm of Algorithm.derived) {
 	`;
 }
 
-console.log("Buildings", Buildings);
 console.log("Algorithms", Algorithm.derived);
 
 // Subscribe to events
@@ -162,6 +166,10 @@ form.addEventListener("submit", async (e) => {
 	runBtn.setAttribute("disabled", "disabled");
 	const runBtnText = runBtn.textContent;
 	runBtn.textContent = "Running...";
+
+	const buildingLength = buildingLengthInput.valueAsNumber;
+	await loadBuildings(buildingLength);
+	console.log("Buildings", Buildings);
 
 	const results = [];
 	for (const algorithm of Algorithm.derived) {
@@ -186,6 +194,7 @@ form.addEventListener("submit", async (e) => {
 
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
+	benchmarkResults.classList.remove("hide");
 });
 
 form.addEventListener("reset", () => {
@@ -197,6 +206,30 @@ form.addEventListener("reset", () => {
 	}, 0);
 });
 
+// Show value of range sliders in output element
+document
+	.querySelectorAll('input[type="range"]')
+	.forEach((r) =>
+		r.addEventListener("input", () => (r.nextElementSibling.value = r.value)),
+	);
+
+// Click preview charts sets contents of big chart
+document
+	.querySelectorAll(".previews > canvas")
+	.forEach((c) =>
+		c.addEventListener("click", () => chartContext.drawImage(c, 0, 0)),
+	);
+
+// Zoom in on chart
+chartCanvas.addEventListener("click", () => {
+	/** @type {HTMLCanvasElement} */
+	const zoomedChart = chartCanvas.cloneNode();
+	zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
+	document.body.appendChild(zoomedChart);
+
+	zoomedChart.classList.add("zoomed");
+	zoomedChart.addEventListener("click", zoomedChart.remove);
+});
+
 form.addEventListener("change", updateForm);
 updateForm();
-displayResults();
