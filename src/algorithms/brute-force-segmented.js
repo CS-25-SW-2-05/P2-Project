@@ -57,7 +57,6 @@ export default class BruteForceSegmented extends Algorithm {
 	//
 	getAllDecisionPermutationsDUMBEDITION(segmentedSearchDepth, decisionArr, decisions){
 
-		console.log(permutation);
 		let solutionNumber = 0;
 		let i = 0, j = 0, k = 0, l = 0, m = 0;
 		const S = decisions.length;
@@ -96,11 +95,11 @@ export default class BruteForceSegmented extends Algorithm {
 
 
 	// finds the solution to each segment
-	getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth){
+	getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth, objective){
 
 		let decisionArr = [[]];
 
-		// find all decision permutations
+		// finds all decision permutations and puts them into decisionArr
 		this.getAllDecisionPermutationsDUMBEDITION(
 			segmentedSearchDepth, decisionArr, decisions,
 		);
@@ -108,8 +107,14 @@ export default class BruteForceSegmented extends Algorithm {
 
 
 		let i = 0;
-		// runs through 
-		while(true){
+		let bestSolution = decisionArr[0];
+		console.log(bestSolution);
+		let tempSolution = [];
+
+
+
+		// Runs through all decision permutations and saves the best one
+		while(false){
 
 			
 			decisionArr[i];
@@ -142,7 +147,7 @@ export default class BruteForceSegmented extends Algorithm {
 		decisions[i] = "wait";
 		console.log(decisions);
 
-		this.getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth)
+		this.getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth, objective)
 		
 /*
 		for (let i = 0; i < segmentedSearchDepth; i++){
