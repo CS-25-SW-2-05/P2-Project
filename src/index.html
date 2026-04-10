@@ -48,7 +48,7 @@
 								<input
 									type="number"
 									id="objective-value"
-									min="0"
+									min="1"
 									value="1000"
 								/>
 							</label>
@@ -75,47 +75,18 @@
 			<div class="benchmark-results">
 				<section>
 					<h2>Results</h2>
-					<canvas></canvas>
-					<table>
+					<canvas width="1920" height="1080"></canvas>
+					<table class="result-data">
 						<thead>
 							<tr>
 								<th>Algorithm</th>
-								<th>Simulation Time</th>
-								<th>Real Time</th>
+								<th>Simulation Time (ms)</th>
+								<th>Real Time (s)</th>
 								<th>Total Cookies</th>
 								<th>CpS</th>
 							</tr>
 						</thead>
-						<tbody>
-							<tr>
-								<td>[Greedy] Immediate Purchase</td>
-								<td>0</td>
-								<td>0</td>
-								<td>0</td>
-								<td>0</td>
-							</tr>
-							<tr>
-								<td>[Greedy] Payback</td>
-								<td>0</td>
-								<td>0</td>
-								<td>0</td>
-								<td>0</td>
-							</tr>
-							<tr>
-								<td>[Greedy] Save+Payback</td>
-								<td>0</td>
-								<td>0</td>
-								<td>0</td>
-								<td>0</td>
-							</tr>
-							<tr>
-								<td>[Brute Force] Segmented</td>
-								<td>0</td>
-								<td>0</td>
-								<td>0</td>
-								<td>0</td>
-							</tr>
-						</tbody>
+						<tbody></tbody>
 					</table>
 				</section>
 			</div>

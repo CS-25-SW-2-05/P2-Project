@@ -22,8 +22,8 @@ export default class Building extends Purchasable {
 		this.maxBuildCount = maxBuildCount;
 	}
 
-	calcCost() {
-		return Math.ceil(this.baseCost * 1.15 ** this.owned);
+	updateCost() {
+		this.cost = Math.ceil(this.baseCost * 1.15 ** this.owned);
 	}
 
 	/**
@@ -96,10 +96,10 @@ export function logBuildingStats(buildings) {
 		// Logging current building prices
 		console.log(
 			currentBuilding.name.padEnd(15) +
-				" price: " +
-				String(currentBuilding.calcCost()).padEnd(25) +
-				" owned: " +
-				currentBuilding.owned,
+			" price: " +
+			String(currentBuilding.cost).padEnd(25) +
+			" owned: " +
+			currentBuilding.owned,
 		);
 	}
 }
@@ -117,4 +117,23 @@ export function cloneBuildings() {
 	}
 
 	return copy;
+}
+
+/**
+ * Filter Buildings list for buildings that have reached max level
+ * or price of infinity
+ * @param {*} buildings The list to be filtered
+ * @returns The filtered list of buildings
+ */
+export function filterValid(buildings) {
+	const filteredBuildings = {};
+
+	// Iterate over the building list using the the key and the objects
+	for (const [key, building] of Object.entries(buildings)) {
+		// Add the building to the list, if it can be purchased
+		if (building.canPurchase() && Number.isFinite(building.cost))
+			filteredBuildings[key] = building;
+	}
+
+	return filteredBuildings
 }

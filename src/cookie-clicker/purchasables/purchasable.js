@@ -19,11 +19,11 @@ export default class Purchasable {
 	}
 
 	/**
-	 * @returns {number} the calculated cost using the Cookie Clicker cost formula.
+	 *  Calculates and updates the cost using the Cookie Clicker cost formula.
 	 */
-	calcCost() {
+	updateCost() {
 		throw new Error(
-			`Method '${this.calcCost.name}' must be implemented by subclass.`,
+			`Method '${this.updateCost.name}' must be implemented by subclass.`,
 		);
 	}
 
@@ -53,13 +53,13 @@ export default class Purchasable {
 	 * @returns {boolean} whether the purchase was performed.
 	 */
 	purchase(gameState) {
-		if (!this.canPurchase()) return;
+		if (!this.canPurchase()) return false;
 		const canAfford = this.cost <= gameState.cookies;
 		if (!canAfford) return false;
 
 		this.onPurchase(gameState);
 		gameState.cookies -= this.cost;
-		this.cost = this.calcCost();
+		this.updateCost();
 		return true;
 	}
 }
