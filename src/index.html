@@ -39,6 +39,7 @@
 								<select id="objective-type">
 									<option value="cookies">Cookies</option>
 									<option value="production">Production Rate</option>
+									<option value="time limit">Time Limit</option>
 								</select>
 							</label>
 						</div>
@@ -71,17 +72,17 @@
 					<button type="reset">Reset</button>
 				</div>
 			</form>
-			<hr />
 			<div class="benchmark-results">
 				<section>
 					<h2>Results</h2>
-					<canvas width="1920" height="1080"></canvas>
+					<canvas id="cps-graph" width="1920" height="1080"></canvas>
+					<canvas id="cookie-graph" width="1920" height="1080"></canvas>
 					<table class="result-data">
 						<thead>
 							<tr>
 								<th>Algorithm</th>
-								<th>Simulation Time (ms)</th>
-								<th>Real Time (s)</th>
+								<th>Benchmark Time (ms)</th>
+								<th>Simulation Time (s)</th>
 								<th>Total Cookies</th>
 								<th>CpS</th>
 							</tr>
