@@ -12,6 +12,7 @@ export default class Algorithm {
 	static derived = new Set();
 	#isRunning = false;
 	#runPromise = null;
+	#stopRequested = false;
 
 	constructor() {
 		if (new.target != Algorithm) return;
@@ -33,9 +34,15 @@ export default class Algorithm {
 	 * @param {Objective} objective passed in from script.js when the form is submitted
 	 * @returns {Promise<GameState>} the run process promise.
 	 */
-	run(objective) {
+
+	stop(){
+		this.#stopRequested = true;
+	}
+
+	async run(objective) {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
+		this.#stopRequested = false;
 
 		const gameState = new GameState();
 		const buildings = cloneBuildings();
@@ -46,7 +53,14 @@ export default class Algorithm {
 			let iterations = 0;
 			const awaitIteration = 500;
 			while (true) {
-				// This now checks, if the objective is completed, and breaks if it is.
+				// Checks if stop button is true
+				if(this.#stopRequested){
+					console.log("Algorithm stopped by user.");
+					this.#stopRequested = false;
+					break;
+				}
+
+				// This now checks, if the objective is completed, and breaks.
 				if (objective.isCompleted(gameState)) {
 					console.log("TEST: Objective Completed");
 					break;

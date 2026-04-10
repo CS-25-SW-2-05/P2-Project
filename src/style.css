@@ -271,6 +271,12 @@ button[type="submit"] {
 	border: none;
 }
 
+button[type="stop"] {
+	background-color: var(--destructive);
+	color: var(--secondary-foreground);
+	border: none;
+}
+
 button[type="reset"] {
 	background-color: var(--destructive);
 	color: var(--secondary-foreground);

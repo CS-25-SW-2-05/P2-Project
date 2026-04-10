@@ -39,7 +39,8 @@
 								<select id="objective-type">
 									<option value="cookies">Cookies</option>
 									<option value="production">Production Rate</option>
-									<option value="time limit">Time Limit</option>
+									<option value="fixed-production">[Fixed Time] Production Rate</option>
+									<option value="fixed-cookies">[Fixed Time] Cookies</option>
 								</select>
 							</label>
 						</div>
@@ -69,6 +70,7 @@
 
 				<div class="actions">
 					<button type="submit" disabled>Run Benchmark</button>
+					<button type="stop" id="stop-btn" disabled>Stop</button>
 					<button type="reset">Reset</button>
 				</div>
 			</form>

@@ -26,17 +26,16 @@ export default class Objective {
 	 */
 	isCompleted(gameState) {
 		// If type is "cookies", check gameState.cookies against this.value
-		if (this.type === "cookies") {
+		if (this.type === "cookies")
 			return gameState.cookies >= this.value;
-		}
-		// If type is "production", check gameState.cps against this.value
-		if (this.type === "production") {
+		
+		// If type is "production", check gameState.buildingcps against this.#value
+		if (this.type === "production")
 			return gameState.buildingCpS >= this.value;
-		}
-		// If type is "time limit", check gameState.simulationTime against this.value
-		if (this.type === "time limit") {
-			return gameState.simulationTime >= this.value; // Stops when simulated time runs out
-		}
+
+		if (this.type === "fixed-cookies" || this.type === "fixed-production")
+			return gameState.realTime >= this.value;
+		
 		// If type is unknown return false (not completed)
 		return false;
 	}

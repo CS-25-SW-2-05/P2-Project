@@ -56,6 +56,122 @@ export default class GreedyPaybackTime extends Algorithm {
 			return new PurchaseDecision(gameState, buildings[bestDecision[0]]);
 		}
 
+
+		//**
+		// New objectives added: fixed-production & fixed-cookies
+		//*/
+
+		//Maximise CpS by end of time limit: buy the building with the best CpS per cookies spent (ignore payback) 
+		if(objective.type === "fixed-production"){
+			let bestBuilding = null;
+			let bestEffeciency = -Infinity;
+
+			for(const key in buildings){
+				const building = buildings[key];
+				if(!building.canPurchase()) continue;
+
+				//effeciency = CpS gained divided by what it costs
+				const effeciency = building.baseCpS / building.cost;
+				if(effeciency > bestEffeciency){
+					bestEffeciency = effeciency;
+					bestBuilding = building;
+				}
+			}
+			console.log("Decision (fixed-production): " + bestBuilding?.name);
+			return new PurchaseDecision(gameState, bestBuilding ?? buildings[bestDecision[0]]);
+		}
+
+
+		//Maximise total cookes by end of time limit: payback logic, but only buy if the building turns a profit before timer runs out, else wait.
+		if(objective.type === "fixed-cookies"){
+			let timeLeft = objective.value - gameState.realTime;
+
+			let bestBuilding = null;
+			let bestProfit = -Infinity;
+
+			for(const key in buildings){
+				const building = buildings[key];
+				if(!building.canPurchase()) continue;
+				
+				const cookiesEarned = building.baseCpS * timeLeft;
+
+				//profit = cookies earned minus cost, accounting for time lost.
+				const saveUp = Math.max(0, building.cost - gameState.cookes);
+				const cookiesLostSavingUp = saveUp;
+				const profit = cookiesEarned - cookiesLostSavingUp;
+				if(profit > bestProfit){
+					bestProfit = profit;
+					bestBuilding = building;
+				}
+			}
+			// No building turns a profit --> just wait out thse time
+			if (bestBuilding === null || bestProfit <= 0){
+				console.log("Decision (fixed-cookies): wait");
+				return new WaitDecision(gameState, Math-ceil(timeLeft));
+			}
+			console.log("Decision (fixed-cookies): " + bestBuilding?.name);
+			return new PurchaseDecision(gameState, bestBuilding);
+		}
+
+
+
+		//**
+		// New objectives added: fixed-production & fixed-cookies
+		//*/
+
+		//Maximise CpS by end of time limit: buy the building with the best CpS per cookies spent (ignore payback) 
+		if(objective.type === "fixed-production"){
+			let bestBuilding = null;
+			let bestEffeciency = -Infinity;
+
+			for(const key in buildings){
+				const building = buildings[key];
+				if(!building.canPurchase()) continue;
+
+				//effeciency = CpS gained divided by what it costs
+				const effeciency = building.baseCpS / building.cost;
+				if(effeciency > bestEffeciency){
+					bestEffeciency = effeciency;
+					bestBuilding = building;
+				}
+			}
+			console.log("Decision (fixed-production): " + bestBuilding?.name);
+			return new PurchaseDecision(gameState, bestBuilding ?? buildings[bestDecision[0]]);
+		}
+
+
+		//Maximise total cookes by end of time limit: payback logic, but only buy if the building turns a profit before timer runs out, else wait.
+		if(objective.type === "fixed-cookies"){
+			let timeLeft = objective.value - gameState.realTime;
+
+			let bestBuilding = null;
+			let bestProfit = -Infinity;
+
+			for(const key in buildings){
+				const building = buildings[key];
+				if(!building.canPurchase()) continue;
+				
+				const cookiesEarned = building.baseCpS * timeLeft;
+
+				//profit = cookies earned minus cost, accounting for time lost.
+				const saveUp = Math.max(0, building.cost - gameState.cookes);
+				const cookiesLostSavingUp = saveUp;
+				const profit = cookiesEarned - cookiesLostSavingUp;
+				if(profit > bestProfit){
+					bestProfit = profit;
+					bestBuilding = building;
+				}
+			}
+			// No building turns a profit --> just wait out thse time
+			if (bestBuilding === null || bestProfit <= 0){
+				console.log("Decision (fixed-cookies): wait");
+				return new WaitDecision(gameState, Math-ceil(timeLeft));
+			}
+			console.log("Decision (fixed-cookies): " + bestBuilding?.name);
+			return new PurchaseDecision(gameState, bestBuilding);
+		}
+
+
 		const waitSaveUpTime =
 			(objective.value - gameState.cookies) / gameState.cps;
 

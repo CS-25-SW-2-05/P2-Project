@@ -23,6 +23,7 @@ const runBtn = form.querySelector("button[type='submit']");
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
+const stopBtn = document.getElementById("stop-btn");
 
 // Functions
 function updateForm() {
@@ -163,6 +164,8 @@ form.addEventListener("submit", async (e) => {
 	const runBtnText = runBtn.textContent;
 	runBtn.textContent = "Running...";
 
+	stopBtn.removeAttribute("disabled");
+
 	const results = [];
 	for (const algorithm of Algorithm.derived) {
 		const active =
@@ -186,6 +189,16 @@ form.addEventListener("submit", async (e) => {
 
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
+	stopBtn.setAttribute("disabled", "disabled");
+});
+
+stopBtn.addEventListener("click", () =>{
+	for(const algorithm of Algorithm.derived){
+		const active = document.querySelector('#${algorithm.name}:checked') !== null;
+		if(!active)continue;
+		algorithm.instance.stop();
+	}
+	show("Stopped", "The simulation was stopped by user.")
 });
 
 form.addEventListener("reset", () => {
