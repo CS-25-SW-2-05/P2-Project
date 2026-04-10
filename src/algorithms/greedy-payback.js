@@ -1,6 +1,7 @@
 import Algorithm from "./algorithm.js";
 import Decision from "./decisions/decision.js";
 import PurchaseDecision from "./decisions/purchase-decision.js";
+import WaitDecision from "./decisions/wait-decision.js";
 
 export default class GreedyPayback extends Algorithm {
 	// Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
@@ -68,6 +69,23 @@ console.log(cost);
         numOfBuildingsAssessed++;
     }
 
+    if(objective.type !== "cookies"){
+            console.log("Decision: " + bestDecision.buildingKey);
+            console.log("Payback + wait time: " + bestDecision.paybackTime + "s");
+            return new PurchaseDecision(gameState, buildings[bestDecision.buildingKey]);
+        }
 
+        const waitTime = (objective.value/gameState.cps);
+
+        if(waitTime <= bestDecision.paybackTime){
+            console.log("Decision: wait");
+            console.log("Wait time: " + waitTime + "s");
+            return new WaitDecision(gameState, Math.ceil(waitTime));
+        }
+
+        console.log("Decision: " + bestDecision.buildingKey);
+        console.log("Payback + save up time: " + bestDecision.paybackTime + "s");
+        return new PurchaseDecision(gameState, buildings[bestDecision.buildingKey]);
+    }
 }
     
