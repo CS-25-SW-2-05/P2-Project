@@ -129,11 +129,17 @@ function displayResults(results) {
  * @param {string} title title of the toast.
  * @param {string} msg message of the toast.
  */
+let toastCounter = 0;
 function show(title, msg) {
+	toastCounter++;
 	toastTitle.textContent = title;
 	toastMsg.textContent = msg;
 	toast.classList.add("show");
-	setTimeout(() => toast.classList.remove("show"), 4000);
+	setTimeout(() => {
+		toastCounter--;
+		if (toastCounter !== 0) return;
+		toast.classList.remove("show");
+	}, 4000);
 }
 
 // Initialize
