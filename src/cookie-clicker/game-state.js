@@ -3,17 +3,19 @@ export default class GameState {
 	totalCookies = 0;
 	buildingCpS = 0;
 	manualCpS = 6;
-	realTime = 0;
+	simulationTime = 0;
 
 	/**
 	 * @param {GameState} gameState
 	 * @returns {GameState} a copy of the game state.
 	 */
 	copy() {
-		const copy = Object.assign(
-			Object.create(Object.getPrototypeOf(this)),
-			this,
-		);
+		const copy = new GameState();
+		copy.#cookies = this.#cookies;
+		copy.totalCookies = this.totalCookies;
+		copy.buildingCpS = this.buildingCpS;
+		copy.manualCpS = this.manualCpS;
+		copy.simulationTime = this.simulationTime;
 
 		return copy;
 	}

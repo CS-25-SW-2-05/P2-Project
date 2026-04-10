@@ -19,10 +19,10 @@ export default class PurchaseDecision extends Decision {
 	}
 
 	perform() {
-		console.log("Decision:", this);
-
-		this._gameState.realTime += this._wait;
+		this.beforeCookies = this._gameState.cookies;
+		this._gameState.simulationTime += this._wait;
 		this._gameState.cookies += this.#purchaseable.cost;
+		this.afterCookies = this._gameState.cookies;
 
 		const wasSuccesful = this.#purchaseable.purchase(this._gameState);
 		console.log("Result:", this._gameState);

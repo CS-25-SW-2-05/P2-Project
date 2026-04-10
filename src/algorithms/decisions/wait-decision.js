@@ -13,10 +13,10 @@ export default class WaitDecision extends Decision {
 	}
 
 	perform() {
-		console.log("Decision:", this);
-
-		this._gameState.realTime += this._wait;
+		this.beforeCookies = this._gameState.cookies;
+		this._gameState.simulationTime += this._wait;
 		this._gameState.cookies += this._gameState.cps * this._wait;
+		this.afterCookies = this._gameState.cookies;
 
 		console.log("Result:", this._gameState);
 		return true;

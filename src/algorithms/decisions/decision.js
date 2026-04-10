@@ -2,6 +2,8 @@ import GameState from "../../cookie-clicker/game-state.js";
 
 export default class Decision {
 	isValid = false;
+	beforeCookies = 0;
+	afterCookies = 0;
 	_gameState = null;
 	_wait = 0;
 
@@ -19,8 +21,7 @@ export default class Decision {
 	 * Perform the decision, and update the game state.
 	 */
 	perform() {
-		throw new Error(
-			`Method '${this.perform.name}' must be implemented by subclass.`,
-		);
+		console.log("Decision:", this);
+		this.beforeCookies = this._gameState.cookies;
 	}
 }

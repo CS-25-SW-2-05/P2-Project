@@ -42,12 +42,19 @@ export default class GreedyNaive extends Algorithm {
 		// Calculate cookies needed to reach objective
 		const cookiesNeeded = Math.max(0, objective.value - gameState.cookies);
 
-		console.log("Cookies needed for objective:", Math.round(cookiesNeeded), "cookies");
-		console.log("Cookies needed for purchase:", Math.round(cheapestPrice), "cookies");
+		console.log(
+			"Cookies needed for objective:",
+			Math.round(cookiesNeeded),
+			"cookies",
+		);
+		console.log(
+			"Cookies needed for purchase:",
+			Math.round(cheapestPrice),
+			"cookies",
+		);
 
 		// If the cookies needed to reach the objective is less than the cheapest building price
 		if (cookiesNeeded <= cheapestPrice) {
-
 			// Calculate time to reach objective
 			const waitTime = cookiesNeeded / gameState.cps;
 
@@ -58,10 +65,9 @@ export default class GreedyNaive extends Algorithm {
 		// Else buy the cheapest building
 		return new PurchaseDecision(gameState, cheapestBuilding);
 
-		// 1 step look ahead: 
-		// If the time to objective is faster when buying the building, 
+		// 1 step look ahead:
+		// If the time to objective is faster when buying the building,
 		// buy the cheapest building, else wait until the objective is reached
-
 
 		/*
 		// Calculate time to reach objective without buying
