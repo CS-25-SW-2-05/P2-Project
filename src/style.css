@@ -155,12 +155,20 @@ form,
 	width: 100%;
 }
 
+form {
+	padding-right: 0.75rem;
+}
+
+.benchmark-results {
+	padding-left: 0.75rem;
+}
+
 section {
 	background-color: var(--card);
 	border: 0.5px solid var(--border);
 	border-radius: var(--radius);
 	padding: 1.25rem 1.5rem;
-	margin-bottom: 1rem;
+	margin-bottom: 1.5rem;
 }
 
 h2 {
