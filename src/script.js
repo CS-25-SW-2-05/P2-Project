@@ -209,11 +209,10 @@ form.addEventListener("reset", () => {
 });
 
 // Show value of range sliders in output element
-document
-	.querySelectorAll('input[type="range"]')
-	.forEach((r) =>
-		r.addEventListener("input", () => (r.nextElementSibling.value = r.value)),
-	);
+document.querySelectorAll('input[type="range"]').forEach((r) => {
+	r.addEventListener("input", () => (r.nextElementSibling.value = r.value));
+	r.nextElementSibling.value = r.value;
+});
 
 // Click preview charts sets contents of big chart
 document
