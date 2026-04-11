@@ -13,12 +13,12 @@ export default class WaitDecision extends Decision {
 	}
 
 	perform() {
-		this.beforeCookies = this._gameState.cookies;
-		this._gameState.simulationTime += this._wait;
-		this._gameState.cookies += this._gameState.cps * this._wait;
-		this.afterCookies = this._gameState.cookies;
+		this.beforeCookies = this.gameState.cookies;
+		this.gameState.simulationTime += this._wait;
+		this.gameState.cookies += this.gameState.cps * this._wait;
+		this.afterCookies = this.gameState.cookies;
 
-		console.log("Result:", this._gameState);
+		console.log("Result:", this.gameState);
 		return true;
 	}
 }

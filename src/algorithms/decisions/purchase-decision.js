@@ -19,13 +19,13 @@ export default class PurchaseDecision extends Decision {
 	}
 
 	perform() {
-		this.beforeCookies = this._gameState.cookies;
-		this._gameState.simulationTime += this._wait;
-		this._gameState.cookies += this.purchaseable.cost;
-		this.afterCookies = this._gameState.cookies;
+		this.beforeCookies = this.gameState.cookies;
+		this.gameState.simulationTime += this._wait;
+		this.gameState.cookies += this.purchaseable.cost;
+		this.afterCookies = this.gameState.cookies;
 
-		const wasSuccesful = this.purchaseable.purchase(this._gameState);
-		console.log("Result:", this._gameState);
+		const wasSuccesful = this.purchaseable.purchase(this.gameState);
+		console.log("Result:", this.gameState);
 		return wasSuccesful;
 	}
 }

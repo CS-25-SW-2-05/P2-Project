@@ -70,6 +70,9 @@ export default class Algorithm {
 				// Perform the decision
 				decision.perform();
 
+				console.log("Gamestate buildings after decision:")
+				logBuildingStats(gameState.buildings);
+
 				// console.log the stats of validBuildings
 				console.log("New building config:")
 				logBuildingStats(validBuildings);

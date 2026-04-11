@@ -4,7 +4,7 @@ export default class Decision {
 	isValid = false;
 	beforeCookies = 0;
 	afterCookies = 0;
-	_gameState = null;
+	gameState = null;
 	_wait = 0;
 
 	/**
@@ -14,7 +14,7 @@ export default class Decision {
 		if (new.target == Decision)
 			throw new Error("Cannot instantiate abstract class Decision directly.");
 
-		this._gameState = gameState;
+		this.gameState = gameState;
 	}
 
 	/**
@@ -22,6 +22,6 @@ export default class Decision {
 	 */
 	perform() {
 		console.log("Decision:", this);
-		this.beforeCookies = this._gameState.cookies;
+		this.beforeCookies = this.gameState.cookies;
 	}
 }

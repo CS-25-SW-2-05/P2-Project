@@ -26,7 +26,10 @@ const runBtn = form.querySelector("button[type='submit']");
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
+
+let mainChart = null;
 let buildingGraph = null;
+let latestBuildingGraphConfig = null;
 
 // Functions
 function updateForm() {
@@ -48,6 +51,7 @@ function getActiveAlgorithms() {
 	return count;
 }
 
+
 /**
  * @param {{
  *   algorithm: Algorithm,
@@ -56,12 +60,32 @@ function getActiveAlgorithms() {
  * }[]} results
  */
 function displayResults(results) {
+
+	let buildingConfigGraphData = {
+		labels: [],
+		datasets: []
+	};
 	if (results) {
-		console.log(results);
-		const lastGameState = results[0].data[results[0].data.length - 1].gameState;
-		console.log(lastGameState);
-		const lastBuildingConfig = lastGameState.buildings;
-		console.log(lastBuildingConfig);
+		for (const result of results) {
+			const resultLabel = result.algorithm.name;
+			const lastGameState = result.data[result.data.length - 1].decision.gameState
+			const lastBuildingConfig = lastGameState.buildings;
+			const resultData = Object.values(lastBuildingConfig).map(building => building.owned);
+
+			if (buildingConfigGraphData.labels.length === 0) {
+				buildingConfigGraphData.labels = Object.keys(lastBuildingConfig);
+			}
+
+			buildingConfigGraphData.datasets.push({
+				label: resultLabel,
+				data: resultData
+			});
+
+			console.log("resultData:");
+			console.log(resultData);
+		}
+		console.log("buildingConfigData: ");
+		console.log(buildingConfigGraphData);
 	}
 
 	// Table Results
@@ -84,22 +108,37 @@ function displayResults(results) {
 	// Chart Results
 	const cpsCanvas = document.querySelector("#cps-chart");
 	const cookieCanvas = document.querySelector("#cookie-chart");
-	const buildingConvas = document.querySelector("#building-graph");
+	const buildingCanvas = document.querySelector("#building-graph");
 	const buildingGraphConfig = {
 		type: "bar",
-		data: {
-			labels: Object.keys(Buildings),
-			datasets: [{ label: "naive", data: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1] }]
+		data: buildingConfigGraphData,
+		options: {
+			responsive: true,
+			// maintainAspectRatio: false,
+			devicePixelRatio: window.devicePixelRatio
 		}
 	}
+
+	latestBuildingGraphConfig = buildingGraphConfig;
 	const cpsChart = new LineChart(cpsCanvas, "Time (s)", "Production (CpS)");
 	const cookieChart = new LineChart(cookieCanvas, "Time (s)", "Cookies");
 
-	if (buildingGraph) {
-		buildingGraph.destroy();
+	if (mainChart) {
+		mainChart.destroy();
+		mainChart = null;
+		console.log("destroying mainchart");
 	}
 
-	buildingGraph = new Chart(buildingConvas, buildingGraphConfig)
+	if (buildingGraph) {
+		buildingGraph.destroy();
+		buildingGraph = null;
+		console.log("destroying buildingGraph");
+	}
+
+	buildingGraph = new Chart(buildingCanvas, buildingGraphConfig)
+
+	buildingCanvas.style.removeProperty("display");
+	buildingCanvas.removeAttribute("style");
 
 
 	for (let i = 0; i < results?.length; i++) {
@@ -239,11 +278,40 @@ document
 	);
 
 // Click preview charts sets contents of big chart
-document
-	.querySelectorAll(".previews > canvas")
-	.forEach((c) =>
-		c.addEventListener("click", () => chartContext.drawImage(c, 0, 0)),
-	);
+document.querySelectorAll(".previews > canvas").forEach((canvas) => {
+	canvas.addEventListener("click", () => {
+
+		if (mainChart) {
+			mainChart.destroy();
+			mainChart = null;
+		}
+
+		chartContext.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+
+		// If the canvas is the building-graph, then draw chart
+		if (canvas.id === "building-graph") {
+			mainChart = new Chart(chartCanvas, {
+				...latestBuildingGraphConfig,
+			});
+			chartCanvas.style.removeProperty("display");
+			return;
+		}
+
+		// Else draw image
+		chartContext.drawImage(
+			canvas,
+			0,
+			0,
+			canvas.width,
+			canvas.height,
+			0,
+			0,
+			chartCanvas.width,
+			chartCanvas.height,
+		);
+	});
+});
+
 
 // Zoom in on chart
 chartCanvas.addEventListener("click", () => {
