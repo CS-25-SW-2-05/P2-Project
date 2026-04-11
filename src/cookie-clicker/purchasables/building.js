@@ -90,6 +90,8 @@ export async function loadBuildings(length = -1) {
 		);
 		i++;
 	}
+
+	console.log("Loaded Buildings:", Buildings);
 }
 
 /**

@@ -172,7 +172,6 @@ form.addEventListener("submit", async (e) => {
 
 	const buildingLength = buildingLengthInput.valueAsNumber;
 	await loadBuildings(buildingLength);
-	console.log("Buildings", Buildings);
 
 	const results = [];
 	for (const algorithm of Algorithm.derived) {
