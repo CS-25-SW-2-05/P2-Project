@@ -142,7 +142,7 @@ function show(title, msg) {
 // Initialize
 for (const algorithm of Algorithm.derived) {
 	const activeByDefault =
-		["GreedyNaive", "GreedyPaybackTime"].findIndex(
+		["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
 			(i) => i === algorithm.name,
 		) !== -1;
 	algorithmsContainer.innerHTML += `
