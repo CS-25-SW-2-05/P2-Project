@@ -25,9 +25,11 @@ const runBtn = form.querySelector("button[type='submit']");
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
+let isRunning = false;
 
 // Functions
 function updateForm() {
+	if (isRunning) return;
 	const count = getActiveAlgorithms();
 	if (count <= 0) runBtn.setAttribute("disabled", "disabled");
 	else runBtn.removeAttribute("disabled");
@@ -160,6 +162,8 @@ console.log("Algorithms", Algorithm.derived);
 form.addEventListener("submit", async (e) => {
 	e.preventDefault();
 
+	isRunning = true;
+
 	// Read the form and create an Objective instance right when the user clicks "Run"
 	const objective = Objective.fromForm();
 
@@ -197,6 +201,7 @@ form.addEventListener("submit", async (e) => {
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
 	benchmarkResults.classList.remove("hide");
+	isRunning = false;
 });
 
 form.addEventListener("reset", () => {
