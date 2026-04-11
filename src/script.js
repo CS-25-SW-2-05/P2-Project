@@ -26,6 +26,7 @@ const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
 let isRunning = false;
+let selectedCanvas = null;
 
 // Functions
 function updateForm() {
@@ -118,9 +119,10 @@ function displayResults(results) {
 		cookieChart.add(label, x, y);
 	}
 
+	if (selectedCanvas == null) selectedCanvas = cpsCanvas;
 	cpsChart.draw();
 	cookieChart.draw();
-	chartContext.drawImage(cpsCanvas, 0, 0);
+	chartContext.drawImage(selectedCanvas, 0, 0);
 }
 
 /**
@@ -220,11 +222,12 @@ document.querySelectorAll('input[type="range"]').forEach((r) => {
 });
 
 // Click preview charts sets contents of big chart
-document
-	.querySelectorAll(".previews > canvas")
-	.forEach((c) =>
-		c.addEventListener("click", () => chartContext.drawImage(c, 0, 0)),
-	);
+document.querySelectorAll(".previews > canvas").forEach((c) =>
+	c.addEventListener("click", () => {
+		chartContext.drawImage(c, 0, 0);
+		selectedCanvas = c;
+	}),
+);
 
 // Zoom in on chart
 chartCanvas.addEventListener("click", () => {
