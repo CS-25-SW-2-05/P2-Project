@@ -38,7 +38,7 @@ export default class Algorithm {
 		this.#isRunning = true;
 
 		const gameState = new GameState();
-		const buildings = cloneBuildings();
+		console.log(gameState.buildings);
 
 		this.#runPromise = (async () => {
 			const data = [];
@@ -51,7 +51,7 @@ export default class Algorithm {
 				}
 				// Filter buildings for buildings that reached max level 
 				// or reached price of infinity
-				const validBuildings = filterValid(buildings);
+				const validBuildings = filterValid(gameState.buildings);
 
 				// Break the loop if no more buildings are available
 				if (Object.keys(validBuildings).length === 0) {
@@ -61,8 +61,6 @@ export default class Algorithm {
 
 				// Choose a decision based on current policy/algorithm
 				const decision = this.getNextDecision(gameState, validBuildings, objective);
-
-
 
 				// Break the loop if the decision i invalid
 				if (!decision.isValid) {
@@ -74,6 +72,7 @@ export default class Algorithm {
 				decision.perform();
 
 				// console.log the stats of validBuildings
+				console.log("New building config:")
 				logBuildingStats(validBuildings);
 
 				const gameStateCopy = gameState.copy();

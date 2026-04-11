@@ -1,9 +1,12 @@
+import { cloneBuildings } from "./purchasables/building.js";
+
 export default class GameState {
 	#cookies = 0;
 	totalCookies = 0;
 	buildingCpS = 0;
 	manualCpS = 6;
 	simulationTime = 0;
+	buildings = cloneBuildings();
 
 	/**
 	 * @param {GameState} gameState
