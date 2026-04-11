@@ -80,12 +80,7 @@ function displayResults(results) {
 				label: resultLabel,
 				data: resultData
 			});
-
-			console.log("resultData:");
-			console.log(resultData);
 		}
-		console.log("buildingConfigData: ");
-		console.log(buildingConfigGraphData);
 	}
 
 	// Table Results
@@ -123,16 +118,9 @@ function displayResults(results) {
 	const cpsChart = new LineChart(cpsCanvas, "Time (s)", "Production (CpS)");
 	const cookieChart = new LineChart(cookieCanvas, "Time (s)", "Cookies");
 
-	if (mainChart) {
-		mainChart.destroy();
-		mainChart = null;
-		console.log("destroying mainchart");
-	}
-
 	if (buildingGraph) {
 		buildingGraph.destroy();
 		buildingGraph = null;
-		console.log("destroying buildingGraph");
 	}
 
 	buildingGraph = new Chart(buildingCanvas, buildingGraphConfig)
