@@ -6,8 +6,8 @@ export default class GameState {
 	buildingCpS = 0;
 	manualCpS = 1;
 	simulationTime = 0;
-	/** @type {Building[]} */
-	buildings = [];
+	/** @type {Object.<string, Building>} */
+	buildings = {};
 
 	constructor(manualCpS = 1) {
 		this.manualCpS = manualCpS;

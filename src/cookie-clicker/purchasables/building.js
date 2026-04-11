@@ -79,8 +79,8 @@ export async function loadBuildings(length = -1) {
 	let i = 0;
 	for (const [key, value] of Object.entries(data)) {
 		if (length !== -1 && i >= length) {
-			console.log("Building Length:", Buildings.length);
-			return;
+			console.log("Building Length:", i);
+			break;
 		}
 		Buildings[key] = new Building(
 			key,

@@ -226,6 +226,7 @@ document
 chartCanvas.addEventListener("click", () => {
 	/** @type {HTMLCanvasElement} */
 	const zoomedChart = chartCanvas.cloneNode();
+	zoomedChart.removeAttribute("id");
 	zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
 	document.body.appendChild(zoomedChart);
 
