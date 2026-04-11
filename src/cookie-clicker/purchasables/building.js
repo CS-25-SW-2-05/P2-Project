@@ -66,22 +66,32 @@ async function getBuildingData() {
  * A list of all available buildings loaded by the loadBuildings function. \
  * This list should not be mutated. To mutate, please make a clone.
  */
-export const Buildings = {};
+const Buildings = {};
 
 /**
  * Loads all buildings found in 'src\\cookie-clicker\\buildings.json' into the Buildings list.
  */
-export async function loadBuildings() {
+export async function loadBuildings(length = -1) {
 	const data = await getBuildingData();
 
+	for (var key in Buildings) delete Buildings[key];
+
+	let i = 0;
 	for (const [key, value] of Object.entries(data)) {
+		if (length !== -1 && i >= length) {
+			console.log("Building Length:", Buildings.length);
+			return;
+		}
 		Buildings[key] = new Building(
 			key,
 			value.baseCost,
 			value.baseCpS,
 			value.maxBuildCount,
 		);
+		i++;
 	}
+
+	console.log("Loaded Buildings:", Buildings);
 }
 
 /**
@@ -96,10 +106,10 @@ export function logBuildingStats(buildings) {
 		// Logging current building prices
 		console.log(
 			currentBuilding.name.padEnd(15) +
-			" price: " +
-			String(currentBuilding.cost).padEnd(25) +
-			" owned: " +
-			currentBuilding.owned,
+				" price: " +
+				String(currentBuilding.cost).padEnd(25) +
+				" owned: " +
+				currentBuilding.owned,
 		);
 	}
 }
@@ -135,5 +145,5 @@ export function filterValid(buildings) {
 			filteredBuildings[key] = building;
 	}
 
-	return filteredBuildings
+	return filteredBuildings;
 }

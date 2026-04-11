@@ -1,52 +1,102 @@
 {
-    "cursor": {
-        "baseCost": 15,
-        "baseCpS": 0.1,
-        "maxBuildCount": 5059
-    },
-    "grandma": {
-        "baseCost": 100,
-        "baseCpS": 1,
-        "maxBuildCount": 5047
-    },
-    "farm": {
-        "baseCost": 1100,
-        "baseCpS": 8,
-        "maxBuildCount": 5028
-    },
-    "mine": {
-        "baseCost": 12000,
-        "baseCpS": 47,
-        "maxBuildCount": 5011
-    },
-    "factory": {
-        "baseCost": 130000,
-        "baseCpS": 260,
-        "maxBuildCount": 4996
-    },
-    "bank": {
-        "baseCost": 1400000,
-        "baseCpS": 1400,
-        "maxBuildCount": 4977
-    },
-    "temple": {
-        "baseCost": 20000000,
-        "baseCpS": 7800,
-        "maxBuildCount": 4958
-    },
-    "wizard_tower": {
-        "baseCost": 330000000,
-        "baseCpS": 44000,
-        "maxBuildCount": 4938
-    },
-    "shipment": {
-        "baseCost": 5100000000,
-        "baseCpS": 260000,
-        "maxBuildCount": 4918
-    },
-    "alchemy_lab": {
-        "baseCost": 75000000000,
-        "baseCpS": 1600000,
-        "maxBuildCount": 4899
-    }
+	"cursor": {
+		"baseCost": 15,
+		"baseCpS": 0.1,
+		"maxBuildCount": 5059
+	},
+	"grandma": {
+		"baseCost": 100,
+		"baseCpS": 1,
+		"maxBuildCount": 5047
+	},
+	"farm": {
+		"baseCost": 1100,
+		"baseCpS": 8,
+		"maxBuildCount": 5028
+	},
+	"mine": {
+		"baseCost": 12000,
+		"baseCpS": 47,
+		"maxBuildCount": 5011
+	},
+	"factory": {
+		"baseCost": 130000,
+		"baseCpS": 260,
+		"maxBuildCount": 4996
+	},
+	"bank": {
+		"baseCost": 1400000,
+		"baseCpS": 1400,
+		"maxBuildCount": 4977
+	},
+	"temple": {
+		"baseCost": 20000000,
+		"baseCpS": 7800,
+		"maxBuildCount": 4958
+	},
+	"wizard_tower": {
+		"baseCost": 330000000,
+		"baseCpS": 44000,
+		"maxBuildCount": 4938
+	},
+	"shipment": {
+		"baseCost": 5100000000,
+		"baseCpS": 260000,
+		"maxBuildCount": 4918
+	},
+	"alchemy_lab": {
+		"baseCost": 75000000000,
+		"baseCpS": 1600000,
+		"maxBuildCount": 4899
+	},
+	"portal": {
+		"baseCost": 1000000000000,
+		"baseCpS": 10000000,
+		"maxBuildCount": 4880
+	},
+	"time_machine": {
+		"baseCost": 14000000000000,
+		"baseCpS": 65000000,
+		"maxBuildCount": 4861
+	},
+	"antimatter_condenser": {
+		"baseCost": 170000000000000,
+		"baseCpS": 430000000,
+		"maxBuildCount": 4844
+	},
+	"prism": {
+		"baseCost": 2100000000000000,
+		"baseCpS": 2900000000,
+		"maxBuildCount": 4826
+	},
+	"chancemaker": {
+		"baseCost": 26000000000000000,
+		"baseCpS": 21000000000,
+		"maxBuildCount": 4808
+	},
+	"fractal_engine": {
+		"baseCost": 310000000000000000,
+		"baseCpS": 150000000000,
+		"maxBuildCount": 4790
+	},
+	"javascript_console": {
+		"baseCost": 71000000000000000000,
+		"baseCpS": 1100000000000,
+		"maxBuildCount": 4751
+	},
+	"idleverse": {
+		"baseCost": 12000000000000000000000,
+		"baseCpS": 8300000000000,
+		"maxBuildCount": 4714
+	},
+	"cortex_baker": {
+		"baseCost": 1900000000000000000000000,
+		"baseCpS": 64000000000000,
+		"maxBuildCount": 4678
+	},
+	"you": {
+		"baseCost": 540000000000000000000000000,
+		"baseCpS": 510000000000000,
+		"maxBuildCount": 4638
+	}
 }
