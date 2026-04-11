@@ -56,7 +56,10 @@ function getActiveAlgorithms() {
 function displayResults(results) {
 	if (results) {
 		console.log(results);
-		console.log(results[0].data[0].decision.purchaseable.name);
+		const lastGameState = results[0].data[results[0].data.length - 1].gameState;
+		console.log(lastGameState);
+		const lastBuildingConfig = lastGameState.buildings;
+		console.log(lastBuildingConfig);
 	}
 
 	// Table Results
