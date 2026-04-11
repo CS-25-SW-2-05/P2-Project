@@ -1,7 +1,4 @@
-import {
-	Buildings,
-	loadBuildings,
-} from "./cookie-clicker/purchasables/building.js";
+import { loadBuildings } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
 import { getPlural } from "./utils.js";

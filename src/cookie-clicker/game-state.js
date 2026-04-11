@@ -1,12 +1,17 @@
+import Building, { cloneBuildings } from "./purchasables/building.js";
+
 export default class GameState {
 	#cookies = 0;
 	totalCookies = 0;
 	buildingCpS = 0;
 	manualCpS = 1;
 	simulationTime = 0;
+	/** @type {Building[]} */
+	buildings = [];
 
 	constructor(manualCpS = 1) {
 		this.manualCpS = manualCpS;
+		this.buildings = cloneBuildings();
 	}
 
 	/**

@@ -66,7 +66,7 @@ async function getBuildingData() {
  * A list of all available buildings loaded by the loadBuildings function. \
  * This list should not be mutated. To mutate, please make a clone.
  */
-export const Buildings = {};
+const Buildings = {};
 
 /**
  * Loads all buildings found in 'src\\cookie-clicker\\buildings.json' into the Buildings list.

@@ -1,6 +1,5 @@
 import GameState from "../cookie-clicker/game-state.js";
 import Building, {
-	cloneBuildings,
 	filterValid,
 	logBuildingStats,
 } from "../cookie-clicker/purchasables/building.js";
@@ -39,7 +38,6 @@ export default class Algorithm {
 
 		const baseCpS = document.querySelector("#base-cps").valueAsNumber;
 		const gameState = new GameState(baseCpS);
-		const buildings = cloneBuildings();
 
 		this.#runPromise = (async () => {
 			const data = [];
@@ -54,7 +52,7 @@ export default class Algorithm {
 				}
 				// Filter buildings for buildings that reached max level
 				// or reached price of infinity
-				const validBuildings = filterValid(buildings);
+				const validBuildings = filterValid(gameState.buildings);
 
 				// Break the loop if no more buildings are available
 				if (Object.keys(validBuildings).length === 0) {
