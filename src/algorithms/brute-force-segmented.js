@@ -99,7 +99,7 @@ export default class BruteForceSegmented extends Algorithm {
 
 
 	// finds the solution to each segment
-	getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth, objective, buildings, gameState){
+	getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth, objective, buildings, gameState, referenceBuildings, referenceGameState){
 
 		let permutationArr = [[]];
 
@@ -107,7 +107,7 @@ export default class BruteForceSegmented extends Algorithm {
 		this.getAllDecisionPermutationsDUMBEDITION(
 			segmentedSearchDepth, permutationArr, decisions,
 		);
-		//console.log(permutationArr);
+		console.log(permutationArr);
 
 		let bestSolution = [permutationArr[0], 100000];
 		let tempSolution = [];
@@ -115,21 +115,26 @@ export default class BruteForceSegmented extends Algorithm {
 
 
 		// Runs through all decision permutations and saves the best one
-		for(let i = 0; i < permutationArr.length - 1; i++){
+		for(let i = 0; i < 1000; i++){
 
 			//gameState = currentGameState;
 			//buildings = currentBuildings;
 			//console.log(permutationArr[i]);
 
+			currentGameState.totalCookies = referenceGameState.totalCookies;
+			currentGameState.buildingCpS = referenceGameState.buildingCpS;
+			currentGameState.realTime = referenceGameState.realTime;
+
+
 			// Runs through each decision in the permuation
-			for(let j = 0; j < permutationArr[i].length - 1; j++){
+			for(let j = 0; j < permutationArr[i].length; j++){
 
 				console.log("Permuation nr. " + i + " j = " + j + " decision: " + permutationArr[i][j] + " " + decisions[permutationArr[i][j]]);
 				if(objective.type !== "cookies"){
 					console.log("point reached 1");
-					decision = new PurchaseDecision(gameState, buildings[decisions[permutationArr[i][j]]]);
+					decision = new PurchaseDecision(currentGameState, currentBuildings[decisions[permutationArr[i][j]]]);
 					decision.perform();
-					//logBuildingStats(buildings);
+					logBuildingStats(currentBuildings);
 					continue;
 				}
 				//console.log("Error: can only use production as objective atm");
@@ -138,8 +143,8 @@ export default class BruteForceSegmented extends Algorithm {
 				if(decisions[permutationArr[i][j]] === "wait"){
 					// Calculate how long it takes until the cookie objective is reached
 					console.log("POINT REACHED 3");
-					let waitSaveUpTime = (objective.value - gameState.cookies)/gameState.cps;
-					decision = new WaitDecision(gameState, Math.ceil(waitSaveUpTime));
+					let waitSaveUpTime = (objective.value - currentGameState.cookies)/currentGameState.cps;
+					decision = new WaitDecision(currentGameState, Math.ceil(waitSaveUpTime));
 					decision.perform();
 					/* 
 					if the wait decision is made, the rest of the decisions
@@ -156,13 +161,13 @@ export default class BruteForceSegmented extends Algorithm {
 				//console.log("j = " + j);
 				//console.log(permutationArr[i][j]);
 				//console.log("point reached 2");
-				decision = new PurchaseDecision(gameState, buildings[decisions[permutationArr[i][j]]]);
+				decision = new PurchaseDecision(currentGameState, currentBuildings[decisions[permutationArr[i][j]]]);
 				decision.perform();
-				//logBuildingStats(buildings);
+				logBuildingStats(currentBuildings);
 			}
-
-			//console.log("permutation nr. " + i + " completed");
-			logBuildingStats(buildings);
+			console.log(permutationArr[i]);
+			console.log("permutation nr. " + i + " completed");
+			
 
 		}
 
@@ -172,27 +177,31 @@ export default class BruteForceSegmented extends Algorithm {
 	// connects the segmented solutions together and returns the final solution
 	getBruteForceSegmentedSolution(objective, gameState, buildings){
 
-		let currentGameState = 0;
-		let currentBuildings = 0;
+		let currentGameState = new GameState;
+		let currentBuildings = cloneBuildings();
+
+
+		let referenceGameState = currentGameState.copy();
+		let referenceBuildings = cloneBuildings();
 
 		let segmentedSearchDepth = 5;
 		let solution = [];
 		let decisions = [];
 		let i = 0;
 
-		for(let key in buildings){
+		for(let key in currentBuildings){
 			decisions[i] = key;
 			i++;
 		}
 		decisions[i] = "wait";
 		console.log(decisions);
 
-		this.getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth, objective, buildings, gameState)
+		//this.getSegmentSolution(currentGameState, currentBuildings, decisions, segmentedSearchDepth, objective, buildings, gameState)
 		
 
 		for (let i = 0; i < 1; i++){
 			this.getSegmentSolution(currentGameState, currentBuildings, 
-			decisions, segmentedSearchDepth, objective, buildings, gameState);
+			decisions, segmentedSearchDepth, objective, buildings, gameState, referenceBuildings, referenceGameState);
 
 
 		}
