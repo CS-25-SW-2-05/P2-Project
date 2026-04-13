@@ -34,7 +34,7 @@ export default class Objective {
 			return gameState.buildingCpS >= this.value;
 
 		if (this.type === "fixed-cookies" || this.type === "fixed-production")
-			return gameState.realTime >= this.value;
+			return gameState.simulationTime >= this.value;
 		
 		// If type is unknown return false (not completed)
 		return false;

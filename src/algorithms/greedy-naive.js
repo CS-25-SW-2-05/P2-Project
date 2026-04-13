@@ -35,8 +35,8 @@ export default class GreedyNaive extends Algorithm {
 		//Logging the result building
 		console.log("Cheapest building:    " + String(cheapestBuilding.name));
 
-		// Buy cheapest building, if the objective is production
-		if (objective.type === "production")
+		// Buy cheapest building if the objective is production or fixed-time
+		if (objective.type === "production" || objective.type === "fixed-production" || objective.type === "fixed-cookies")
 			return new PurchaseDecision(gameState, cheapestBuilding);
 
 		// Calculate cookies needed to reach objective

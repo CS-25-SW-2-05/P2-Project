@@ -192,13 +192,16 @@ form.addEventListener("submit", async (e) => {
 	stopBtn.setAttribute("disabled", "disabled");
 });
 
-stopBtn.addEventListener("click", () =>{
-	for(const algorithm of Algorithm.derived){
-		const active = document.querySelector('#${algorithm.name}:checked') !== null;
-		if(!active)continue;
+stopBtn.addEventListener("click", () => {
+	for (const algorithm of Algorithm.derived) {
+		const active = document.querySelector(`#${algorithm.name}:checked`) !== null;
+		if (!active) continue;
 		algorithm.instance.stop();
 	}
-	show("Stopped", "The simulation was stopped by user.")
+	show("Stopped", "The simulation was stopped by user.");
+	setTimeout(() => {
+		updateForm();
+	})
 });
 
 form.addEventListener("reset", () => {
