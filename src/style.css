@@ -269,6 +269,18 @@ td {
 	text-align: left;
 }
 
+td > div {
+	display: flex;
+	gap: 4px;
+	justify-content: start;
+	align-items: center;
+}
+
+a {
+	display: flex;
+	cursor: pointer;
+}
+
 thead th {
 	white-space: nowrap;
 	font-weight: 600;
@@ -301,6 +313,11 @@ button {
 	cursor: pointer;
 	transition: all 200ms cubic-bezier(0.19, 1, 0.22, 1);
 	transition-property: opacity, filter;
+}
+
+button:has(> img) {
+	display: inline-flex;
+	padding: 0px;
 }
 
 button:hover:not(:disabled) {

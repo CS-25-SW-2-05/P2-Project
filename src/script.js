@@ -24,8 +24,6 @@ const benchmarkResults = document.querySelector(".benchmark-results");
 const form = document.querySelector("form");
 /** @type {HTMLButtonElement} */
 const runBtn = form.querySelector("button[type='submit']");
-/** @type {HTMLButtonElement} */
-const openTimelineBtn = document.querySelector("#open-timeline");
 
 const channel = new BroadcastChannel("cookie_timeline");
 const toast = document.querySelector(".toast");
@@ -74,7 +72,14 @@ function displayResults(results, objective) {
 
 		tbody.innerHTML += `
         <tr>
-            <td>${r.algorithm.title}</td>
+            <td>
+                <div>
+                    <a>
+                        <img src="./images/open_in_new.svg" alt="Open in New" />
+                    </a>
+                    ${r.algorithm.title}
+                </div>
+            </td>
             <td>${numberformat.formatShort(r.data.length)}</td>
             <td>${round((r.benchmarkTime * 1000) / r.data.length, 1)}</td>
             <td>${round(r.benchmarkTime, 0)}</td>
@@ -145,25 +150,30 @@ function displayResults(results, objective) {
 	chartContext.drawImage(selectedCanvas, 0, 0);
 
 	// Open Timeline
-	openTimelineBtn.addEventListener("click", () => {
-		channel.onmessage = (event) => {
-			console.log("Data received:", event.data);
-			const type = event.data.type;
-			const payload = event.data.payload;
+	const openBtns = document.querySelectorAll(".result-data td > div > a");
+	for (let i = 0; i < openBtns.length; i++) {
+		openBtns[i].addEventListener("click", () => {
+			channel.onmessage = (event) => {
+				console.log("Data received:", event.data);
+				const type = event.data.type;
+				const payload = event.data.payload;
 
-			switch (type) {
-				case "RESULT_DATA_REQ":
-					channel.postMessage({ type: "RESULT_DATA_RES", payload: results });
-					break;
-			}
-		};
+				switch (type) {
+					case "RESULT_DATA_REQ":
+						channel.postMessage({ type: "RESULT_DATA_RES", payload: results });
+						break;
+				}
+			};
 
-		window.open(
-			"./timeline/timeline.html",
-			"newwindow",
-			"width=800,height=600",
-		);
-	});
+			const url = new URL(
+				"/src/timeline/timeline.html",
+				window.location.origin,
+			);
+			url.searchParams.set("algorithm", i);
+			url.searchParams.set("decision", 0);
+			window.open(url, "newwindow", "width=800,height=600");
+		});
+	}
 }
 
 /**
