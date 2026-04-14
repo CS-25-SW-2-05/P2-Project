@@ -121,9 +121,10 @@ export default class BruteForceSegmented extends Algorithm {
 			//buildings = currentBuildings;
 			//console.log(permutationArr[i]);
 
-			currentGameState.totalCookies = referenceGameState.totalCookies;
+			currentGameState = referenceGameState.copy();
+			/*currentGameState.totalCookies = referenceGameState.totalCookies;
 			currentGameState.buildingCpS = referenceGameState.buildingCpS;
-			currentGameState.realTime = referenceGameState.realTime;
+			currentGameState.realTime = referenceGameState.realTime;*/
 
 
 			// Runs through each decision in the permuation
@@ -178,7 +179,7 @@ export default class BruteForceSegmented extends Algorithm {
 	// connects the segmented solutions together and returns the final solution
 	getBruteForceSegmentedSolution(objective, gameState, buildings){
 
-		let currentGameState = new GameState;
+		let currentGameState = new GameState();
 		let currentBuildings = cloneBuildings();
 
 
