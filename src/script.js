@@ -417,8 +417,8 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
 		buildingGraphSelected = false;
 
 		// Else draw image
-		chartContext.drawImage(c, 0, 0);
-		selectedCanvas = c;
+		chartContext.drawImage(canvas, 0, 0);
+		selectedCanvas = canvas;
 	});
 });
 
