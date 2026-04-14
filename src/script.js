@@ -123,6 +123,11 @@ function displayResults(results) {
 		buildingGraph = null;
 	}
 
+	if (mainChart) {
+		mainChart.destroy();
+		mainChart = null;
+	}
+
 	buildingGraph = new Chart(buildingCanvas, buildingGraphConfig)
 
 	buildingCanvas.style.removeProperty("display");
