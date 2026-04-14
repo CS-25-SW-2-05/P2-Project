@@ -56,8 +56,9 @@ function getActiveAlgorithms() {
  *   simulationTime: number,
  *   data: Array<{decision: Decision, gameState: GameState}>
  * }[]} results
+ * @param {Objective} objective
  */
-function displayResults(results) {
+function displayResults(results, objective) {
 	if (results) console.log(results);
 
 	// Table Results
@@ -80,8 +81,18 @@ function displayResults(results) {
 	// Chart Results
 	const cpsCanvas = document.querySelector("#cps-chart");
 	const cookieCanvas = document.querySelector("#cookie-chart");
-	const cpsChart = new LineChart(cpsCanvas, "Time (s)", "Production (CpS)");
-	const cookieChart = new LineChart(cookieCanvas, "Time (s)", "Cookies");
+	const cpsChart = new LineChart(
+		cpsCanvas,
+		"Time (s)",
+		"Production (CpS)",
+		objective.type === "production" ? objective.value : null,
+	);
+	const cookieChart = new LineChart(
+		cookieCanvas,
+		"Time (s)",
+		"Cookies",
+		objective.type === "cookies" ? objective.value : null,
+	);
 
 	for (let i = 0; i < results?.length; i++) {
 		const r = results[i];
@@ -200,7 +211,7 @@ form.addEventListener("submit", async (e) => {
 		});
 	}
 
-	displayResults(results);
+	displayResults(results, objective);
 
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");

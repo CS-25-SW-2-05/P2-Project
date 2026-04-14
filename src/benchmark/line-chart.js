@@ -23,16 +23,19 @@ export default class LineChart {
 	#data = [];
 	#xLabel = "";
 	#yLabel = "";
+	/** @type {number | null} */
+	#yGoal = null;
 
 	/**
 	 * @param {HTMLCanvasElement} canvas
 	 * @param {string} xLabel
 	 * @param {string} yLabel
 	 */
-	constructor(canvas, xLabel, yLabel) {
+	constructor(canvas, xLabel, yLabel, yGoal) {
 		this.#canvas = canvas;
 		this.#xLabel = xLabel;
 		this.#yLabel = yLabel;
+		this.#yGoal = yGoal;
 	}
 
 	/**
@@ -239,10 +242,29 @@ export default class LineChart {
 			}
 		};
 
+		const drawGoals = () => {
+			if (!this.#yGoal) return;
+
+			ctx.beginPath();
+
+			const hPct = (this.#yGoal - yMin) / (yMax - yMin);
+			const y = height - margin.b - (height - margin.t - margin.b) * hPct;
+
+			ctx.moveTo(margin.l, y);
+			ctx.lineTo(width - margin.r, y);
+
+			ctx.strokeStyle = "#ff2056";
+			ctx.lineCap = "butt";
+			ctx.setLineDash([32, 32]);
+			ctx.stroke();
+			ctx.setLineDash([]);
+		};
+
 		const drawGraph = () => {
 			clear();
 			drawGrid();
 			drawDataLines();
+			drawGoals();
 			drawAxes();
 			drawLabels();
 		};
