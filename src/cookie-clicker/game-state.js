@@ -1,19 +1,30 @@
+import Building, { cloneBuildings } from "./purchasables/building.js";
+
 export default class GameState {
 	#cookies = 0;
 	totalCookies = 0;
 	buildingCpS = 0;
-	manualCpS = 6;
-	realTime = 0;
+	manualCpS = 1;
+	simulationTime = 0;
+	/** @type {Object.<string, Building>} */
+	buildings = {};
+
+	constructor(manualCpS = 1) {
+		this.manualCpS = manualCpS;
+		this.buildings = cloneBuildings();
+	}
 
 	/**
 	 * @param {GameState} gameState
 	 * @returns {GameState} a copy of the game state.
 	 */
 	copy() {
-		const copy = Object.assign(
-			Object.create(Object.getPrototypeOf(this)),
-			this,
-		);
+		const copy = new GameState();
+		copy.#cookies = this.#cookies;
+		copy.totalCookies = this.totalCookies;
+		copy.buildingCpS = this.buildingCpS;
+		copy.manualCpS = this.manualCpS;
+		copy.simulationTime = this.simulationTime;
 
 		return copy;
 	}

@@ -1,10 +1,7 @@
-import {
-	Buildings,
-	loadBuildings,
-} from "./cookie-clicker/purchasables/building.js";
+import { loadBuildings } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
-import { getPlural, remap } from "./utils.js";
+import { getPlural } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
 import "./algorithms/greedy-payback-time.js";
@@ -12,21 +9,28 @@ import "./algorithms/brute-force-segmented.js";
 import Decision from "./algorithms/decisions/decision.js";
 import GameState from "./cookie-clicker/game-state.js";
 import * as numberformat from "https://esm.sh/swarm-numberformat";
+import LineChart from "./benchmark/line-chart.js";
 
 // References
-const algorithmCount = document.getElementById("algorithm-count");
+/** @type {HTMLCanvasElement} */
+const chartCanvas = document.querySelector("#chart");
+const chartContext = chartCanvas.getContext("2d");
+const algorithmCount = document.querySelector("#algorithm-count");
 const algorithmsContainer = document.querySelector(".algorithms");
+const buildingLengthInput = document.querySelector("#building-length");
+const benchmarkResults = document.querySelector(".benchmark-results");
 const form = document.querySelector("form");
 const runBtn = form.querySelector("button[type='submit']");
-const canvas = document.querySelector("canvas");
-const ctx = canvas.getContext("2d");
 
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
+let isRunning = false;
+let selectedCanvas = null;
 
 // Functions
 function updateForm() {
+	if (isRunning) return;
 	const count = getActiveAlgorithms();
 	if (count <= 0) runBtn.setAttribute("disabled", "disabled");
 	else runBtn.removeAttribute("disabled");
@@ -53,70 +57,72 @@ function getActiveAlgorithms() {
  * }[]} results
  */
 function displayResults(results) {
-	console.log(results);
+	if (results) console.log(results);
 
+	// Table Results
 	const tbody = document.querySelector(".result-data > tbody");
 	tbody.innerHTML = "";
-
-	const height = ctx.canvas.height;
-	const width = ctx.canvas.width;
-	ctx.clearRect(0, 0, width, height);
-
-	const cpsValues = results.flatMap((r) =>
-		r.data.map((d) => d.gameState.buildingCpS),
-	);
-	if (cpsValues.length === 0) {
-		console.warn("No CPS data available to compute min/max");
-		return;
-	}
-
-	const min = Math.min(...cpsValues);
-	const max = Math.max(...cpsValues);
-	console.log("min:", min);
-	console.log("max:", max);
-
-	ctx.font = "24px sans-serif";
-	ctx.textBaseline = "top";
-	ctx.fillStyle = "white";
-
-	const margin = 8;
-
-	const minY = height - margin - 20;
-
-	for (let i = 0; i <= 10; i++) {
-		const pct = i / 10;
-		const value = remap(pct, 0, 1, max, min);
-		const y = remap(pct, 0, 1, margin, minY);
-		const valueText = numberformat.formatShort(value);
-		ctx.fillText(valueText, margin, y);
-	}
-
-	for (const r of results) {
+	for (const r of results || []) {
 		const lastData = r.data.at(-1);
 
 		tbody.innerHTML += `
         <tr>
             <td>${r.algorithm.title}</td>
-            <td>${numberformat.formatShort(r.simulationTime)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.realTime)}</td>
+            <td>${numberformat.formatShort(r.benchmarkTime)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.simulationTime)}</td>
             <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.cps)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.buildingCpS)}</td>
         </tr>
         `;
-
-		ctx.beginPath();
-		ctx.moveTo(0, height);
-		for (let i = 0; i < r.data.length; i++) {
-			const d = r.data[i];
-			const wPct = i / r.data.length;
-			const hPct = d.gameState.buildingCpS / max;
-
-			ctx.lineTo(width * wPct, height - height * hPct);
-		}
-		ctx.lineWidth = 4;
-		ctx.strokeStyle = "red";
-		ctx.stroke();
 	}
+
+	// Chart Results
+	const cpsCanvas = document.querySelector("#cps-chart");
+	const cookieCanvas = document.querySelector("#cookie-chart");
+	const cpsChart = new LineChart(cpsCanvas, "Time (s)", "Production (CpS)");
+	const cookieChart = new LineChart(cookieCanvas, "Time (s)", "Cookies");
+
+	for (let i = 0; i < results?.length; i++) {
+		const r = results[i];
+		const label = r.algorithm.title;
+
+		const x = [0];
+		const y = [0];
+		for (let j = 0; j < r.data.length; j++) {
+			const d = r.data[j];
+
+			x.push(d.gameState.simulationTime);
+			y.push(d.gameState.buildingCpS);
+		}
+
+		cpsChart.add(label, x, y);
+	}
+
+	for (let i = 0; i < results?.length; i++) {
+		const r = results[i];
+		const label = r.algorithm.title;
+
+		const x = [0];
+		const y = [0];
+		for (let j = 0; j < r.data.length; j++) {
+			const d = r.data[j];
+			const isLast = j == r.data.length - 1;
+
+			x.push(d.gameState.simulationTime);
+			y.push(d.decision.afterCookies);
+
+			if (isLast) continue;
+			x.push(d.gameState.simulationTime);
+			y.push(d.decision.beforeCookies);
+		}
+
+		cookieChart.add(label, x, y);
+	}
+
+	if (selectedCanvas == null) selectedCanvas = cpsCanvas;
+	cpsChart.draw();
+	cookieChart.draw();
+	chartContext.drawImage(selectedCanvas, 0, 0);
 }
 
 /**
@@ -124,31 +130,41 @@ function displayResults(results) {
  * @param {string} title title of the toast.
  * @param {string} msg message of the toast.
  */
+let toastCounter = 0;
 function show(title, msg) {
+	toastCounter++;
 	toastTitle.textContent = title;
 	toastMsg.textContent = msg;
 	toast.classList.add("show");
-	setTimeout(() => toast.classList.remove("show"), 4000);
+	setTimeout(() => {
+		toastCounter--;
+		if (toastCounter !== 0) return;
+		toast.classList.remove("show");
+	}, 4000);
 }
 
 // Initialize
-await loadBuildings();
 for (const algorithm of Algorithm.derived) {
+	const activeByDefault =
+		["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
+			(i) => i === algorithm.name,
+		) !== -1;
 	algorithmsContainer.innerHTML += `
 		<div>
 			<label for="${algorithm.name}">${algorithm.title}
-				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${algorithm.name === "GreedyNaive" ? "checked" : ""} />
+				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
 			</label>
 		</div>
 	`;
 }
 
-console.log("Buildings", Buildings);
 console.log("Algorithms", Algorithm.derived);
 
 // Subscribe to events
 form.addEventListener("submit", async (e) => {
 	e.preventDefault();
+
+	isRunning = true;
 
 	// Read the form and create an Objective instance right when the user clicks "Run"
 	const objective = Objective.fromForm();
@@ -160,27 +176,30 @@ form.addEventListener("submit", async (e) => {
 	const runBtnText = runBtn.textContent;
 	runBtn.textContent = "Running...";
 
+	const buildingLength = buildingLengthInput.valueAsNumber;
+	await loadBuildings(buildingLength);
+
 	const results = [];
 	for (const algorithm of Algorithm.derived) {
 		const active =
 			document.querySelector(`#${algorithm.name}:checked`) !== null;
 
 		if (!active) continue;
-		
+
 		// Check whether Brute force segmented is selected
 		let isBruteForce = false;
-		if(algorithm.name === `BruteForceSegmented`){
+		if (algorithm.name === `BruteForceSegmented`) {
 			isBruteForce = true;
 		}
 
 		const beforeTime = Date.now();
 		// Start the algorithm run, passing the objective in.
 		const data = await algorithm.instance.run(objective, isBruteForce);
-		const simulationTime = Date.now() - beforeTime;
+		const benchmarkTime = Date.now() - beforeTime;
 
 		results.push({
 			algorithm: algorithm,
-			simulationTime: simulationTime,
+			benchmarkTime: benchmarkTime,
 			data: data,
 		});
 	}
@@ -189,6 +208,8 @@ form.addEventListener("submit", async (e) => {
 
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
+	benchmarkResults.classList.remove("hide");
+	isRunning = false;
 });
 
 form.addEventListener("reset", () => {
@@ -198,6 +219,32 @@ form.addEventListener("reset", () => {
 	setTimeout(() => {
 		updateForm();
 	}, 0);
+});
+
+// Show value of range sliders in output element
+document.querySelectorAll('input[type="range"]').forEach((r) => {
+	r.addEventListener("input", () => (r.nextElementSibling.value = r.value));
+	r.nextElementSibling.value = r.value;
+});
+
+// Click preview charts sets contents of big chart
+document.querySelectorAll(".previews > canvas").forEach((c) =>
+	c.addEventListener("click", () => {
+		chartContext.drawImage(c, 0, 0);
+		selectedCanvas = c;
+	}),
+);
+
+// Zoom in on chart
+chartCanvas.addEventListener("click", () => {
+	/** @type {HTMLCanvasElement} */
+	const zoomedChart = chartCanvas.cloneNode();
+	zoomedChart.removeAttribute("id");
+	zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
+	document.body.appendChild(zoomedChart);
+
+	zoomedChart.classList.add("zoomed");
+	zoomedChart.addEventListener("click", zoomedChart.remove);
 });
 
 form.addEventListener("change", updateForm);

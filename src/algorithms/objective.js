@@ -2,14 +2,14 @@ import GameState from "../cookie-clicker/game-state.js";
 
 // Exportable class, so other files can acces/import
 export default class Objective {
-	// Private value: e.g. 1000
+	// Objective value: e.g. 1000
 	value = 0;
-	// Private type: e.g. "cookies" | "production"
+	// Objective type: e.g. "cookies" | "production" | "time limit"
 	type = null;
 
 	/**
 	 * This runs, when you do "new Objective(type, value)"
-	 * @param {"cookies" | "production"} type
+	 * @param {"cookies" | "production" | "time limit"} type
 	 * @param {number} value
 	 */
 	constructor(type, value) {
@@ -25,13 +25,17 @@ export default class Objective {
 	 * @returns {boolean} whether the objective has been reached.
 	 */
 	isCompleted(gameState) {
-		// If type is "cookies", check gameState.cookies against this.#value
+		// If type is "cookies", check gameState.cookies against this.value
 		if (this.type === "cookies") {
 			return gameState.cookies >= this.value;
 		}
-		// If type is "production", check gameState.cps against this.#value
+		// If type is "production", check gameState.cps against this.value
 		if (this.type === "production") {
 			return gameState.buildingCpS >= this.value;
+		}
+		// If type is "time limit", check gameState.simulationTime against this.value
+		if (this.type === "time limit") {
+			return gameState.simulationTime >= this.value; // Stops when simulated time runs out
 		}
 		// If type is unknown return false (not completed)
 		return false;
