@@ -28,12 +28,7 @@ export default class Algorithm {
 		);
 	}
 
-	getBruteForceSegmentedSolution(
-		segmentedSearchDepth,
-		objective,
-		gameState,
-		buildings,
-	) {
+	getBruteForceSegmentedSolution(segmentedSearchDepth, objective, gameState) {
 		throw new Error(
 			`Method '${this.getBruteForceSegmentedSolution.name}' must be implemented by subclass.`,
 		);
@@ -113,7 +108,6 @@ export default class Algorithm {
 			const solutionArr = this.getBruteForceSegmentedSolution(
 				objective,
 				gameState,
-				buildings,
 			);
 
 			while (true) {
