@@ -170,6 +170,7 @@ export default class BruteForceSegmented extends Algorithm {
 			
 
 		}
+		return bestSolution[0];
 
 	}
 
@@ -186,6 +187,7 @@ export default class BruteForceSegmented extends Algorithm {
 
 		let segmentedSearchDepth = 5;
 		let solution = [];
+		let segmentSolution = [];
 		let decisions = [];
 		let i = 0;
 
@@ -200,15 +202,16 @@ export default class BruteForceSegmented extends Algorithm {
 		
 
 		for (let i = 0; i < 1; i++){
-			this.getSegmentSolution(currentGameState, currentBuildings, 
+			segmentSolution = this.getSegmentSolution(currentGameState, currentBuildings, 
 			decisions, segmentedSearchDepth, objective, buildings, gameState, referenceBuildings, referenceGameState);
+			
 
 
 		}
 
 		
 
-		return 1;
+		return solution;
 
 
 	}
