@@ -3,7 +3,7 @@ import Building, {
 	filterValid,
 	logBuildingStats,
 } from "../cookie-clicker/purchasables/building.js";
-import { sleep } from "../utils.js";
+import { yieldFrame } from "../utils.js";
 import Decision from "./decisions/decision.js";
 import Objective from "./objective.js";
 
@@ -42,28 +42,36 @@ export default class Algorithm {
 		this.#runPromise = (async () => {
 			const data = [];
 
+			let iterations = 0;
+			const awaitIteration = 500;
 			while (true) {
 				// This now checks, if the objective is completed, and breaks if it is.
 				if (objective.isCompleted(gameState)) {
 					console.log("TEST: Objective Completed");
 					break;
 				}
-				// Filter buildings for buildings that reached max level 
+				// Filter buildings for buildings that reached max level
 				// or reached price of infinity
 				const validBuildings = filterValid(gameState.buildings);
 
 				// Break the loop if no more buildings are available
 				if (Object.keys(validBuildings).length === 0) {
-					console.log("All buildings have reached max level or price of infinity. Terminating algorithm...");
+					console.log(
+						"All buildings have reached max level or price of infinity. Terminating algorithm...",
+					);
 					break;
 				}
 
 				// Choose a decision based on current policy/algorithm
-				const decision = this.getNextDecision(gameState, validBuildings, objective);
+				const decision = this.getNextDecision(
+					gameState,
+					validBuildings,
+					objective,
+				);
 
 				// Break the loop if the decision i invalid
 				if (!decision.isValid) {
-					console.log("Error: Invalid decision. Terminating algorithm...")
+					console.log("Error: Invalid decision. Terminating algorithm...");
 					break;
 				}
 
@@ -71,11 +79,15 @@ export default class Algorithm {
 				decision.perform();
 
 				// console.log the stats of validBuildings
-				console.log("New building config:")
+				console.log("New building config:");
 				logBuildingStats(validBuildings);
 
 				const gameStateCopy = gameState.copy();
 				data.push({ decision: decision, gameState: gameStateCopy });
+
+				const shouldYield = iterations % awaitIteration === 0;
+				if (shouldYield) await yieldFrame();
+				iterations++;
 			}
 			this.#isRunning = false;
 			this.#runPromise = null;
