@@ -14,7 +14,7 @@ export default class Decision {
 		if (new.target == Decision)
 			throw new Error("Cannot instantiate abstract class Decision directly.");
 
-		this.gameState = gameState;
+		this._gameState = gameState;
 	}
 
 	/**
