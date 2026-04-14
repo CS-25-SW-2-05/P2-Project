@@ -75,7 +75,7 @@ function getBuildingGraphData(results) {
 			const resultLabel = result.algorithm.name;
 
 			// Get the gamestate from the last decision
-			const lastGameState = result.data[result.data.length - 1].decision._gameState
+			const lastGameState = result.data[result.data.length - 1].gameState;
 
 			// Get the building config from the gamestate
 			const lastBuildingConfig = lastGameState.buildings;

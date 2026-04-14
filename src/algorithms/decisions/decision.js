@@ -14,7 +14,7 @@ export default class Decision {
 		if (new.target == Decision)
 			throw new Error("Cannot instantiate abstract class Decision directly.");
 
-		this._gameState = gameState;
+		this.gameState = gameState;
 	}
 
 	/**
@@ -23,9 +23,5 @@ export default class Decision {
 	perform() {
 		console.log("Decision:", this);
 		this.beforeCookies = this._gameState.cookies;
-	}
-
-	get gameState() {
-		return structuredClone(this._gameState);
 	}
 }
