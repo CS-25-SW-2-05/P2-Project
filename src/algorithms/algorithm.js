@@ -32,7 +32,6 @@ export default class Algorithm {
 	 * Run the algorithm until a non-valid decision occurs.
 	 * @param {Objective} objective passed in from script.js when the form is submitted
 	 * @param {number} baseCpS base cookies per second, passed in by the caller
-	 * @param {number} baseCpS base cookies per second, passed in by the caller
 	 * @returns {Promise<GameState>} the run process promise.
 	 */
 
@@ -45,7 +44,6 @@ export default class Algorithm {
 		this.#isRunning = true;
 		this.#stopRequested = false;
 
-		const gameState = new GameState(baseCpS);
 		const gameState = new GameState(baseCpS);
 
 		this.#runPromise = (async () => {

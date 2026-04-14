@@ -18,13 +18,7 @@ import LineChart from "./benchmark/line-chart.js";
 const chartCanvas = document.querySelector("#chart");
 const chartContext = chartCanvas.getContext("2d");
 const algorithmCount = document.querySelector("#algorithm-count");
-/** @type {HTMLCanvasElement} */
-const chartCanvas = document.querySelector("#chart");
-const chartContext = chartCanvas.getContext("2d");
-const algorithmCount = document.querySelector("#algorithm-count");
 const algorithmsContainer = document.querySelector(".algorithms");
-const buildingLengthInput = document.querySelector("#building-length");
-const benchmarkResults = document.querySelector(".benchmark-results");
 const buildingLengthInput = document.querySelector("#building-length");
 const benchmarkResults = document.querySelector(".benchmark-results");
 const form = document.querySelector("form");
@@ -34,8 +28,6 @@ const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
 const stopBtn = document.getElementById("stop-btn");
-let isRunning = false;
-let selectedCanvas = null;
 let isRunning = false;
 let selectedCanvas = null;
 
@@ -88,11 +80,6 @@ function displayResults(results) {
         `;
 	}
 
-	// Chart Results
-	const cpsCanvas = document.querySelector("#cps-chart");
-	const cookieCanvas = document.querySelector("#cookie-chart");
-	const cpsChart = new LineChart(cpsCanvas, "Time (s)", "Production (CpS)");
-	const cookieChart = new LineChart(cookieCanvas, "Time (s)", "Cookies");
 	// Chart Results
 	const cpsCanvas = document.querySelector("#cps-chart");
 	const cookieCanvas = document.querySelector("#cookie-chart");
@@ -154,7 +141,6 @@ function displayResults(results) {
  * @param {string} msg message of the toast.
  */
 let toastCounter = 0;
-let toastCounter = 0;
 function show(title, msg) {
 	toastCounter++;
 	toastCounter++;
@@ -176,7 +162,6 @@ function show(title, msg) {
 // Initialize
 for (const algorithm of Algorithm.derived) {
 	const activeByDefault =
-		["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
 		["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
 			(i) => i === algorithm.name,
 		) !== -1;
@@ -208,9 +193,6 @@ form.addEventListener("submit", async (e) => {
 	runBtn.setAttribute("disabled", "disabled");
 	const runBtnText = runBtn.textContent;
 	runBtn.textContent = "Running...";
-
-	const buildingLength = buildingLengthInput.valueAsNumber;
-	await loadBuildings(buildingLength);
 
 	const buildingLength = buildingLengthInput.valueAsNumber;
 	await loadBuildings(buildingLength);
