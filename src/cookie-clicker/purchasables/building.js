@@ -80,8 +80,8 @@ export async function loadBuildings(length = -1) {
 	let i = 0;
 	for (const [key, value] of Object.entries(data)) {
 		if (length !== -1 && i >= length) {
-			console.log("Building Length:", Buildings.length);
-			return;
+			console.log("Building Length:", i);
+			break;
 		}
 		Buildings[key] = new Building(
 			key,
@@ -119,12 +119,18 @@ export function logBuildingStats(buildings) {
  * Clone the Buildings list for possible later mutation.
  * @returns {Building[]} a clone of Buildings, which can be mutated.
  */
-export function cloneBuildings() {
+export function cloneBuildings(buildings = Buildings) {
 	const copy = {};
-	for (const [key, b] of Object.entries(Buildings)) {
-		const inst = new Building(b.name, b.baseCost, b.baseCpS, b.maxBuildCount);
-		inst.owned = b.owned;
-		copy[key] = inst;
+	for (const [key, b] of Object.entries(buildings)) {
+		const instance = new Building(
+			b.name,
+			b.baseCost,
+			b.baseCpS,
+			b.maxBuildCount,
+		);
+		instance.owned = b.owned;
+		instance.updateCost();
+		copy[key] = instance;
 	}
 
 	return copy;

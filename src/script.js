@@ -19,6 +19,7 @@ const chartContext = chartCanvas.getContext("2d");
 const algorithmCount = document.querySelector("#algorithm-count");
 const algorithmsContainer = document.querySelector(".algorithms");
 const buildingLengthInput = document.querySelector("#building-length");
+const baseCpSInput = document.querySelector("#base-cps");
 const benchmarkResults = document.querySelector(".benchmark-results");
 const form = document.querySelector("form");
 const runBtn = form.querySelector("button[type='submit']");
@@ -26,6 +27,8 @@ const runBtn = form.querySelector("button[type='submit']");
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
+let isRunning = false;
+let selectedCanvas = null;
 
 let mainChart = null;
 let buildingGraph = null;
@@ -35,6 +38,7 @@ let zoomedChartDisplayed = null;
 
 // Functions
 function updateForm() {
+	if (isRunning) return;
 	const count = getActiveAlgorithms();
 	if (count <= 0) runBtn.setAttribute("disabled", "disabled");
 	else runBtn.removeAttribute("disabled");
@@ -278,9 +282,10 @@ function displayResults(results) {
 		cookieChart.add(label, x, y);
 	}
 
+	if (selectedCanvas == null) selectedCanvas = cpsCanvas;
 	cpsChart.draw();
 	cookieChart.draw();
-	chartContext.drawImage(cpsCanvas, 0, 0);
+	chartContext.drawImage(selectedCanvas, 0, 0);
 }
 
 /**
@@ -304,7 +309,7 @@ function show(title, msg) {
 // Initialize
 for (const algorithm of Algorithm.derived) {
 	const activeByDefault =
-		["GreedyNaive", "GreedyPaybackTime"].findIndex(
+		["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
 			(i) => i === algorithm.name,
 		) !== -1;
 	algorithmsContainer.innerHTML += `
@@ -322,6 +327,8 @@ console.log("Algorithms", Algorithm.derived);
 form.addEventListener("submit", async (e) => {
 	e.preventDefault();
 
+	isRunning = true;
+
 	// Read the form and create an Objective instance right when the user clicks "Run"
 	const objective = Objective.fromForm();
 
@@ -334,6 +341,7 @@ form.addEventListener("submit", async (e) => {
 
 	const buildingLength = buildingLengthInput.valueAsNumber;
 	await loadBuildings(buildingLength);
+	const baseCpS = baseCpSInput.valueAsNumber;
 
 	const results = [];
 	for (const algorithm of Algorithm.derived) {
@@ -344,7 +352,7 @@ form.addEventListener("submit", async (e) => {
 
 		const beforeTime = Date.now();
 		// Start the algorithm run, passing the objective in.
-		const data = await algorithm.instance.run(objective);
+		const data = await algorithm.instance.run(objective, baseCpS);
 		const benchmarkTime = Date.now() - beforeTime;
 
 		results.push({
@@ -360,6 +368,7 @@ form.addEventListener("submit", async (e) => {
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
 
+	isRunning = false;
 });
 
 form.addEventListener("reset", () => {
@@ -372,11 +381,10 @@ form.addEventListener("reset", () => {
 });
 
 // Show value of range sliders in output element
-document
-	.querySelectorAll('input[type="range"]')
-	.forEach((r) =>
-		r.addEventListener("input", () => (r.nextElementSibling.value = r.value)),
-	);
+document.querySelectorAll('input[type="range"]').forEach((r) => {
+	r.addEventListener("input", () => (r.nextElementSibling.value = r.value));
+	r.nextElementSibling.value = r.value;
+});
 
 // Click preview charts sets contents of big chart
 document.querySelectorAll(".previews > canvas").forEach((canvas) => {
@@ -409,17 +417,8 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
 		buildingGraphSelected = false;
 
 		// Else draw image
-		chartContext.drawImage(
-			canvas,
-			0,
-			0,
-			canvas.width,
-			canvas.height,
-			0,
-			0,
-			chartCanvas.width,
-			chartCanvas.height,
-		);
+		chartContext.drawImage(c, 0, 0);
+		selectedCanvas = c;
 	});
 });
 
@@ -450,6 +449,7 @@ chartCanvas.addEventListener("click", () => {
 		// Default: Clone zoomed chart from mainChart
 		else {
 			zoomedChart = chartCanvas.cloneNode();
+			zoomedChart.removeAttribute("id");
 		}
 
 		zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);

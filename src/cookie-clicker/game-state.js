@@ -6,8 +6,8 @@ export default class GameState {
 	buildingCpS = 0;
 	manualCpS = 1;
 	simulationTime = 0;
-	/** @type {Building[]} */
-	buildings = [];
+	/** @type {Object.<string, Building>} */
+	buildings = {};
 
 	constructor(manualCpS = 1) {
 		this.manualCpS = manualCpS;
@@ -22,6 +22,7 @@ export default class GameState {
 		const copy = new GameState();
 		copy.#cookies = this.#cookies;
 		copy.totalCookies = this.totalCookies;
+		copy.buildings = cloneBuildings(this.buildings);
 		copy.buildingCpS = this.buildingCpS;
 		copy.manualCpS = this.manualCpS;
 		copy.simulationTime = this.simulationTime;
