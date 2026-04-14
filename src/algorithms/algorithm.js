@@ -32,6 +32,7 @@ export default class Algorithm {
 	 * Run the algorithm until a non-valid decision occurs.
 	 * @param {Objective} objective passed in from script.js when the form is submitted
 	 * @param {number} baseCpS base cookies per second, passed in by the caller
+	 * @param {number} baseCpS base cookies per second, passed in by the caller
 	 * @returns {Promise<GameState>} the run process promise.
 	 */
 
@@ -39,11 +40,12 @@ export default class Algorithm {
 		this.#stopRequested = true;
 	}
 
-	async run(objective, baseCpS) {
+	async run(objective, baseCpS, baseCpS) {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
 		this.#stopRequested = false;
 
+		const gameState = new GameState(baseCpS);
 		const gameState = new GameState(baseCpS);
 
 		this.#runPromise = (async () => {
@@ -66,7 +68,7 @@ export default class Algorithm {
 				}
 				// Filter buildings for buildings that reached max level
 				// or reached price of infinity
-				const validBuildings = filterValid(gameState.buildings);
+				const validBuildings = filterValid(gameState.gameState.buildings);
 
 				// Break the loop if no more buildings are available
 				if (Object.keys(validBuildings).length === 0) {
