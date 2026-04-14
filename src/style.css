@@ -234,9 +234,16 @@ option {
 	padding: 6px 8px;
 }
 
+div:has(> table) {
+	width: 100%;
+	overflow-x: auto;
+	display: block;
+}
+
 table {
 	width: 100%;
 	border-collapse: collapse;
+	table-layout: auto;
 	text-align: left;
 
 	-webkit-user-select: text;
@@ -257,7 +264,9 @@ tbody tr:not(:last-child) {
 
 th,
 td {
-	padding: 0 8px;
+	white-space: nowrap;
+	padding: 12px 20px;
+	text-align: left;
 }
 
 thead th {

@@ -7,7 +7,7 @@
 
 		<link rel="stylesheet" href="style.css" />
 		<link rel="shortcut icon" href="images/cookie.png" type="image/x-icon" />
-		<script src="script.js" type="module"></script>
+		<script type="module" src="script.js"></script>
 	</head>
 	<body>
 		<header>
@@ -34,9 +34,9 @@
 					<h2>Settings</h2>
 					<div class="grid">
 						<div class="field">
-							<label for="base-cps">
-								<p>Base CpS</p>
-								<input type="number" id="base-cps" min="1" value="1" />
+							<label for="clicks-per-second">
+								<p>Clicks per Second</p>
+								<input type="number" id="clicks-per-second" min="1" value="1" />
 							</label>
 						</div>
 						<div class="field">
@@ -102,24 +102,30 @@
 			</form>
 			<div class="benchmark-results hide">
 				<section>
+					<button id="open-timeline">Open</button>
 					<h2>Results</h2>
 					<canvas id="chart" width="2560" height="1440"></canvas>
 					<div class="previews">
 						<canvas id="cps-chart" width="2560" height="1440"></canvas>
 						<canvas id="cookie-chart" width="2560" height="1440"></canvas>
 					</div>
-					<table class="result-data">
-						<thead>
-							<tr>
-								<th>Algorithm</th>
-								<th>Benchmark Time (ms)</th>
-								<th>Simulation Time (s)</th>
-								<th>Total Cookies</th>
-								<th>CpS</th>
-							</tr>
-						</thead>
-						<tbody></tbody>
-					</table>
+					<div>
+						<table class="result-data">
+							<thead>
+								<tr>
+									<th>Algorithm</th>
+									<th>Iterations</th>
+									<th>Iteration Time (μs)</th>
+									<th>Benchmark Time (ms)</th>
+									<th>Simulation Time (s)</th>
+									<th>CpS</th>
+									<th>Cookies</th>
+									<th>Total Cookies</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
 				</section>
 			</div>
 		</main>

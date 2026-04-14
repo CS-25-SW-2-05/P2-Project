@@ -1,7 +1,7 @@
 import { loadBuildings } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
-import { getPlural } from "./utils.js";
+import { getPlural, round } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
 import "./algorithms/greedy-payback-time.js";
@@ -18,11 +18,16 @@ const chartContext = chartCanvas.getContext("2d");
 const algorithmCount = document.querySelector("#algorithm-count");
 const algorithmsContainer = document.querySelector(".algorithms");
 const buildingLengthInput = document.querySelector("#building-length");
-const baseCpSInput = document.querySelector("#base-cps");
+const clicksPerSecondInput = document.querySelector("#clicks-per-second");
 const benchmarkResults = document.querySelector(".benchmark-results");
+/** @type {HTMLFormElement} */
 const form = document.querySelector("form");
+/** @type {HTMLButtonElement} */
 const runBtn = form.querySelector("button[type='submit']");
+/** @type {HTMLButtonElement} */
+const openTimelineBtn = document.querySelector("#open-timeline");
 
+const channel = new BroadcastChannel("cookie_timeline");
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
@@ -70,10 +75,13 @@ function displayResults(results, objective) {
 		tbody.innerHTML += `
         <tr>
             <td>${r.algorithm.title}</td>
-            <td>${numberformat.formatShort(r.benchmarkTime)}</td>
+            <td>${numberformat.formatShort(r.data.length)}</td>
+            <td>${round((r.benchmarkTime * 1000) / r.data.length, 1)}</td>
+            <td>${round(r.benchmarkTime, 0)}</td>
             <td>${numberformat.formatShort(lastData.gameState.simulationTime)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
             <td>${numberformat.formatShort(lastData.gameState.buildingCpS)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.cookies)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
         </tr>
         `;
 	}
@@ -135,6 +143,27 @@ function displayResults(results, objective) {
 	cpsChart.draw();
 	cookieChart.draw();
 	chartContext.drawImage(selectedCanvas, 0, 0);
+
+	// Open Timeline
+	openTimelineBtn.addEventListener("click", () => {
+		channel.onmessage = (event) => {
+			console.log("Data received:", event.data);
+			const type = event.data.type;
+			const payload = event.data.payload;
+
+			switch (type) {
+				case "RESULT_DATA_REQ":
+					channel.postMessage({ type: "RESULT_DATA_RES", payload: results });
+					break;
+			}
+		};
+
+		window.open(
+			"./timeline/timeline.html",
+			"newwindow",
+			"width=800,height=600",
+		);
+	});
 }
 
 /**
@@ -190,7 +219,7 @@ form.addEventListener("submit", async (e) => {
 
 	const buildingLength = buildingLengthInput.valueAsNumber;
 	await loadBuildings(buildingLength);
-	const baseCpS = baseCpSInput.valueAsNumber;
+	const baseCpS = clicksPerSecondInput.valueAsNumber;
 
 	const results = [];
 	for (const algorithm of Algorithm.derived) {
