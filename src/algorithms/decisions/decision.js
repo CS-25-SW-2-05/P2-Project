@@ -21,7 +21,7 @@ export default class Decision {
 	 * Perform the decision, and update the game state.
 	 */
 	perform() {
-		console.log("Decision:", this);
+		//console.log("Decision:", this);
 		this.beforeCookies = this._gameState.cookies;
 	}
 }
