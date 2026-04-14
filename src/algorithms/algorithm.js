@@ -1,6 +1,5 @@
 import GameState from "../cookie-clicker/game-state.js";
 import Building, {
-	cloneBuildings,
 	filterValid,
 	logBuildingStats,
 } from "../cookie-clicker/purchasables/building.js";
@@ -31,14 +30,14 @@ export default class Algorithm {
 	/**
 	 * Run the algorithm until a non-valid decision occurs.
 	 * @param {Objective} objective passed in from script.js when the form is submitted
+	 * @param {number} baseCpS base cookies per second, passed in by the caller
 	 * @returns {Promise<GameState>} the run process promise.
 	 */
-	run(objective) {
+	run(objective, baseCpS) {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
 
-		const gameState = new GameState();
-		const buildings = cloneBuildings();
+		const gameState = new GameState(baseCpS);
 
 		this.#runPromise = (async () => {
 			const data = [];
@@ -53,7 +52,7 @@ export default class Algorithm {
 				}
 				// Filter buildings for buildings that reached max level
 				// or reached price of infinity
-				const validBuildings = filterValid(buildings);
+				const validBuildings = filterValid(gameState.buildings);
 
 				// Break the loop if no more buildings are available
 				if (Object.keys(validBuildings).length === 0) {

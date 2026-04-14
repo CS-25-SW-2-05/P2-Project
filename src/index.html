@@ -31,8 +31,46 @@
 				</section>
 
 				<section>
-					<h2>Benchmark Objective</h2>
-					<div class="grid-2">
+					<h2>Settings</h2>
+					<div class="grid">
+						<div class="field">
+							<label for="base-cps">
+								<p>Base CpS</p>
+								<input type="number" id="base-cps" min="1" value="1" />
+							</label>
+						</div>
+						<div class="field">
+							<label for="building-length">
+								<p>Buildings</p>
+								<div>
+									<input
+										type="range"
+										id="building-length"
+										min="1"
+										max="25"
+										value="25"
+									/>
+									<output>25</output>
+								</div>
+							</label>
+						</div>
+						<div class="field">
+							<label for="brute-force-horizon">
+								<p>Brute Force Horizon</p>
+								<input
+									type="number"
+									id="brute-force-horizon"
+									min="1"
+									value="4"
+								/>
+							</label>
+						</div>
+					</div>
+				</section>
+
+				<section>
+					<h2>Objective</h2>
+					<div class="grid">
 						<div class="field">
 							<label for="objective-type">
 								<p>Objective type</p>
@@ -57,26 +95,19 @@
 					</div>
 				</section>
 
-				<section>
-					<h2>Simulation Constraints</h2>
-					<div class="field">
-						<label for="max-sim-time">
-							<p>Max Simulation Time (s)</p>
-							<input type="number" id="max-sim-time" min="1" value="3600" />
-						</label>
-					</div>
-				</section>
-
 				<div class="actions">
 					<button type="submit" disabled>Run Benchmark</button>
 					<button type="reset">Reset</button>
 				</div>
 			</form>
-			<div class="benchmark-results">
+			<div class="benchmark-results hide">
 				<section>
 					<h2>Results</h2>
-					<canvas id="cps-graph" width="1920" height="1080"></canvas>
-					<canvas id="cookie-graph" width="1920" height="1080"></canvas>
+					<canvas id="chart" width="2560" height="1440"></canvas>
+					<div class="previews">
+						<canvas id="cps-chart" width="2560" height="1440"></canvas>
+						<canvas id="cookie-chart" width="2560" height="1440"></canvas>
+					</div>
 					<table class="result-data">
 						<thead>
 							<tr>
