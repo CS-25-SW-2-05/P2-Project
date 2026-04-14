@@ -98,8 +98,9 @@ main {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
-	/* align-items: center; */
 	flex: 1;
+	padding: 1.5rem;
+	gap: 1.5rem;
 }
 
 main > div,
@@ -150,7 +151,6 @@ hr {
 /* Configuration Menu */
 form,
 .benchmark-results {
-	padding: 1.5rem;
 	max-width: 720px;
 	width: 100%;
 }
