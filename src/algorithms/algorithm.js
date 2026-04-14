@@ -45,7 +45,7 @@ export default class Algorithm {
 	 * @param {number} baseCpS base cookies per second, passed in by the caller
 	 * @returns {Promise<GameState>} the run process promise.
 	 */
-	async run(objective, isBruteForce) {
+	async run(objective, baseCpS, isBruteForce) {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
 
