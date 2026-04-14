@@ -18,6 +18,7 @@ const chartContext = chartCanvas.getContext("2d");
 const algorithmCount = document.querySelector("#algorithm-count");
 const algorithmsContainer = document.querySelector(".algorithms");
 const buildingLengthInput = document.querySelector("#building-length");
+const baseCpSInput = document.querySelector("#base-cps");
 const benchmarkResults = document.querySelector(".benchmark-results");
 const form = document.querySelector("form");
 const runBtn = form.querySelector("button[type='submit']");
@@ -178,6 +179,7 @@ form.addEventListener("submit", async (e) => {
 
 	const buildingLength = buildingLengthInput.valueAsNumber;
 	await loadBuildings(buildingLength);
+	const baseCpS = baseCpSInput.valueAsNumber;
 
 	const results = [];
 	for (const algorithm of Algorithm.derived) {
@@ -188,7 +190,7 @@ form.addEventListener("submit", async (e) => {
 
 		const beforeTime = Date.now();
 		// Start the algorithm run, passing the objective in.
-		const data = await algorithm.instance.run(objective);
+		const data = await algorithm.instance.run(objective, baseCpS);
 		const benchmarkTime = Date.now() - beforeTime;
 
 		results.push({
