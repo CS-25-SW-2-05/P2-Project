@@ -1,7 +1,4 @@
-import {
-	Buildings,
-	loadBuildings,
-} from "./cookie-clicker/purchasables/building.js";
+import { loadBuildings } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
 import { getPlural } from "./utils.js";
@@ -12,11 +9,16 @@ import "./algorithms/brute-force-segmented.js";
 import Decision from "./algorithms/decisions/decision.js";
 import GameState from "./cookie-clicker/game-state.js";
 import * as numberformat from "https://esm.sh/swarm-numberformat";
-import Graph from "./benchmark/graph.js";
+import LineChart from "./benchmark/line-chart.js";
 
 // References
-const algorithmCount = document.getElementById("algorithm-count");
+/** @type {HTMLCanvasElement} */
+const chartCanvas = document.querySelector("#chart");
+const chartContext = chartCanvas.getContext("2d");
+const algorithmCount = document.querySelector("#algorithm-count");
 const algorithmsContainer = document.querySelector(".algorithms");
+const buildingLengthInput = document.querySelector("#building-length");
+const benchmarkResults = document.querySelector(".benchmark-results");
 const form = document.querySelector("form");
 const runBtn = form.querySelector("button[type='submit']");
 
@@ -24,9 +26,12 @@ const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
 const stopBtn = document.getElementById("stop-btn");
+let isRunning = false;
+let selectedCanvas = null;
 
 // Functions
 function updateForm() {
+	if (isRunning) return;
 	const count = getActiveAlgorithms();
 	if (count <= 0) runBtn.setAttribute("disabled", "disabled");
 	else runBtn.removeAttribute("disabled");
@@ -72,11 +77,11 @@ function displayResults(results) {
         `;
 	}
 
-	// Graph Results
-	const cpsCanvas = document.querySelector("#cps-graph");
-	const cookieCanvas = document.querySelector("#cookie-graph");
-	const cpsGraph = new Graph(cpsCanvas, "Time (s)", "CpS");
-	const cookieGraph = new Graph(cookieCanvas, "Time (s)", "Cookies");
+	// Chart Results
+	const cpsCanvas = document.querySelector("#cps-chart");
+	const cookieCanvas = document.querySelector("#cookie-chart");
+	const cpsChart = new LineChart(cpsCanvas, "Time (s)", "Production (CpS)");
+	const cookieChart = new LineChart(cookieCanvas, "Time (s)", "Cookies");
 
 	for (let i = 0; i < results?.length; i++) {
 		const r = results[i];
@@ -91,7 +96,7 @@ function displayResults(results) {
 			y.push(d.gameState.buildingCpS);
 		}
 
-		cpsGraph.add(label, x, y);
+		cpsChart.add(label, x, y);
 	}
 
 	for (let i = 0; i < results?.length; i++) {
@@ -112,11 +117,13 @@ function displayResults(results) {
 			y.push(d.decision.beforeCookies);
 		}
 
-		cookieGraph.add(label, x, y);
+		cookieChart.add(label, x, y);
 	}
 
-	cpsGraph.draw();
-	cookieGraph.draw();
+	if (selectedCanvas == null) selectedCanvas = cpsCanvas;
+	cpsChart.draw();
+	cookieChart.draw();
+	chartContext.drawImage(selectedCanvas, 0, 0);
 }
 
 /**
@@ -124,18 +131,23 @@ function displayResults(results) {
  * @param {string} title title of the toast.
  * @param {string} msg message of the toast.
  */
+let toastCounter = 0;
 function show(title, msg) {
+	toastCounter++;
 	toastTitle.textContent = title;
 	toastMsg.textContent = msg;
 	toast.classList.add("show");
-	setTimeout(() => toast.classList.remove("show"), 4000);
+	setTimeout(() => {
+		toastCounter--;
+		if (toastCounter !== 0) return;
+		toast.classList.remove("show");
+	}, 4000);
 }
 
 // Initialize
-await loadBuildings();
 for (const algorithm of Algorithm.derived) {
 	const activeByDefault =
-		["GreedyNaive", "GreedyPaybackTime"].findIndex(
+		["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
 			(i) => i === algorithm.name,
 		) !== -1;
 	algorithmsContainer.innerHTML += `
@@ -147,12 +159,13 @@ for (const algorithm of Algorithm.derived) {
 	`;
 }
 
-console.log("Buildings", Buildings);
 console.log("Algorithms", Algorithm.derived);
 
 // Subscribe to events
 form.addEventListener("submit", async (e) => {
 	e.preventDefault();
+
+	isRunning = true;
 
 	// Read the form and create an Objective instance right when the user clicks "Run"
 	const objective = Objective.fromForm();
@@ -164,7 +177,8 @@ form.addEventListener("submit", async (e) => {
 	const runBtnText = runBtn.textContent;
 	runBtn.textContent = "Running...";
 
-	stopBtn.removeAttribute("disabled");
+	const buildingLength = buildingLengthInput.valueAsNumber;
+	await loadBuildings(buildingLength);
 
 	const results = [];
 	for (const algorithm of Algorithm.derived) {
@@ -202,10 +216,15 @@ stopBtn.addEventListener("click", () => {
 	setTimeout(() => {
 		updateForm();
 	})
+	benchmarkResults.classList.remove("hide");
+	isRunning = false;
 });
 
 form.addEventListener("reset", () => {
 	show("Reset", "The form has been reset...");
+	runBtn.removeAttribute("disabled");
+	const runBtnText = runBtn.textContent;
+	runBtn.textContent = "Run Benchmark";
 
 	// Timeout to push the execution to after values has been reset
 	setTimeout(() => {
@@ -213,6 +232,31 @@ form.addEventListener("reset", () => {
 	}, 0);
 });
 
+// Show value of range sliders in output element
+document.querySelectorAll('input[type="range"]').forEach((r) => {
+	r.addEventListener("input", () => (r.nextElementSibling.value = r.value));
+	r.nextElementSibling.value = r.value;
+});
+
+// Click preview charts sets contents of big chart
+document.querySelectorAll(".previews > canvas").forEach((c) =>
+	c.addEventListener("click", () => {
+		chartContext.drawImage(c, 0, 0);
+		selectedCanvas = c;
+	}),
+);
+
+// Zoom in on chart
+chartCanvas.addEventListener("click", () => {
+	/** @type {HTMLCanvasElement} */
+	const zoomedChart = chartCanvas.cloneNode();
+	zoomedChart.removeAttribute("id");
+	zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
+	document.body.appendChild(zoomedChart);
+
+	zoomedChart.classList.add("zoomed");
+	zoomedChart.addEventListener("click", zoomedChart.remove);
+});
+
 form.addEventListener("change", updateForm);
 updateForm();
-displayResults();

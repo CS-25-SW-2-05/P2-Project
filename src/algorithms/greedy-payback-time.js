@@ -49,7 +49,7 @@ export default class GreedyPaybackTime extends Algorithm {
 		// SAME CONCEPT AS "fixed-production"
 		if (objective.type === "fixed-cookies") {
 			// quick calculation of how many seconds remain before the time limit ends, this is useful for calculating how many cookies a building will produce
-			const timeLeft = objective.value - gameState.realTime;
+			const timeLeft = objective.value - gameState.simulationTime;
 			let bestBuilding = null;
 			let bestProfit = -Infinity;
 

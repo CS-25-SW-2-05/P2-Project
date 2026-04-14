@@ -1,7 +1,7 @@
 import { remap, round } from "../utils.js";
 import * as numberformat from "https://esm.sh/swarm-numberformat";
 
-export class GraphData {
+export class LineChartData {
 	label = "";
 	x = [];
 	y = [];
@@ -17,7 +17,7 @@ export class GraphData {
 	}
 }
 
-export default class Graph {
+export default class LineChart {
 	/** @type {HTMLCanvasElement} */
 	#canvas = null;
 	#data = [];
@@ -45,7 +45,7 @@ export default class Graph {
 		if (x == null) x = [];
 		if (y == null) y = [];
 
-		const dataObj = new GraphData(label, x, y);
+		const dataObj = new LineChartData(label, x, y);
 		this.#data.push(dataObj);
 	}
 
