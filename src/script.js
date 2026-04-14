@@ -30,6 +30,8 @@ const toastMsg = toast.querySelector("p");
 let mainChart = null;
 let buildingGraph = null;
 let latestBuildingGraphConfig = null;
+let buildingGraphSelected = null;
+let zoomedChartDisplayed = null;
 
 // Functions
 function updateForm() {
@@ -51,6 +53,136 @@ function getActiveAlgorithms() {
 	return count;
 }
 
+function getBuildingGraphData(results) {
+
+	// Creating object to contain data and config for buildingGraph
+	let buildingConfigGraphData = {
+		labels: [],
+		datasets: []
+	};
+
+	// Convert benchmark results into Chart.js format by extracting owned buildings
+	// from the final game state of each algorithm run
+	if (results) {
+		// for each algorithm
+		for (const result of results) {
+
+			// Get the algorithm label
+			const resultLabel = result.algorithm.name;
+
+			// Get the gamestate from the last decision
+			const lastGameState = result.data[result.data.length - 1].decision.gameState
+
+			// Get the building config from the gamestate
+			const lastBuildingConfig = lastGameState.buildings;
+
+			// Make a list of the number owned og each building in the gamestate
+			const resultData = Object.values(lastBuildingConfig).map(building => building.owned);
+
+			// Construct a list of building name labels, if it hasn't been done already
+			if (buildingConfigGraphData.labels.length === 0) {
+				buildingConfigGraphData.labels = Object.keys(lastBuildingConfig);
+			}
+
+			// Push the dataset for the algorithm
+			buildingConfigGraphData.datasets.push({
+				label: resultLabel,
+				data: resultData
+			});
+		}
+	}
+	return buildingConfigGraphData;
+}
+
+// Config for buildingChart 
+function getBuildingGraphConfig(buildingConfigGraphData, canvas) {
+	return {
+		type: "bar",
+		data: buildingConfigGraphData,
+		options: {
+			responsive: true,
+			animation: false,
+			devicePixelRatio: window.devicePixelRatio,
+			scales: {
+				x: {
+					ticks: {
+						color: "white"
+					},
+					grid: {
+						color: getComputedStyle(canvas)
+							.getPropertyValue("--border")
+							.trim(),
+					}
+				},
+				y: {
+					ticks: {
+						color: "white"
+					},
+					grid: {
+						color: getComputedStyle(canvas)
+							.getPropertyValue("--border")
+							.trim(),
+					}
+				}
+			},
+			plugins: {
+				legend: {
+					labels: {
+						color: "white"
+					}
+				}
+			}
+		}
+	}
+}
+
+// Converts a canvas to an image
+function drawCanvasInPreview(sourceCanvas, previewCanvas) {
+	const context = previewCanvas.getContext("2d");
+
+	context.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+	context.drawImage(
+		sourceCanvas,
+		0,
+		0,
+		sourceCanvas.width,
+		sourceCanvas.height,
+		0,
+		0,
+		previewCanvas.width,
+		previewCanvas.height,
+	);
+}
+
+
+function updateBuildingGraphPreview(buildingConfigGraphData, buildingCanvas) {
+
+	// Init config for the preview graph
+	const previewGraphConfig = getBuildingGraphConfig(buildingConfigGraphData, buildingCanvas);
+	previewGraphConfig.options.responsive = false;
+
+	// Get rectangle object from chartCanvas
+	const rect = chartCanvas.getBoundingClientRect();
+
+	// Get device pixel ratio
+	const dpr = window.devicePixelRatio || 1;
+
+	// Create a temp canvas
+	const tempCanvas = document.createElement("canvas");
+
+	// Set the height and width according to rectangle from chartCanvas
+	tempCanvas.width = Math.round(rect.width * dpr);
+	tempCanvas.height = Math.round(rect.height * dpr);
+
+	// Create a temp chart
+	const tempChart = new Chart(tempCanvas, previewGraphConfig);
+	tempChart.update();
+
+	// Draw it in the preview canvas
+	drawCanvasInPreview(tempCanvas, buildingCanvas);
+	tempChart.destroy();
+}
+
 
 /**
  * @param {{
@@ -60,28 +192,6 @@ function getActiveAlgorithms() {
  * }[]} results
  */
 function displayResults(results) {
-
-	let buildingConfigGraphData = {
-		labels: [],
-		datasets: []
-	};
-	if (results) {
-		for (const result of results) {
-			const resultLabel = result.algorithm.name;
-			const lastGameState = result.data[result.data.length - 1].decision.gameState
-			const lastBuildingConfig = lastGameState.buildings;
-			const resultData = Object.values(lastBuildingConfig).map(building => building.owned);
-
-			if (buildingConfigGraphData.labels.length === 0) {
-				buildingConfigGraphData.labels = Object.keys(lastBuildingConfig);
-			}
-
-			buildingConfigGraphData.datasets.push({
-				label: resultLabel,
-				data: resultData
-			});
-		}
-	}
 
 	// Table Results
 	const tbody = document.querySelector(".result-data > tbody");
@@ -104,35 +214,32 @@ function displayResults(results) {
 	const cpsCanvas = document.querySelector("#cps-chart");
 	const cookieCanvas = document.querySelector("#cookie-chart");
 	const buildingCanvas = document.querySelector("#building-graph");
-	const buildingGraphConfig = {
-		type: "bar",
-		data: buildingConfigGraphData,
-		options: {
-			responsive: true,
-			// maintainAspectRatio: false,
-			devicePixelRatio: window.devicePixelRatio
-		}
-	}
 
-	latestBuildingGraphConfig = buildingGraphConfig;
 	const cpsChart = new LineChart(cpsCanvas, "Time (s)", "Production (CpS)");
 	const cookieChart = new LineChart(cookieCanvas, "Time (s)", "Cookies");
 
-	if (buildingGraph) {
-		buildingGraph.destroy();
-		buildingGraph = null;
-	}
+	// Destroy mainchart or buildinggraph if they exist
 
 	if (mainChart) {
 		mainChart.destroy();
 		mainChart = null;
 	}
+	if (buildingGraph) {
+		buildingGraph.destroy();
+		buildingGraph = null;
+	}
 
-	buildingGraph = new Chart(buildingCanvas, buildingGraphConfig)
+	// Get building graph data from results
+	const buildingConfigGraphData = getBuildingGraphData(results);
 
-	buildingCanvas.style.removeProperty("display");
-	buildingCanvas.removeAttribute("style");
+	// Make a config for the chart, and input the building graph data
+	const buildingGraphConfig = getBuildingGraphConfig(buildingConfigGraphData, buildingCanvas);
 
+	// Update latest graph config global variable
+	latestBuildingGraphConfig = buildingGraphConfig;
+
+	// Update the building graph preview
+	updateBuildingGraphPreview(buildingConfigGraphData, buildingCanvas);
 
 	for (let i = 0; i < results?.length; i++) {
 		const r = results[i];
@@ -247,11 +354,12 @@ form.addEventListener("submit", async (e) => {
 		});
 	}
 
+	benchmarkResults.classList.remove("hide");
 	displayResults(results);
 
 	runBtn.textContent = runBtnText;
 	runBtn.removeAttribute("disabled");
-	benchmarkResults.classList.remove("hide");
+
 });
 
 form.addEventListener("reset", () => {
@@ -274,6 +382,7 @@ document
 document.querySelectorAll(".previews > canvas").forEach((canvas) => {
 	canvas.addEventListener("click", () => {
 
+		// If a mainChart exists, destroy it
 		if (mainChart) {
 			mainChart.destroy();
 			mainChart = null;
@@ -283,12 +392,21 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
 
 		// If the canvas is the building-graph, then draw chart
 		if (canvas.id === "building-graph") {
+
+			// Update buildingGraphSelected
+			buildingGraphSelected = true;
+
 			mainChart = new Chart(chartCanvas, {
 				...latestBuildingGraphConfig,
 			});
+
+			// Remove unwanted display property generated by chart.js library
 			chartCanvas.style.removeProperty("display");
 			return;
 		}
+
+		// Update buildingGraphSelected
+		buildingGraphSelected = false;
 
 		// Else draw image
 		chartContext.drawImage(
@@ -308,13 +426,50 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
 
 // Zoom in on chart
 chartCanvas.addEventListener("click", () => {
-	/** @type {HTMLCanvasElement} */
-	const zoomedChart = chartCanvas.cloneNode();
-	zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
-	document.body.appendChild(zoomedChart);
 
-	zoomedChart.classList.add("zoomed");
-	zoomedChart.addEventListener("click", zoomedChart.remove);
+	// Only add zoomed chart, if it is not alreade being displayed
+	if (!zoomedChartDisplayed) {
+		let zoomedChart = null;
+
+		// Update zoomed chart display status
+		zoomedChartDisplayed = true;
+
+		/** @type {HTMLCanvasElement} */
+
+		// Special handling for the buildingGraph bar chart
+		if (buildingGraphSelected) {
+
+			// Create a new empty canvas element
+			zoomedChart = document.createElement("canvas");
+
+			// And input a new building graph
+			new Chart(zoomedChart, {
+				...latestBuildingGraphConfig,
+			});
+		}
+		// Default: Clone zoomed chart from mainChart
+		else {
+			zoomedChart = chartCanvas.cloneNode();
+		}
+
+		zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
+
+		// Display the zoomed graph
+		document.body.appendChild(zoomedChart);
+
+		zoomedChart.classList.add("zoomed");
+
+		// Add event listener to remove zoomed chart
+		zoomedChart.addEventListener("click", () => {
+
+			// Remove zoomed chart
+			zoomedChart.remove();
+
+			// Update zoomed chart display status
+			zoomedChartDisplayed = false;
+		}
+		);
+	}
 });
 
 form.addEventListener("change", updateForm);
