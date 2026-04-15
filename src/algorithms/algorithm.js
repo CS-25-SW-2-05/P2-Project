@@ -105,10 +105,22 @@ export default class Algorithm {
 
 			/*--------------------*/
 			//Brute force algorithm
-			const solutionArr = this.getBruteForceSegmentedSolution(
-				objective,
-				gameState,
-			);
+			let decisions = [];
+			let i = 0;
+			let j = 0;
+
+			// Define each decision as a number
+			for(let key in gameState.buildings){
+				decisions[i] = key;
+				i++;
+			}
+			if(objective.type === "cookies"){
+				decisions[i] = "wait";
+			}
+			console.log(decisions);
+
+			// Find the solution with the brute force segmented algorithm
+			const solutionArr = this.getBruteForceSegmentedSolution(objective, decisions);
 
 			while (true) {
 				// This now checks, if the objective is completed, and breaks if it is.
@@ -130,10 +142,13 @@ export default class Algorithm {
 
 				// Choose a decision based on current policy/algorithm
 				const decision = this.getNextDecision(
+					j,
+					solutionArr,
 					gameState,
-					validBuildings,
-					objective,
+					decisions,
+					objective
 				);
+				j++;
 
 				// Break the loop if the decision i invalid
 				if (!decision.isValid) {
