@@ -81,10 +81,11 @@ export default class BruteForceSegmented extends Algorithm {
 			for (let i = permutation.length - 1; i >= 0; i--) {
 				if (permutation[i] < S) continue;
 				didChange = true;
-				permutation[i] = 0;
 
-				if (i + 1 >= permutation.length) break;
-				permutation[i + 1] += 1;
+				const lowerIndex = (i - 1 + permutation.length) % permutation.length;
+				permutation[lowerIndex] += 1;
+
+				if (i !== 0) permutation[i] = 0;
 				break;
 			}
 
@@ -140,12 +141,17 @@ export default class BruteForceSegmented extends Algorithm {
 			for (let i = 0; i < permutation.length; i++) {
 				permutationArr[permutationNumber].push(permutation[i]);
 			}
+			//console.log(permutationArr[permutationNumber]);
+			if(permutation.every(p => p === S - 1)){
+				break;
+			}
+			
 
-			console.log(permutationArr[permutationNumber]);
+		
 			permutationNumber++;
-			m++;
 			//console.log(permutationArr);
 			//console.log([i, j, k, l, m])
+			permutation[permutation.length - 1]++;
 		}
 		return permutationArr;
 	}
@@ -168,7 +174,7 @@ export default class BruteForceSegmented extends Algorithm {
 		console.log(permutationArr);
 
 
-		return 0;
+		
 
 		let waitTime = 0;
 		let objectiveWaitTime = 0;
@@ -314,7 +320,8 @@ export default class BruteForceSegmented extends Algorithm {
 		console.log(currentGameState.buildings);
 		let referenceGameState = currentGameState.copy();
 		let bestSolutionGameState = referenceGameState.copy();
-		let segmentedSearchDepth = 5;
+		let segmentedSearchDepth = document.getElementById("brute-force-horizon").valueAsNumber;
+		console.log("search depth:" , segmentedSearchDepth);
 		let segmentSolutionData = [];
 		let segmentSolution = [];
 		let solution = [];
