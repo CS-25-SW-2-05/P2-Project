@@ -34,23 +34,23 @@ let selectedCanvas = null;
 
 // Functions
 function updateForm() {
-	if (isRunning) return;
-	const count = getActiveAlgorithms();
-	if (count <= 0) runBtn.setAttribute("disabled", "disabled");
-	else runBtn.removeAttribute("disabled");
-	updateAlgorithmSection();
+  if (isRunning) return;
+  const count = getActiveAlgorithms();
+  if (count <= 0) runBtn.setAttribute("disabled", "disabled");
+  else runBtn.removeAttribute("disabled");
+  updateAlgorithmSection();
 }
 
 function updateAlgorithmSection() {
-	// Update count
-	const count = getActiveAlgorithms();
-	const algorithmCountText = `${count} ${getPlural("algorithm", count)} selected`;
-	algorithmCount.textContent = algorithmCountText;
+  // Update count
+  const count = getActiveAlgorithms();
+  const algorithmCountText = `${count} ${getPlural("algorithm", count)} selected`;
+  algorithmCount.textContent = algorithmCountText;
 }
 
 function getActiveAlgorithms() {
-	const count = document.querySelectorAll("label:has(input:checked)").length;
-	return count;
+  const count = document.querySelectorAll("label:has(input:checked)").length;
+  return count;
 }
 
 /**
@@ -62,15 +62,15 @@ function getActiveAlgorithms() {
  * @param {Objective} objective
  */
 function displayResults(results, objective) {
-	if (results) console.log(results);
+  if (results) console.log(results);
 
-	// Table Results
-	const tbody = document.querySelector(".result-data > tbody");
-	tbody.innerHTML = "";
-	for (const r of results || []) {
-		const lastData = r.data.at(-1);
+  // Table Results
+  const tbody = document.querySelector(".result-data > tbody");
+  tbody.innerHTML = "";
+  for (const r of results || []) {
+    const lastData = r.data.at(-1);
 
-		tbody.innerHTML += `
+    tbody.innerHTML += `
         <tr>
             <td>
                 <div>
@@ -89,91 +89,91 @@ function displayResults(results, objective) {
             <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
         </tr>
         `;
-	}
+  }
 
-	// Chart Results
-	const cpsCanvas = document.querySelector("#cps-chart");
-	const cookieCanvas = document.querySelector("#cookie-chart");
-	const cpsChart = new LineChart(
-		cpsCanvas,
-		"Time (s)",
-		"Production (CpS)",
-		objective.type === "production" ? objective.value : null,
-	);
-	const cookieChart = new LineChart(
-		cookieCanvas,
-		"Time (s)",
-		"Cookies",
-		objective.type === "cookies" ? objective.value : null,
-	);
+  // Chart Results
+  const cpsCanvas = document.querySelector("#cps-chart");
+  const cookieCanvas = document.querySelector("#cookie-chart");
+  const cpsChart = new LineChart(
+    cpsCanvas,
+    "Time (s)",
+    "Production (CpS)",
+    objective.type === "production" ? objective.value : null,
+  );
+  const cookieChart = new LineChart(
+    cookieCanvas,
+    "Time (s)",
+    "Cookies",
+    objective.type === "cookies" ? objective.value : null,
+  );
 
-	for (let i = 0; i < results?.length; i++) {
-		const r = results[i];
-		const label = r.algorithm.title;
+  for (let i = 0; i < results?.length; i++) {
+    const r = results[i];
+    const label = r.algorithm.title;
 
-		const x = [0];
-		const y = [0];
-		for (let j = 0; j < r.data.length; j++) {
-			const d = r.data[j];
+    const x = [0];
+    const y = [0];
+    for (let j = 0; j < r.data.length; j++) {
+      const d = r.data[j];
 
-			x.push(d.gameState.simulationTime);
-			y.push(d.gameState.buildingCpS);
-		}
+      x.push(d.gameState.simulationTime);
+      y.push(d.gameState.buildingCpS);
+    }
 
-		cpsChart.add(label, x, y);
-	}
+    cpsChart.add(label, x, y);
+  }
 
-	for (let i = 0; i < results?.length; i++) {
-		const r = results[i];
-		const label = r.algorithm.title;
+  for (let i = 0; i < results?.length; i++) {
+    const r = results[i];
+    const label = r.algorithm.title;
 
-		const x = [0];
-		const y = [0];
-		for (let j = 0; j < r.data.length; j++) {
-			const d = r.data[j];
-			const isLast = j == r.data.length - 1;
+    const x = [0];
+    const y = [0];
+    for (let j = 0; j < r.data.length; j++) {
+      const d = r.data[j];
+      const isLast = j == r.data.length - 1;
 
-			x.push(d.gameState.simulationTime);
-			y.push(d.decision.afterCookies);
+      x.push(d.gameState.simulationTime);
+      y.push(d.decision.afterCookies);
 
-			if (isLast) continue;
-			x.push(d.gameState.simulationTime);
-			y.push(d.decision.beforeCookies);
-		}
+      if (isLast) continue;
+      x.push(d.gameState.simulationTime);
+      y.push(d.decision.beforeCookies);
+    }
 
-		cookieChart.add(label, x, y);
-	}
+    cookieChart.add(label, x, y);
+  }
 
-	if (selectedCanvas == null) selectedCanvas = cpsCanvas;
-	cpsChart.draw();
-	cookieChart.draw();
-	chartContext.drawImage(selectedCanvas, 0, 0);
+  if (selectedCanvas == null) selectedCanvas = cpsCanvas;
+  cpsChart.draw();
+  cookieChart.draw();
+  chartContext.drawImage(selectedCanvas, 0, 0);
 
-	// Open Timeline
-	const openBtns = document.querySelectorAll(".result-data td > div > a");
-	for (let i = 0; i < openBtns.length; i++) {
-		openBtns[i].addEventListener("click", () => {
-			channel.onmessage = (event) => {
-				console.log("Data received:", event.data);
-				const type = event.data.type;
-				const payload = event.data.payload;
+  // Open Timeline
+  const openBtns = document.querySelectorAll(".result-data td > div > a");
+  for (let i = 0; i < openBtns.length; i++) {
+    openBtns[i].addEventListener("click", () => {
+      channel.onmessage = (event) => {
+        console.log("Data received:", event.data);
+        const type = event.data.type;
+        const payload = event.data.payload;
 
-				switch (type) {
-					case "RESULT_DATA_REQ":
-						channel.postMessage({ type: "RESULT_DATA_RES", payload: results });
-						break;
-				}
-			};
+        switch (type) {
+          case "RESULT_DATA_REQ":
+            channel.postMessage({ type: "RESULT_DATA_RES", payload: results });
+            break;
+        }
+      };
 
-			const url = new URL(
-				"/src/timeline/timeline.html",
-				window.location.origin,
-			);
-			url.searchParams.set("algorithm", i);
-			url.searchParams.set("decision", 0);
-			window.open(url, "newwindow", "width=800,height=600");
-		});
-	}
+      const url = new URL(
+        "/src/timeline/timeline.html",
+        window.location.origin,
+      );
+      url.searchParams.set("algorithm", i);
+      url.searchParams.set("decision", 0);
+      window.open(url, "newwindow", "width=800,height=600");
+    });
+  }
 }
 
 /**
@@ -183,24 +183,24 @@ function displayResults(results, objective) {
  */
 let toastCounter = 0;
 function show(title, msg) {
-	toastCounter++;
-	toastTitle.textContent = title;
-	toastMsg.textContent = msg;
-	toast.classList.add("show");
-	setTimeout(() => {
-		toastCounter--;
-		if (toastCounter !== 0) return;
-		toast.classList.remove("show");
-	}, 4000);
+  toastCounter++;
+  toastTitle.textContent = title;
+  toastMsg.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => {
+    toastCounter--;
+    if (toastCounter !== 0) return;
+    toast.classList.remove("show");
+  }, 4000);
 }
 
 // Initialize
 for (const algorithm of Algorithm.derived) {
-	const activeByDefault =
-		["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
-			(i) => i === algorithm.name,
-		) !== -1;
-	algorithmsContainer.innerHTML += `
+  const activeByDefault =
+    ["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
+      (i) => i === algorithm.name,
+    ) !== -1;
+  algorithmsContainer.innerHTML += `
 		<div>
 			<label for="${algorithm.name}">${algorithm.title}
 				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
@@ -213,84 +213,84 @@ console.log("Algorithms", Algorithm.derived);
 
 // Subscribe to events
 form.addEventListener("submit", async (e) => {
-	e.preventDefault();
+  e.preventDefault();
 
-	isRunning = true;
+  isRunning = true;
 
-	// Read the form and create an Objective instance right when the user clicks "Run"
-	const objective = Objective.fromForm();
+  // Read the form and create an Objective instance right when the user clicks "Run"
+  const objective = Objective.fromForm();
 
-	const runBtn = form.querySelector("button[type='submit']");
-	console.log("Running Benchmark...");
+  const runBtn = form.querySelector("button[type='submit']");
+  console.log("Running Benchmark...");
 
-	runBtn.setAttribute("disabled", "disabled");
-	const runBtnText = runBtn.textContent;
-	runBtn.textContent = "Running...";
+  runBtn.setAttribute("disabled", "disabled");
+  const runBtnText = runBtn.textContent;
+  runBtn.textContent = "Running...";
 
-	const buildingLength = buildingLengthInput.valueAsNumber;
-	await loadBuildings(buildingLength);
-	const baseCpS = clicksPerSecondInput.valueAsNumber;
+  const buildingLength = buildingLengthInput.valueAsNumber;
+  await loadBuildings(buildingLength);
+  const baseCpS = clicksPerSecondInput.valueAsNumber;
 
-	const results = [];
-	for (const algorithm of Algorithm.derived) {
-		const active =
-			document.querySelector(`#${algorithm.name}:checked`) !== null;
+  const results = [];
+  for (const algorithm of Algorithm.derived) {
+    const active =
+      document.querySelector(`#${algorithm.name}:checked`) !== null;
 
-		if (!active) continue;
+    if (!active) continue;
 
-		const beforeTime = Date.now();
-		// Start the algorithm run, passing the objective in.
-		const data = await algorithm.instance.run(objective, baseCpS);
-		const benchmarkTime = Date.now() - beforeTime;
+    const beforeTime = Date.now();
+    // Start the algorithm run, passing the objective in.
+    const data = await algorithm.instance.run(objective, baseCpS);
+    const benchmarkTime = Date.now() - beforeTime;
 
-		results.push({
-			algorithm: algorithm,
-			benchmarkTime: benchmarkTime,
-			data: data,
-		});
-	}
+    results.push({
+      algorithm: algorithm,
+      benchmarkTime: benchmarkTime,
+      data: data,
+    });
+  }
 
-	displayResults(results, objective);
+  displayResults(results, objective);
 
-	runBtn.textContent = runBtnText;
-	runBtn.removeAttribute("disabled");
-	benchmarkResults.classList.remove("hide");
-	isRunning = false;
+  runBtn.textContent = runBtnText;
+  runBtn.removeAttribute("disabled");
+  benchmarkResults.classList.remove("hide");
+  isRunning = false;
 });
 
 form.addEventListener("reset", () => {
-	show("Reset", "The form has been reset...");
+  show("Reset", "The form has been reset...");
 
-	// Timeout to push the execution to after values has been reset
-	setTimeout(() => {
-		updateForm();
-	}, 0);
+  // Timeout to push the execution to after values has been reset
+  setTimeout(() => {
+    updateForm();
+  }, 0);
 });
 
 // Show value of range sliders in output element
 document.querySelectorAll('input[type="range"]').forEach((r) => {
-	r.addEventListener("input", () => (r.nextElementSibling.value = r.value));
-	r.nextElementSibling.value = r.value;
+  r.addEventListener("input", () => (r.nextElementSibling.value = r.value));
+  r.nextElementSibling.value = r.value;
 });
 
 // Click preview charts sets contents of big chart
 document.querySelectorAll(".previews > canvas").forEach((c) =>
-	c.addEventListener("click", () => {
-		chartContext.drawImage(c, 0, 0);
-		selectedCanvas = c;
-	}),
+  c.addEventListener("click", () => {
+    chartContext.drawImage(c, 0, 0);
+    selectedCanvas = c;
+  }),
 );
 
 // Zoom in on chart
 chartCanvas.addEventListener("click", () => {
-	/** @type {HTMLCanvasElement} */
-	const zoomedChart = chartCanvas.cloneNode();
-	zoomedChart.removeAttribute("id");
-	zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
-	document.body.appendChild(zoomedChart);
+  /** @type {HTMLCanvasElement} */
+  const zoomedChart = chartCanvas.cloneNode();
+  zoomedChart.removeAttribute("id");
+  zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
+  document.body.appendChild(zoomedChart);
 
-	zoomedChart.classList.add("zoomed");
-	zoomedChart.addEventListener("click", zoomedChart.remove);
+  zoomedChart.classList.add("zoomed");
+  zoomedChart.addEventListener("click", zoomedChart.remove);
 });
 
 form.addEventListener("change", updateForm);

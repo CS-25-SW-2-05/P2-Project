@@ -3,45 +3,45 @@ import GameState from "../game-state.js";
 import Purchasable from "./purchasable.js";
 
 export default class Building extends Purchasable {
-	baseCost = 0;
-	baseCpS = 0;
-	maxBuildCount = 0;
-	owned = 0;
+  baseCost = 0;
+  baseCpS = 0;
+  maxBuildCount = 0;
+  owned = 0;
 
-	/**
-	 * @param {string} name the name of the building.
-	 * @param {number} baseCost the base cost of the building.
-	 * @param {number} baseCpS the CpS increase per owned building.
-	 * @param {number} maxBuildCount the max amount of ownable buildings.
-	 */
-	constructor(name, baseCost, baseCpS, maxBuildCount) {
-		super(name, baseCost);
+  /**
+   * @param {string} name the name of the building.
+   * @param {number} baseCost the base cost of the building.
+   * @param {number} baseCpS the CpS increase per owned building.
+   * @param {number} maxBuildCount the max amount of ownable buildings.
+   */
+  constructor(name, baseCost, baseCpS, maxBuildCount) {
+    super(name, baseCost);
 
-		this.baseCost = baseCost;
-		this.baseCpS = baseCpS;
-		this.maxBuildCount = maxBuildCount;
-	}
+    this.baseCost = baseCost;
+    this.baseCpS = baseCpS;
+    this.maxBuildCount = maxBuildCount;
+  }
 
-	updateCost() {
-		this.cost = Math.ceil(this.baseCost * 1.15 ** this.owned);
-	}
+  updateCost() {
+    this.cost = Math.ceil(this.baseCost * 1.15 ** this.owned);
+  }
 
-	/**
-	 * @override false if next building exceeds maxBuildCount.
-	 */
-	canPurchase() {
-		return this.owned < this.maxBuildCount;
-	}
+  /**
+   * @override false if next building exceeds maxBuildCount.
+   */
+  canPurchase() {
+    return this.owned < this.maxBuildCount;
+  }
 
-	/**
-	 * Abstract method which is called right before the game state updates.
-	 * @param {GameState} gameState the current game state.
-	 * @override adds a building and updates CpS.
-	 */
-	onPurchase(gameState) {
-		this.owned++;
-		gameState.buildingCpS = round(gameState.buildingCpS + this.baseCpS, 1);
-	}
+  /**
+   * Abstract method which is called right before the game state updates.
+   * @param {GameState} gameState the current game state.
+   * @override adds a building and updates CpS.
+   */
+  onPurchase(gameState) {
+    this.owned++;
+    gameState.buildingCpS = round(gameState.buildingCpS + this.baseCpS, 1);
+  }
 }
 
 /**
@@ -49,17 +49,17 @@ export default class Building extends Purchasable {
  * @returns the parsed json data.
  */
 async function getBuildingData() {
-	try {
-		const res = await fetch("./cookie-clicker/buildings.json");
+  try {
+    const res = await fetch("./cookie-clicker/buildings.json");
 
-		if (!res.ok) throw new Error(`Failed to load file: ${response.status}`);
+    if (!res.ok) throw new Error(`Failed to load file: ${response.status}`);
 
-		const jsonData = await res.json();
-		return jsonData;
-	} catch (error) {
-		console.error("Error reading JSON file:", error);
-		throw error;
-	}
+    const jsonData = await res.json();
+    return jsonData;
+  } catch (error) {
+    console.error("Error reading JSON file:", error);
+    throw error;
+  }
 }
 
 /**
@@ -72,26 +72,26 @@ const Buildings = {};
  * Loads all buildings found in 'src\\cookie-clicker\\buildings.json' into the Buildings list.
  */
 export async function loadBuildings(length = -1) {
-	const data = await getBuildingData();
+  const data = await getBuildingData();
 
-	for (var key in Buildings) delete Buildings[key];
+  for (var key in Buildings) delete Buildings[key];
 
-	let i = 0;
-	for (const [key, value] of Object.entries(data)) {
-		if (length !== -1 && i >= length) {
-			console.log("Building Length:", i);
-			break;
-		}
-		Buildings[key] = new Building(
-			key,
-			value.baseCost,
-			value.baseCpS,
-			value.maxBuildCount,
-		);
-		i++;
-	}
+  let i = 0;
+  for (const [key, value] of Object.entries(data)) {
+    if (length !== -1 && i >= length) {
+      console.log("Building Length:", i);
+      break;
+    }
+    Buildings[key] = new Building(
+      key,
+      value.baseCost,
+      value.baseCpS,
+      value.maxBuildCount,
+    );
+    i++;
+  }
 
-	console.log("Loaded Buildings:", Buildings);
+  console.log("Loaded Buildings:", Buildings);
 }
 
 /**
@@ -99,19 +99,19 @@ export async function loadBuildings(length = -1) {
  * @param {Building[]} buildings buildings to log.
  */
 export function logBuildingStats(buildings) {
-	//Output building stats
-	for (const key in buildings) {
-		const currentBuilding = buildings[key];
+  //Output building stats
+  for (const key in buildings) {
+    const currentBuilding = buildings[key];
 
-		// Logging current building prices
-		console.log(
-			currentBuilding.name.padEnd(15) +
-				" price: " +
-				String(currentBuilding.cost).padEnd(25) +
-				" owned: " +
-				currentBuilding.owned,
-		);
-	}
+    // Logging current building prices
+    console.log(
+      currentBuilding.name.padEnd(15) +
+        " price: " +
+        String(currentBuilding.cost).padEnd(25) +
+        " owned: " +
+        currentBuilding.owned,
+    );
+  }
 }
 
 /**
@@ -119,20 +119,20 @@ export function logBuildingStats(buildings) {
  * @returns {Building[]} a clone of Buildings, which can be mutated.
  */
 export function cloneBuildings(buildings = Buildings) {
-	const copy = {};
-	for (const [key, b] of Object.entries(buildings)) {
-		const instance = new Building(
-			b.name,
-			b.baseCost,
-			b.baseCpS,
-			b.maxBuildCount,
-		);
-		instance.owned = b.owned;
-		instance.updateCost();
-		copy[key] = instance;
-	}
+  const copy = {};
+  for (const [key, b] of Object.entries(buildings)) {
+    const instance = new Building(
+      b.name,
+      b.baseCost,
+      b.baseCpS,
+      b.maxBuildCount,
+    );
+    instance.owned = b.owned;
+    instance.updateCost();
+    copy[key] = instance;
+  }
 
-	return copy;
+  return copy;
 }
 
 /**
@@ -142,14 +142,14 @@ export function cloneBuildings(buildings = Buildings) {
  * @returns The filtered list of buildings
  */
 export function filterValid(buildings) {
-	const filteredBuildings = {};
+  const filteredBuildings = {};
 
-	// Iterate over the building list using the the key and the objects
-	for (const [key, building] of Object.entries(buildings)) {
-		// Add the building to the list, if it can be purchased
-		if (building.canPurchase() && Number.isFinite(building.cost))
-			filteredBuildings[key] = building;
-	}
+  // Iterate over the building list using the the key and the objects
+  for (const [key, building] of Object.entries(buildings)) {
+    // Add the building to the list, if it can be purchased
+    if (building.canPurchase() && Number.isFinite(building.cost))
+      filteredBuildings[key] = building;
+  }
 
-	return filteredBuildings;
+  return filteredBuildings;
 }

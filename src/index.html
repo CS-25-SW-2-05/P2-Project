@@ -1,146 +1,146 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Cookie Clicker Benchmarking Tool</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cookie Clicker Benchmarking Tool</title>
 
-		<link rel="stylesheet" href="style.css" />
-		<link rel="shortcut icon" href="images/cookie.png" type="image/x-icon" />
-		<script type="module" src="script.js"></script>
-	</head>
-	<body>
-		<header>
-			<img src="images/cookie.png" alt="Cookie Image" />
-			<h1>Cookie Clicker Benchmarking Tool</h1>
-		</header>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="shortcut icon" href="images/cookie.png" type="image/x-icon" />
+    <script type="module" src="script.js"></script>
+  </head>
+  <body>
+    <header>
+      <img src="images/cookie.png" alt="Cookie Image" />
+      <h1>Cookie Clicker Benchmarking Tool</h1>
+    </header>
 
-		<div class="wrapper">
-			<main>
-				<form>
-					<section>
-						<h2>Algorithm Selection</h2>
-						<div class="field">
-							<p class="algorithm-selected" id="algorithm-count">
-								0 algorithms selected
-							</p>
-							<label for="algorithm-select"
-								>Select one or more algorithms to benchmark</label
-							>
-							<div class="algorithms"></div>
-						</div>
-					</section>
+    <div class="wrapper">
+      <main>
+        <form>
+          <section>
+            <h2>Algorithm Selection</h2>
+            <div class="field">
+              <p class="algorithm-selected" id="algorithm-count">
+                0 algorithms selected
+              </p>
+              <label for="algorithm-select"
+                >Select one or more algorithms to benchmark</label
+              >
+              <div class="algorithms"></div>
+            </div>
+          </section>
 
-					<section>
-						<h2>Settings</h2>
-						<div class="grid">
-							<div class="field">
-								<label for="clicks-per-second">
-									<p>Clicks per Second</p>
-									<input
-										type="number"
-										id="clicks-per-second"
-										min="1"
-										value="1"
-									/>
-								</label>
-							</div>
-							<div class="field">
-								<label for="building-length">
-									<p>Buildings</p>
-									<div>
-										<input
-											type="range"
-											id="building-length"
-											min="1"
-											max="25"
-											value="25"
-										/>
-										<output>25</output>
-									</div>
-								</label>
-							</div>
-							<div class="field">
-								<label for="brute-force-horizon">
-									<p>Brute Force Horizon</p>
-									<input
-										type="number"
-										id="brute-force-horizon"
-										min="1"
-										value="4"
-									/>
-								</label>
-							</div>
-						</div>
-					</section>
+          <section>
+            <h2>Settings</h2>
+            <div class="grid">
+              <div class="field">
+                <label for="clicks-per-second">
+                  <p>Clicks per Second</p>
+                  <input
+                    type="number"
+                    id="clicks-per-second"
+                    min="1"
+                    value="1"
+                  />
+                </label>
+              </div>
+              <div class="field">
+                <label for="building-length">
+                  <p>Buildings</p>
+                  <div>
+                    <input
+                      type="range"
+                      id="building-length"
+                      min="1"
+                      max="25"
+                      value="25"
+                    />
+                    <output>25</output>
+                  </div>
+                </label>
+              </div>
+              <div class="field">
+                <label for="brute-force-horizon">
+                  <p>Brute Force Horizon</p>
+                  <input
+                    type="number"
+                    id="brute-force-horizon"
+                    min="1"
+                    value="4"
+                  />
+                </label>
+              </div>
+            </div>
+          </section>
 
-					<section>
-						<h2>Objective</h2>
-						<div class="grid">
-							<div class="field">
-								<label for="objective-type">
-									<p>Objective type</p>
-									<select id="objective-type">
-										<option value="cookies">Cookies</option>
-										<option value="production">Production Rate</option>
-										<option value="time limit">Time Limit</option>
-									</select>
-								</label>
-							</div>
-							<div class="field">
-								<label for="objective-value">
-									<p>Objective value</p>
-									<input
-										type="number"
-										id="objective-value"
-										min="1"
-										value="1000"
-									/>
-								</label>
-							</div>
-						</div>
-					</section>
+          <section>
+            <h2>Objective</h2>
+            <div class="grid">
+              <div class="field">
+                <label for="objective-type">
+                  <p>Objective type</p>
+                  <select id="objective-type">
+                    <option value="cookies">Cookies</option>
+                    <option value="production">Production Rate</option>
+                    <option value="time limit">Time Limit</option>
+                  </select>
+                </label>
+              </div>
+              <div class="field">
+                <label for="objective-value">
+                  <p>Objective value</p>
+                  <input
+                    type="number"
+                    id="objective-value"
+                    min="1"
+                    value="1000"
+                  />
+                </label>
+              </div>
+            </div>
+          </section>
 
-					<div class="actions">
-						<button type="submit" disabled>Run Benchmark</button>
-						<button type="reset">Reset</button>
-					</div>
-				</form>
-				<div class="benchmark-results hide">
-					<section>
-						<h2>Results</h2>
-						<canvas id="chart" width="2560" height="1440"></canvas>
-						<div class="previews">
-							<canvas id="cps-chart" width="2560" height="1440"></canvas>
-							<canvas id="cookie-chart" width="2560" height="1440"></canvas>
-						</div>
-						<div>
-							<table class="result-data">
-								<thead>
-									<tr>
-										<th>Algorithm</th>
-										<th>Iterations</th>
-										<th>Iteration Time (μs)</th>
-										<th>Benchmark Time (ms)</th>
-										<th>Simulation Time (s)</th>
-										<th>CpS</th>
-										<th>Cookies</th>
-										<th>Total Cookies</th>
-									</tr>
-								</thead>
-								<tbody></tbody>
-							</table>
-						</div>
-					</section>
-				</div>
-			</main>
-		</div>
+          <div class="actions">
+            <button type="submit" disabled>Run Benchmark</button>
+            <button type="reset">Reset</button>
+          </div>
+        </form>
+        <div class="benchmark-results hide">
+          <section>
+            <h2>Results</h2>
+            <canvas id="chart" width="2560" height="1440"></canvas>
+            <div class="previews">
+              <canvas id="cps-chart" width="2560" height="1440"></canvas>
+              <canvas id="cookie-chart" width="2560" height="1440"></canvas>
+            </div>
+            <div>
+              <table class="result-data">
+                <thead>
+                  <tr>
+                    <th>Algorithm</th>
+                    <th>Iterations</th>
+                    <th>Iteration Time (μs)</th>
+                    <th>Benchmark Time (ms)</th>
+                    <th>Simulation Time (s)</th>
+                    <th>CpS</th>
+                    <th>Cookies</th>
+                    <th>Total Cookies</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
 
-		<span class="toast">
-			<h2>Toast Title</h2>
-			<p>Toast Message</p>
-		</span>
+    <span class="toast">
+      <h2>Toast Title</h2>
+      <p>Toast Message</p>
+    </span>
 
-		<footer></footer>
-	</body>
+    <footer></footer>
+  </body>
 </html>
