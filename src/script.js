@@ -17,7 +17,7 @@ import Chart from "https://esm.sh/chart.js/auto";
 const chartCanvas = document.querySelector("#chart");
 const chartContext = chartCanvas.getContext("2d");
 const algorithmCount = document.querySelector("#algorithm-count");
-const algorithmsContainer = document.querySelector(".algorithms");
+const greedyAlgorithmsContainer = document.querySelector(".greedy-algorithms");
 const buildingLengthInput = document.querySelector("#building-length");
 const baseCpSInput = document.querySelector("#base-cps");
 const benchmarkResults = document.querySelector(".benchmark-results");
@@ -127,6 +127,14 @@ function getBuildingGraphConfig(buildingConfigGraphData, canvas) {
 				},
 			},
 			plugins: {
+				title: {
+					text: "Building configuration",
+					display: true,
+					color: "white",
+					font: {
+						size: 20,
+					},
+				},
 				legend: {
 					labels: {
 						color: "white",
@@ -327,7 +335,7 @@ for (const algorithm of Algorithm.derived) {
 		["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
 			(i) => i === algorithm.name,
 		) !== -1;
-	algorithmsContainer.innerHTML += `
+	greedyAlgorithmsContainer.innerHTML += `
 		<div>
 			<label for="${algorithm.name}">${algorithm.title}
 				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />

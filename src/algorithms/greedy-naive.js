@@ -7,7 +7,7 @@ export default class GreedyNaive extends Algorithm {
 	// Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
 	static dummy = Algorithm.derived.add({
 		name: this.name,
-		title: "[Greedy] Immediate Purchase",
+		title: "[Greedy] Buy Cheapest",
 		instance: new GreedyNaive(),
 	});
 

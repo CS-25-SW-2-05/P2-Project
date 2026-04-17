@@ -7,7 +7,7 @@ export default class GreedyPaybackTime extends Algorithm {
 	// Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
 	static dummy = Algorithm.derived.add({
 		name: this.name,
-		title: "[Greedy] Save+Payback",
+		title: "[Greedy] Shortest Payback (+ Save-up)",
 		instance: new GreedyPaybackTime(),
 	});
 
