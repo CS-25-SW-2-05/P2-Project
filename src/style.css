@@ -94,11 +94,17 @@ img {
 	pointer-events: none;
 }
 
+.wrapper {
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 main {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
-	flex: 1;
 	padding: 1.5rem;
 	gap: 1.5rem;
 }
