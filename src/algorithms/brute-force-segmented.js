@@ -62,7 +62,7 @@ export default class BruteForceSegmented extends Algorithm {
 	}
 */
 	//
-	getAllDecisionPermutationsBASICEDITION(permutationArr, decisions){
+	getAllDecisionPermutationsBASICEDITION(permutationArr, decisions, segmentedSearchDepth){
 
 		let permutationNumber = 0;
 		let i = 0;
@@ -70,11 +70,26 @@ export default class BruteForceSegmented extends Algorithm {
 		let k = 0;
 		let l = 0;
 		let m = 0;
+		const permutation = Array(segmentedSearchDepth).fill(0);
 		const S = decisions.length;
 		console.log(S);
 
+
 		while(true){
 
+			let didChange = false;
+			for (let i = permutation.length - 1; i >= 0; i--) {
+				if (permutation[i] < S) continue;
+				didChange = true;
+				permutation[i] = 0;
+
+				if (i + 1 >= permutation.length) break;
+				permutation[i + 1] += 1;
+				break;
+			}
+
+			if (didChange) continue;
+			/*
 			if(m >= S){
 				m = 0;
 				l += 1;
@@ -122,13 +137,11 @@ export default class BruteForceSegmented extends Algorithm {
 				permutationArr[permutationNumber][p] = permutation[p];
 			}*/
 
-			permutationArr[permutationNumber].push(i);
-			permutationArr[permutationNumber].push(j);
-			permutationArr[permutationNumber].push(k);
-			permutationArr[permutationNumber].push(l);
-			permutationArr[permutationNumber].push(m);
-			
-			//console.log(permutationArr[permutationNumber]);
+			for (let i = 0; i < permutation.length; i++) {
+				permutationArr[permutationNumber].push(permutation[i]);
+			}
+
+			console.log(permutationArr[permutationNumber]);
 			permutationNumber++;
 			m++;
 			//console.log(permutationArr);
@@ -151,10 +164,11 @@ export default class BruteForceSegmented extends Algorithm {
 		//console.log(permutationArr);
 
 		// finds all decision permutations and puts them into decisionArr
-		permutationArr = this.getAllDecisionPermutationsBASICEDITION(permutationArr, decisions);
+		permutationArr = this.getAllDecisionPermutationsBASICEDITION(permutationArr, decisions, segmentedSearchDepth);
 		console.log(permutationArr);
 
-		//return 0;
+
+		return 0;
 
 		let waitTime = 0;
 		let objectiveWaitTime = 0;
@@ -192,14 +206,14 @@ export default class BruteForceSegmented extends Algorithm {
 					if the production objective is reached, a marker is added at the end 
 					of the permutation, which corresponds to the last decision number + 1
 					*/
-					if(currentGameState.cps >= objective.value){
-						for(let l = j; l < permutationArr[i].length - 1; l++){
-							//permutationArr[i].pop();
+					if(currentGameState.buildingCpS >= objective.value){
+						for(let l = j; l < permutationArr[i].length; l++){
+							permutationArr[i].pop();
 						}
 						permutationArr[i].push(decisions.length);
-						console.log("point 1 reached: " + permutationArr[i]);
-						console.log(currentGameState);
-						console.log("cps: " + currentGameState.cps);
+						//console.log("point 1 reached: " + permutationArr[i]);
+						//console.log(currentGameState);
+						//console.log("cps: " + currentGameState.cps);
 						break;
 					}
 					
@@ -255,9 +269,9 @@ export default class BruteForceSegmented extends Algorithm {
 			if(	(tempSolution[0][tempSolution[0].length - 1] === decisions.length) ||
 				(bestSolution[0][bestSolution[0].length - 1] === decisions.length)
 			){
-				console.log(tempSolution[2] + "s vs. " + bestSolution[2] + "s")
+				//console.log(tempSolution[2] + "s vs. " + bestSolution[2] + "s")
 				if(tempSolution[2] <= bestSolution[2]){
-					console.log(tempSolution[2] + "s is smaller or equal to " + bestSolution[2] + "s");
+					//console.log(tempSolution[2] + "s is smaller or equal to " + bestSolution[2] + "s");
 					bestSolution[0] = tempSolution[0];
 					bestSolution[1] = tempSolution[1];
 					bestSolution[2] = tempSolution[2];
@@ -271,8 +285,8 @@ export default class BruteForceSegmented extends Algorithm {
 			}
 
 			if(tempSolution[1] >= bestSolution[1]){
-				console.log(tempSolution[1] + " cps/time vs. " + bestSolution[1] + " cps/time");
-				console.log(tempSolution[1] + " is bigger or equal to " + bestSolution[1]);
+				//console.log(tempSolution[1] + " cps/time vs. " + bestSolution[1] + " cps/time");
+				//console.log(tempSolution[1] + " is bigger or equal to " + bestSolution[1]);
 				bestSolution[0] = tempSolution[0];
 				bestSolution[1] = tempSolution[1];
 				bestSolution[2] = tempSolution[2];
@@ -286,9 +300,9 @@ export default class BruteForceSegmented extends Algorithm {
 			//console.log("permutation nr. " + i + " completed");
 		}
 
-		logBuildingStats(referenceGameState.buildings);
-		logBuildingStats(bestSolutionGameState.buildings);
-		console.log("Best segment solution: " + bestSolution[0]);
+		//logBuildingStats(referenceGameState.buildings);
+		//logBuildingStats(bestSolutionGameState.buildings);
+		//console.log("Best segment solution: " + bestSolution[0]);
 		let returnValue = [bestSolution[0], bestSolutionGameState];
 		return returnValue;
 	}
@@ -308,7 +322,7 @@ export default class BruteForceSegmented extends Algorithm {
 		let totalSimulationTime = 0;
 
 		if(objective.type === "production"){
-			for (let i = 0; /*endMarker !== decisions.length*/ i < 2; i++){
+			for (let i = 0; endMarker !== decisions.length /*i < 2*/; i++){
 				segmentSolutionData = this.getSegmentSolution
 				(
 					currentGameState, 
