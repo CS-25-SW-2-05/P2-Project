@@ -283,8 +283,10 @@ export default class BruteForceSegmented extends Algorithm {
 
       tempSolution = [
         permutationArr[i],
-        currentGameState.buildingCpS /
-          (currentGameState.simulationTime + 0.00000001),
+        (currentGameState.buildingCpS - referenceGameState.buildingCpS) /
+          (currentGameState.simulationTime +
+            0.00000001 -
+            referenceGameState.simulationTime),
         currentGameState.simulationTime,
         objectiveWaitTime,
       ];
@@ -312,7 +314,8 @@ export default class BruteForceSegmented extends Algorithm {
 			*/
       if (
         tempSolution[0][tempSolution[0].length - 1] === decisions.length ||
-        bestSolution[0][bestSolution[0].length - 1] === decisions.length
+        bestSolution[0][bestSolution[0].length - 1] === decisions.length /*||
+        currentGameState.buildingCpS < objective.value*/
       ) {
         //console.log(tempSolution[2] + "s vs. " + bestSolution[2] + "s")
         if (tempSolution[2] <= bestSolution[2]) {
@@ -333,10 +336,7 @@ export default class BruteForceSegmented extends Algorithm {
         continue;
       }
 
-      if (
-        tempSolution[1] >= bestSolution[1] &&
-        currentGameState.buildingCpS < objective.value
-      ) {
+      if (tempSolution[1] >= bestSolution[1]) {
         //console.log(tempSolution[1] + " cps/time vs. " + bestSolution[1] + " cps/time");
         //console.log(tempSolution[1] + " is bigger or equal to " + bestSolution[1]);
         bestSolution[0] = tempSolution[0];
