@@ -382,9 +382,20 @@ form.addEventListener("submit", async (e) => {
 
         if (!active) continue;
 
+        // Check whether Brute force segmented is selected
+        let isBruteForce = false;
+        if (algorithm.name === `BruteForceSegmented`) {
+            isBruteForce = true;
+        }
+
         const beforeTime = Date.now();
         // Start the algorithm run, passing the objective in.
-        const data = await algorithm.instance.run(objective, baseCpS);
+
+        const data = await algorithm.instance.run(
+            objective,
+            baseCpS,
+            isBruteForce,
+        );
         const benchmarkTime = Date.now() - beforeTime;
 
         results.push({
