@@ -83,6 +83,7 @@ export default class Algorithm {
                 decision.perform();
 
                 // console.log the stats of validBuildings
+                console.log("New building config:");
                 logBuildingStats(validBuildings);
 
                 const gameStateCopy = gameState.copy();

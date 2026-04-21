@@ -18,7 +18,6 @@
             <img src="images/cookie.png" alt="Cookie Image" />
             <h1>Cookie Clicker Benchmarking Tool</h1>
         </header>
-
         <div class="wrapper">
             <main>
                 <form>
@@ -109,7 +108,6 @@
                             </div>
                         </div>
                     </section>
-
                     <div class="actions">
                         <button type="submit" disabled>Run Benchmark</button>
                         <button type="reset">Reset</button>
@@ -130,24 +128,27 @@
                                 width="2560"
                                 height="1440"
                             ></canvas>
+                            <canvas
+                                id="building-graph"
+                                width="2560"
+                                height="1440"
+                            ></canvas>
                         </div>
-                        <div>
-                            <table class="result-data">
-                                <thead>
-                                    <tr>
-                                        <th>Algorithm</th>
-                                        <th>Iterations</th>
-                                        <th>Iteration Time (μs)</th>
-                                        <th>Benchmark Time (ms)</th>
-                                        <th>Simulation Time (s)</th>
-                                        <th>CpS</th>
-                                        <th>Cookies</th>
-                                        <th>Total Cookies</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
+                        <table class="result-data">
+                            <thead>
+                                <tr>
+                                    <th>Algorithm</th>
+                                    <th>Iterations</th>
+                                    <th>Iteration Time (μs)</th>
+                                    <th>Benchmark Time (ms)</th>
+                                    <th>Simulation Time (s)</th>
+                                    <th>CpS</th>
+                                    <th>Cookies</th>
+                                    <th>Total Cookies</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </section>
                 </div>
             </main>

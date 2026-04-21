@@ -1,6 +1,7 @@
 import { round } from "../../utils.js";
 import GameState from "../game-state.js";
 import Purchasable from "./purchasable.js";
+import * as numberformat from "https://esm.sh/swarm-numberformat";
 
 export default class Building extends Purchasable {
     baseCost = 0;
@@ -105,9 +106,11 @@ export function logBuildingStats(buildings) {
 
         // Logging current building prices
         console.log(
-            currentBuilding.name.padEnd(15) +
+            currentBuilding.name.padEnd(25) +
                 " price: " +
-                String(currentBuilding.cost).padEnd(25) +
+                String(numberformat.formatShort(currentBuilding.cost)).padEnd(
+                    10,
+                ) +
                 " owned: " +
                 currentBuilding.owned,
         );
