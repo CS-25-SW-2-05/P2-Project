@@ -7,7 +7,7 @@ export default class ShortestPaybackPlusSaveup extends Algorithm {
     // Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
     static dummy = Algorithm.derived.add({
         name: this.name,
-        title: "Shortest Payback (+Save-up)",
+        title: "[Greedy] Shortest Payback (+Save-up)",
         instance: new ShortestPaybackPlusSaveup(),
     });
 
