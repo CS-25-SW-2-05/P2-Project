@@ -83,11 +83,75 @@ function getActiveAlgorithms() {
 function displayResults(results, objective) {
 	if (results) console.log(results);
 
+	// Identify lowest values
+
+	let lowestIterations = Infinity;
+	let lowestIterationTime = Infinity;
+	let lowestBenchmarkTime = Infinity;
+	let lowestSimulationTime = Infinity;
+	let highestCPS = 0;
+	let highestCookies = 0;
+	let highestTotalCookies = 0;
+
+
+	for (const r of results || []) {
+		const lastData = r.data.at(-1);
+
+		// Update lowest values:
+		// Number of iterations
+		if (r.data.length < lowestIterations)
+			lowestIterations = r.data.length;
+		// Iteration time
+		if (((r.benchmarkTime * 1000) / r.data.length) < lowestIterationTime)
+			lowestIterationTime = (r.benchmarkTime * 1000) / r.data.length;
+		// Benchmark time
+		if (r.benchmarkTime < lowestBenchmarkTime)
+			lowestBenchmarkTime = r.benchmarkTime;
+		// Simulation time
+		if (lastData.gameState.simulationTime < lowestSimulationTime)
+			lowestSimulationTime = lastData.gameState.simulationTime;
+
+		// Update highest values:
+		// CPS
+		if (lastData.gameState.buildingCpS > highestCPS)
+			highestCPS = lastData.gameState.buildingCpS;
+		// Cookies
+		if (lastData.gameState.cookies > highestCookies)
+			highestCookies = lastData.gameState.cookies;
+		// Total cookies
+		if (lastData.gameState.totalCookies > highestTotalCookies)
+			highestTotalCookies = lastData.gameState.totalCookies;
+
+	}
+
 	// Table Results
 	const tbody = document.querySelector(".result-data > tbody");
 	tbody.innerHTML = "";
 	for (const r of results || []) {
 		const lastData = r.data.at(-1);
+
+		// Calculate percantage from lowest:
+		// Number of iterations
+		const iterationsPercentage =
+			(r.data.length - lowestIterations) / lowestIterations * 100;
+		// Iteration time
+		const iterationTimePercentage =
+			((r.benchmarkTime * 1000) / r.data.length - lowestIterationTime) / lowestIterationTime * 100;
+		// Benchmark time
+		const BenchmarkTimePercentage =
+			(r.benchmarkTime - lowestBenchmarkTime) / lowestBenchmarkTime * 100;
+		// Simulation time
+		const simulationTimePercentage =
+			(lastData.gameState.simulationTime - lowestSimulationTime) / lowestSimulationTime * 100;
+		// Building CPS
+		const cpsPercentage =
+			(highestCPS - lastData.gameState.buildingCpS) / highestCPS * 100;
+		// Cookies
+		const cookiesPercentage =
+			(highestCookies - lastData.gameState.cookies) / highestCookies * 100;
+		// Total cookies
+		const totalCookiesPercentage =
+			(highestTotalCookies - lastData.gameState.totalCookies) / highestTotalCookies * 100;
 
 		tbody.innerHTML += `
         <tr>
@@ -99,13 +163,41 @@ function displayResults(results, objective) {
                     ${r.algorithm.title}
                 </div>
             </td>
-            <td>${numberformat.formatShort(r.data.length)}</td>
-            <td>${round((r.benchmarkTime * 1000) / r.data.length, 1)}</td>
-            <td>${round(r.benchmarkTime, 0)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.simulationTime)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.buildingCpS)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.cookies)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
+            <td style="color: ${iterationsPercentage > 0 ?
+				"rgb(255, 150, 150)" : "rgb(150, 255, 150)"};">
+			${numberformat.formatShort(r.data.length)} 
+			${iterationsPercentage > 0 ? "(+" + Math.round(iterationsPercentage) + "%)" : ""}</td>
+
+            <td style="color: ${iterationTimePercentage > 0 ?
+				"rgb(255, 150, 150)" : "rgb(150, 255, 150)"};">
+			${round((r.benchmarkTime * 1000) / r.data.length, 1)} 
+			${iterationTimePercentage > 0 ? "(+" + Math.round(iterationTimePercentage) + "%)" : ""}</td>
+
+            <td style="color: ${BenchmarkTimePercentage > 0 ?
+				"rgb(255, 150, 150)" : "rgb(150, 255, 150)"};">
+			${round(r.benchmarkTime, 0)} 
+			${BenchmarkTimePercentage > 0 ? "(+" + Math.round(BenchmarkTimePercentage) + "%)" : ""}</td>
+
+            <td style="color: ${simulationTimePercentage > 0 ?
+				"rgb(255, 150, 150)" : "rgb(150, 255, 150)"};">
+			${numberformat.formatShort(lastData.gameState.simulationTime)} 
+			${simulationTimePercentage > 0 ? "(+" + Math.round(simulationTimePercentage) + "%)" : ""}</td>
+
+            <td style="color: ${cpsPercentage > 0 ?
+				"rgb(255, 150, 150)" : "rgb(150, 255, 150)"};">
+			${numberformat.formatShort(lastData.gameState.buildingCpS)} 
+			${cpsPercentage > 0 ? "(-" + Math.round(cpsPercentage) + "%)" : ""}</td>
+
+            <td style="color: ${cookiesPercentage > 0 ?
+				"rgb(255, 150, 150)" : "rgb(150, 255, 150)"};">
+			${numberformat.formatShort(lastData.gameState.cookies)} 
+			${cookiesPercentage > 0 ? "(-" + Math.round(cookiesPercentage) + "%)" : ""}</td>
+
+            <td style="color: ${totalCookiesPercentage > 0 ?
+				"rgb(255, 150, 150)" : "rgb(150, 255, 150)"};">
+			${numberformat.formatShort(lastData.gameState.totalCookies)} 
+			${totalCookiesPercentage > 0 ? "(-" + Math.round(totalCookiesPercentage) + "%)" : ""}</td>
+
         </tr>
         `;
 	}
