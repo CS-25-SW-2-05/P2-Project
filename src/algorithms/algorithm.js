@@ -92,7 +92,7 @@ export default class Algorithm {
                     decision.perform();
 
                     // console.log the stats of validBuildings
-                    logBuildingStats(validBuildings);
+                    // logBuildingStats(validBuildings);
 
                     const gameStateCopy = gameState.copy();
                     data.push({ decision: decision, gameState: gameStateCopy });
@@ -170,7 +170,7 @@ export default class Algorithm {
 
                 // console.log the stats of validBuildings
                 console.log("New building config:");
-                logBuildingStats(validBuildings);
+                // logBuildingStats(validBuildings);
 
                 const gameStateCopy = gameState.copy();
                 data.push({ decision: decision, gameState: gameStateCopy });
