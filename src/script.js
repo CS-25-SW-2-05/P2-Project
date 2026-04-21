@@ -83,7 +83,7 @@ function getActiveAlgorithms() {
 function displayResults(results, objective) {
 	if (results) console.log(results);
 
-	// Identify lowest values
+	// Set variables for lowest/highest values
 
 	let lowestIterations = Infinity;
 	let lowestIterationTime = Infinity;
@@ -143,6 +143,8 @@ function displayResults(results, objective) {
 		// Simulation time
 		const simulationTimePercentage =
 			(lastData.gameState.simulationTime - lowestSimulationTime) / lowestSimulationTime * 100;
+
+		// From highest:
 		// Building CPS
 		const cpsPercentage =
 			(highestCPS - lastData.gameState.buildingCpS) / highestCPS * 100;
