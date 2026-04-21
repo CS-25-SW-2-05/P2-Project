@@ -159,7 +159,6 @@ function getBuildingGraphConfig(buildingConfigGraphData, canvas) {
 // Converts a canvas to an image
 function drawCanvasInPreview(sourceCanvas, previewCanvas) {
     const context = previewCanvas.getContext("2d");
-    console.log(sourceCanvas);
 
     context.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
     context.drawImage(
@@ -183,18 +182,12 @@ function updateBuildingGraphPreview(buildingConfigGraphData, buildingCanvas) {
     );
     previewGraphConfig.options.responsive = false;
 
-    // // Get rectangle object from chartCanvas
-    // const rect = chartCanvas.getBoundingClientRect();
-
-    // // Get device pixel ratio
-    // const dpr = window.devicePixelRatio || 1;
-
     // Create a temp canvas
     const tempCanvas = document.createElement("canvas");
 
     // Set the height and width according to rectangle from chartCanvas
-    tempCanvas.width = chartCanvas.width; // Math.round(rect.width * dpr);
-    tempCanvas.height = chartCanvas.height; // Math.round(rect.height * dpr);
+    tempCanvas.width = chartCanvas.width;
+    tempCanvas.height = chartCanvas.height;
 
     // Create a temp chart
     const tempChart = new Chart(tempCanvas, previewGraphConfig);
@@ -368,18 +361,6 @@ function displayResults(results, objective) {
         });
     }
 
-    // If no canvas is selected, select cpsCanvas as default
-    // if (selectedCanvas == null) selectedCanvas = cpsCanvas;
-
-    // // Draw a line chart if they are selected
-    // if (selectedCanvas != buildingCanvas) {
-    //     cpsChart.draw();
-    //     cookieChart.draw();
-    //     chartContext.drawImage(selectedCanvas, 0, 0);
-    // }
-    // // Else create building bar graph
-    // else {
-    // If no canvas is selected, select cpsCanvas as default
     if (selectedCanvas == null) selectedCanvas = cpsCanvas;
 
     // Update line charts
@@ -415,21 +396,21 @@ function show(title, msg) {
 }
 
 // Initialize
-for (const algorithm of Algorithm.derived) {
-    const activeByDefault =
-        [
-            "BuyCheapest",
-            "ShortestPaybackPlusSaveUp",
-            "ShortestPaybackAfterPurchase",
-        ].findIndex((i) => i === algorithm.name) !== -1;
-    greedyAlgorithmsContainer.innerHTML += `
-		<div>
-			<label for="${algorithm.name}">${algorithm.title}
-				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
-			</label>
-		</div>
-	`;
-}
+// for (const algorithm of Algorithm.derived) {
+//     const activeByDefault =
+//         [
+//             "BuyCheapest",
+//             "ShortestPaybackPlusSaveUp",
+//             "ShortestPaybackAfterPurchase",
+//         ].findIndex((i) => i === algorithm.name) !== -1;
+//     greedyAlgorithmsContainer.innerHTML += `
+// 		<div>
+// 			<label for="${algorithm.name}">${algorithm.title}
+// 				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
+// 			</label>
+// 		</div>
+// 	`;
+// }
 
 console.log("Algorithms", Algorithm.derived);
 

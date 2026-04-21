@@ -102,6 +102,7 @@ img {
 }
 
 main {
+    flex: 1;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -114,11 +115,6 @@ footer {
     gap: 12px;
     justify-content: center;
     padding: 12px;
-}
-
-main > div,
-main > form {
-    flex: 1;
 }
 
 canvas {
