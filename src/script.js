@@ -1,8 +1,7 @@
 import { loadBuildings } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
-import { getPlural } from "./utils.js";
-import { formatLabel } from "./utils.js";
+import { getPlural, round, formatLabel } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
 import "./algorithms/greedy-payback-time.js";
@@ -23,11 +22,14 @@ const bruteForceAlgorithmsContainer = document.querySelector(
     ".brute-force-algorithms",
 );
 const buildingLengthInput = document.querySelector("#building-length");
-const baseCpSInput = document.querySelector("#base-cps");
+const clicksPerSecondInput = document.querySelector("#clicks-per-second");
 const benchmarkResults = document.querySelector(".benchmark-results");
+/** @type {HTMLFormElement} */
 const form = document.querySelector("form");
+/** @type {HTMLButtonElement} */
 const runBtn = form.querySelector("button[type='submit']");
 
+const channel = new BroadcastChannel("cookie_timeline");
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
@@ -180,18 +182,12 @@ function updateBuildingGraphPreview(buildingConfigGraphData, buildingCanvas) {
     );
     previewGraphConfig.options.responsive = false;
 
-    // Get rectangle object from chartCanvas
-    const rect = chartCanvas.getBoundingClientRect();
-
-    // Get device pixel ratio
-    const dpr = window.devicePixelRatio || 1;
-
     // Create a temp canvas
     const tempCanvas = document.createElement("canvas");
 
     // Set the height and width according to rectangle from chartCanvas
-    tempCanvas.width = Math.round(rect.width * dpr);
-    tempCanvas.height = Math.round(rect.height * dpr);
+    tempCanvas.width = chartCanvas.width;
+    tempCanvas.height = chartCanvas.height;
 
     // Create a temp chart
     const tempChart = new Chart(tempCanvas, previewGraphConfig);
@@ -208,8 +204,9 @@ function updateBuildingGraphPreview(buildingConfigGraphData, buildingCanvas) {
  *   simulationTime: number,
  *   data: Array<{decision: Decision, gameState: GameState}>
  * }[]} results
+ * @param {Objective} objective
  */
-function displayResults(results) {
+function displayResults(results, objective) {
     if (results) console.log(results);
 
     // Table Results
@@ -220,11 +217,21 @@ function displayResults(results) {
 
         tbody.innerHTML += `
         <tr>
-            <td>${r.algorithm.title}</td>
-            <td>${numberformat.formatShort(r.benchmarkTime)}</td>
+            <td>
+                <div>
+                    <a>
+                        <img src="./images/open_in_new.svg" alt="Open in New" />
+                    </a>
+                    ${r.algorithm.title}
+                </div>
+            </td>
+            <td>${numberformat.formatShort(r.data.length)}</td>
+            <td>${round((r.benchmarkTime * 1000) / r.data.length, 1)}</td>
+            <td>${round(r.benchmarkTime, 0)}</td>
             <td>${numberformat.formatShort(lastData.gameState.simulationTime)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
             <td>${numberformat.formatShort(lastData.gameState.buildingCpS)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.cookies)}</td>
+            <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
         </tr>
         `;
     }
@@ -234,8 +241,18 @@ function displayResults(results) {
     const cookieCanvas = document.querySelector("#cookie-chart");
     const buildingCanvas = document.querySelector("#building-graph");
 
-    const cpsChart = new LineChart(cpsCanvas, "Time (s)", "Production (CpS)");
-    const cookieChart = new LineChart(cookieCanvas, "Time (s)", "Cookies");
+    const cpsChart = new LineChart(
+        cpsCanvas,
+        "Time (s)",
+        "Production (CpS)",
+        objective.type === "production" ? objective.value : null,
+    );
+    const cookieChart = new LineChart(
+        cookieCanvas,
+        "Time (s)",
+        "Cookies",
+        objective.type === "cookies" ? objective.value : null,
+    );
 
     // Destroy mainchart or buildinggraph if they exist
 
@@ -274,7 +291,9 @@ function displayResults(results) {
             const d = r.data[j];
 
             x.push(d.gameState.simulationTime);
-            y.push(d.gameState.buildingCpS);
+            y.push(d.decision.cpsBefore);
+            x.push(d.gameState.simulationTime);
+            y.push(d.decision.cpsAfter);
         }
 
         cpsChart.add(label, x, y);
@@ -286,22 +305,62 @@ function displayResults(results) {
 
         const x = [0];
         const y = [0];
-        for (let j = 0; j < r.data.length; j++) {
-            const d = r.data[j];
-            const isLast = j == r.data.length - 1;
+        for (let j = 1; j < r.data.length; j++) {
+            const data = r.data[j];
+            const dataBefore = r.data[j - 1];
+            const isLast = j === r.data.length - 1;
+            const isPurchase =
+                Object.keys(data.decision).findIndex(
+                    (k) => k === "purchaseable",
+                ) !== -1;
 
-            x.push(d.gameState.simulationTime);
-            y.push(d.decision.afterCookies);
-
-            if (isLast) continue;
-            x.push(d.gameState.simulationTime);
-            y.push(d.decision.beforeCookies);
+            x.push(
+                isPurchase
+                    ? data.gameState.simulationTime
+                    : dataBefore.gameState.simulationTime,
+            );
+            y.push(data.decision.cookiesBefore);
+            x.push(data.gameState.simulationTime);
+            y.push(data.decision.cookiesAfter);
         }
 
         cookieChart.add(label, x, y);
     }
 
-    // If no canvas is selected, select cpsCanvas as default
+    if (selectedCanvas == null) selectedCanvas = cpsCanvas;
+    cpsChart.draw();
+    cookieChart.draw();
+    chartContext.drawImage(selectedCanvas, 0, 0);
+
+    // Open Timeline
+    const openBtns = document.querySelectorAll(".result-data td > div > a");
+    for (let i = 0; i < openBtns.length; i++) {
+        openBtns[i].addEventListener("click", () => {
+            channel.onmessage = (event) => {
+                console.log("Data received:", event.data);
+                const type = event.data.type;
+                const payload = event.data.payload;
+
+                switch (type) {
+                    case "RESULT_DATA_REQ":
+                        channel.postMessage({
+                            type: "RESULT_DATA_RES",
+                            payload: results,
+                        });
+                        break;
+                }
+            };
+
+            const url = new URL(
+                "/src/timeline/timeline.html",
+                window.location.origin,
+            );
+            url.searchParams.set("algorithm", i);
+            url.searchParams.set("decision", 0);
+            window.open(url, "newwindow", "width=800,height=600");
+        });
+    }
+
     if (selectedCanvas == null) selectedCanvas = cpsCanvas;
 
     // Update line charts
@@ -337,21 +396,21 @@ function show(title, msg) {
 }
 
 // Initialize
-for (const algorithm of Algorithm.derived) {
-    const activeByDefault =
-        [
-            "BuyCheapest",
-            "ShortestPaybackPlusSaveup",
-            "ShortestPaybackAfterPurchase",
-        ].findIndex((i) => i === algorithm.name) !== -1;
-    greedyAlgorithmsContainer.innerHTML += `
-		<div>
-			<label for="${algorithm.name}">${algorithm.title}
-				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
-			</label>
-		</div>
-	`;
-}
+// for (const algorithm of Algorithm.derived) {
+//     const activeByDefault =
+//         [
+//             "BuyCheapest",
+//             "ShortestPaybackPlusSaveUp",
+//             "ShortestPaybackAfterPurchase",
+//         ].findIndex((i) => i === algorithm.name) !== -1;
+//     greedyAlgorithmsContainer.innerHTML += `
+// 		<div>
+// 			<label for="${algorithm.name}">${algorithm.title}
+// 				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
+// 			</label>
+// 		</div>
+// 	`;
+// }
 
 console.log("Algorithms", Algorithm.derived);
 
@@ -373,7 +432,7 @@ form.addEventListener("submit", async (e) => {
 
     const buildingLength = buildingLengthInput.valueAsNumber;
     await loadBuildings(buildingLength);
-    const baseCpS = baseCpSInput.valueAsNumber;
+    const baseCpS = clicksPerSecondInput.valueAsNumber;
 
     const results = [];
     for (const algorithm of Algorithm.derived) {
@@ -405,11 +464,11 @@ form.addEventListener("submit", async (e) => {
         });
     }
 
-    benchmarkResults.classList.remove("hide");
-    displayResults(results);
+    displayResults(results, objective);
 
     runBtn.textContent = runBtnText;
     runBtn.removeAttribute("disabled");
+    benchmarkResults.classList.remove("hide");
 
     isRunning = false;
 });

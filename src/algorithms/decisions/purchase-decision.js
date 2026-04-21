@@ -11,21 +11,24 @@ export default class PurchaseDecision extends Decision {
         super(gameState);
 
         this.purchaseable = purchaseable;
-        this._wait = purchaseable.cost / gameState.cps;
+        this.wait = purchaseable.cost / gameState.cps;
         this.isValid =
             this.purchaseable != null &&
             this.purchaseable.canPurchase() &&
-            this._wait > 0;
+            this.wait > 0;
     }
 
     perform() {
-        this.beforeCookies = this._gameState.cookies;
-        this._gameState.simulationTime += this._wait;
+        this._gameState.simulationTime += this.wait;
         this._gameState.cookies += this.purchaseable.cost;
-        this.afterCookies = this._gameState.cookies;
 
+        this.cpsBefore = this._gameState.buildingCpS;
+        this.cookiesBefore = this._gameState.cookies;
         const wasSuccesful = this.purchaseable.purchase(this._gameState);
-        //console.log("Result:", this._gameState);
+        this.cookiesAfter = this._gameState.cookies;
+        this.cpsAfter = this._gameState.buildingCpS;
+        console.log("Result:", this._gameState);
+
         return wasSuccesful;
     }
 }
