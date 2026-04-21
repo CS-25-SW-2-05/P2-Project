@@ -18,7 +18,7 @@ export default class WaitDecision extends Decision {
 		this._gameState.cookies += this._gameState.cps * this._wait;
 		this.afterCookies = this._gameState.cookies;
 
-		console.log("Result:", this._gameState);
+		//console.log("Result:", this._gameState);
 		return true;
 	}
 }
