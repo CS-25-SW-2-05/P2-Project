@@ -39,7 +39,7 @@ export default class GreedyPaybackTime extends Algorithm {
 					bestBuilding = building;
 				}
 			}
-			console.log("Decision (fixed-production): " + bestBuilding?.name);
+			console.log("Decision (fixed-production, Save-Payback): " + bestBuilding?.name);
 
 			// Buy the most effecient building
 			return new PurchaseDecision(gameState, bestBuilding);
@@ -70,10 +70,10 @@ export default class GreedyPaybackTime extends Algorithm {
 			}
 			// No building turns a profit then  wait out the time
 			if (bestBuilding === null || bestProfit <= 0) {
-				console.log("Decision (fixed-cookies): wait");
+				console.log("Decision (fixed-cookies, Save-Payback): wait");
 				return new WaitDecision(gameState, Math.ceil(timeLeft));
 			}
-			console.log("Decision (fixed-cookies): " + bestBuilding.name);
+			console.log("Decision (fixed-cookies, Save-Payback): " + bestBuilding.name);
 			return new PurchaseDecision(gameState, bestBuilding);
 		}
 
