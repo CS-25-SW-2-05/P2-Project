@@ -4,12 +4,12 @@ import PurchaseDecision from "./decisions/purchase-decision.js";
 import WaitDecision from "./decisions/wait-decision.js";
 import Objective from "./objective.js";
 
-export default class GreedyPayback extends Algorithm {
+export default class ShortestPaybackAfterPurchase extends Algorithm {
     // Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
     static dummy = Algorithm.derived.add({
         name: this.name,
         title: "Shortest Payback (After Purchase)",
-        instance: new GreedyPayback(),
+        instance: new ShortestPaybackAfterPurchase(),
     });
 
     /**

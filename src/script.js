@@ -2,6 +2,7 @@ import { loadBuildings } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
 import { getPlural } from "./utils.js";
+import { formatLabel } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
 import "./algorithms/greedy-payback-time.js";
@@ -74,7 +75,7 @@ function getBuildingGraphData(results) {
     // for each algorithm
     for (const result of results) {
         // Get the algorithm label
-        const resultLabel = result.algorithm.name;
+        const resultLabel = formatLabel(result.algorithm.name);
 
         // Get the gamestate from the last decision
         const lastGameState = result.data[result.data.length - 1].gameState;
@@ -89,7 +90,8 @@ function getBuildingGraphData(results) {
 
         // Construct a list of building name labels, if it hasn't been done already
         if (buildingConfigGraphData.labels.length === 0) {
-            buildingConfigGraphData.labels = Object.keys(lastBuildingConfig);
+            buildingConfigGraphData.labels =
+                Object.keys(lastBuildingConfig).map(formatLabel);
         }
 
         // Push the dataset for the algorithm
@@ -337,9 +339,11 @@ function show(title, msg) {
 // Initialize
 for (const algorithm of Algorithm.derived) {
     const activeByDefault =
-        ["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
-            (i) => i === algorithm.name,
-        ) !== -1;
+        [
+            "BuyCheapest",
+            "ShortestPaybackPlusSaveup",
+            "ShortestPaybackAfterPurchase",
+        ].findIndex((i) => i === algorithm.name) !== -1;
     greedyAlgorithmsContainer.innerHTML += `
 		<div>
 			<label for="${algorithm.name}">${algorithm.title}
