@@ -1,7 +1,7 @@
 import { loadBuildings } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
-import { getPlural, round } from "./utils.js";
+import { getPlural, round, formatLabel } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
 import "./algorithms/greedy-payback-time.js";
@@ -17,7 +17,10 @@ import Chart from "https://esm.sh/chart.js/auto";
 const chartCanvas = document.querySelector("#chart");
 const chartContext = chartCanvas.getContext("2d");
 const algorithmCount = document.querySelector("#algorithm-count");
-const algorithmsContainer = document.querySelector(".algorithms");
+const greedyAlgorithmsContainer = document.querySelector(".greedy-algorithms");
+const bruteForceAlgorithmsContainer = document.querySelector(
+    ".brute-force-algorithms",
+);
 const buildingLengthInput = document.querySelector("#building-length");
 const clicksPerSecondInput = document.querySelector("#clicks-per-second");
 const benchmarkResults = document.querySelector(".benchmark-results");
@@ -74,7 +77,7 @@ function getBuildingGraphData(results) {
     // for each algorithm
     for (const result of results) {
         // Get the algorithm label
-        const resultLabel = result.algorithm.name;
+        const resultLabel = formatLabel(result.algorithm.name);
 
         // Get the gamestate from the last decision
         const lastGameState = result.data[result.data.length - 1].gameState;
@@ -89,7 +92,8 @@ function getBuildingGraphData(results) {
 
         // Construct a list of building name labels, if it hasn't been done already
         if (buildingConfigGraphData.labels.length === 0) {
-            buildingConfigGraphData.labels = Object.keys(lastBuildingConfig);
+            buildingConfigGraphData.labels =
+                Object.keys(lastBuildingConfig).map(formatLabel);
         }
 
         // Push the dataset for the algorithm
@@ -134,6 +138,14 @@ function getBuildingGraphConfig(buildingConfigGraphData, canvas) {
                 },
             },
             plugins: {
+                title: {
+                    text: "Building configuration",
+                    display: true,
+                    color: "white",
+                    font: {
+                        size: 20,
+                    },
+                },
                 legend: {
                     labels: {
                         color: "white",
@@ -147,6 +159,7 @@ function getBuildingGraphConfig(buildingConfigGraphData, canvas) {
 // Converts a canvas to an image
 function drawCanvasInPreview(sourceCanvas, previewCanvas) {
     const context = previewCanvas.getContext("2d");
+    console.log(sourceCanvas);
 
     context.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
     context.drawImage(
@@ -170,18 +183,18 @@ function updateBuildingGraphPreview(buildingConfigGraphData, buildingCanvas) {
     );
     previewGraphConfig.options.responsive = false;
 
-    // Get rectangle object from chartCanvas
-    const rect = chartCanvas.getBoundingClientRect();
+    // // Get rectangle object from chartCanvas
+    // const rect = chartCanvas.getBoundingClientRect();
 
-    // Get device pixel ratio
-    const dpr = window.devicePixelRatio || 1;
+    // // Get device pixel ratio
+    // const dpr = window.devicePixelRatio || 1;
 
     // Create a temp canvas
     const tempCanvas = document.createElement("canvas");
 
     // Set the height and width according to rectangle from chartCanvas
-    tempCanvas.width = Math.round(rect.width * dpr);
-    tempCanvas.height = Math.round(rect.height * dpr);
+    tempCanvas.width = chartCanvas.width; // Math.round(rect.width * dpr);
+    tempCanvas.height = chartCanvas.height; // Math.round(rect.height * dpr);
 
     // Create a temp chart
     const tempChart = new Chart(tempCanvas, previewGraphConfig);
@@ -356,16 +369,26 @@ function displayResults(results, objective) {
     }
 
     // If no canvas is selected, select cpsCanvas as default
+    // if (selectedCanvas == null) selectedCanvas = cpsCanvas;
+
+    // // Draw a line chart if they are selected
+    // if (selectedCanvas != buildingCanvas) {
+    //     cpsChart.draw();
+    //     cookieChart.draw();
+    //     chartContext.drawImage(selectedCanvas, 0, 0);
+    // }
+    // // Else create building bar graph
+    // else {
+    // If no canvas is selected, select cpsCanvas as default
     if (selectedCanvas == null) selectedCanvas = cpsCanvas;
 
-    // Draw a line chart if they are selected
-    if (selectedCanvas != buildingCanvas) {
-        cpsChart.draw();
-        cookieChart.draw();
-        chartContext.drawImage(selectedCanvas, 0, 0);
-    }
-    // Else create building bar graph
-    else {
+    // Update line charts
+    cpsChart.draw();
+    cookieChart.draw();
+    chartContext.drawImage(selectedCanvas, 0, 0);
+
+    // Update building graph in main chart if it is selected
+    if (selectedCanvas === buildingCanvas) {
         mainChart = new Chart(chartCanvas, {
             ...latestBuildingGraphConfig,
         });
@@ -394,10 +417,12 @@ function show(title, msg) {
 // Initialize
 for (const algorithm of Algorithm.derived) {
     const activeByDefault =
-        ["GreedyNaive", "GreedyPaybackTime", "GreedyPayback"].findIndex(
-            (i) => i === algorithm.name,
-        ) !== -1;
-    algorithmsContainer.innerHTML += `
+        [
+            "BuyCheapest",
+            "ShortestPaybackPlusSaveUp",
+            "ShortestPaybackAfterPurchase",
+        ].findIndex((i) => i === algorithm.name) !== -1;
+    greedyAlgorithmsContainer.innerHTML += `
 		<div>
 			<label for="${algorithm.name}">${algorithm.title}
 				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
@@ -435,9 +460,20 @@ form.addEventListener("submit", async (e) => {
 
         if (!active) continue;
 
+        // Check whether Brute force segmented is selected
+        let isBruteForce = false;
+        if (algorithm.name === `BruteForceSegmented`) {
+            isBruteForce = true;
+        }
+
         const beforeTime = Date.now();
         // Start the algorithm run, passing the objective in.
-        const data = await algorithm.instance.run(objective, baseCpS);
+
+        const data = await algorithm.instance.run(
+            objective,
+            baseCpS,
+            isBruteForce,
+        );
         const benchmarkTime = Date.now() - beforeTime;
 
         results.push({
@@ -447,7 +483,6 @@ form.addEventListener("submit", async (e) => {
         });
     }
 
-    benchmarkResults.classList.remove("hide");
     displayResults(results, objective);
 
     runBtn.textContent = runBtnText;

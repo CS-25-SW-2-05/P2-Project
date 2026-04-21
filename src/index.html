@@ -11,13 +11,15 @@
             href="images/cookie.png"
             type="image/x-icon"
         />
-        <script type="module" src="script.js"></script>
+        <script src="script.js" type="module"></script>
     </head>
+
     <body>
         <header>
             <img src="images/cookie.png" alt="Cookie Image" />
             <h1>Cookie Clicker Benchmarking Tool</h1>
         </header>
+
         <div class="wrapper">
             <main>
                 <form>
@@ -31,7 +33,12 @@
                                 >Select one or more algorithms to
                                 benchmark</label
                             >
-                            <div class="algorithms"></div>
+                            <!-- <br /> -->
+                            <!-- <p>Greedy Algorithms</p> -->
+                            <div class="greedy-algorithms"></div>
+                            <!-- <br /> -->
+                            <!-- <p>Brute Force</p> -->
+                            <div class="brute-force-algorithms"></div>
                         </div>
                     </section>
 
@@ -45,7 +52,7 @@
                                         type="number"
                                         id="clicks-per-second"
                                         min="1"
-                                        value="1"
+                                        value="6"
                                     />
                                 </label>
                             </div>
@@ -57,10 +64,10 @@
                                             type="range"
                                             id="building-length"
                                             min="1"
-                                            max="25"
-                                            value="25"
+                                            max="20"
+                                            value="10"
                                         />
-                                        <output>25</output>
+                                        <output>10</output>
                                     </div>
                                 </label>
                             </div>
@@ -71,7 +78,7 @@
                                         type="number"
                                         id="brute-force-horizon"
                                         min="1"
-                                        value="4"
+                                        value="5"
                                     />
                                 </label>
                             </div>
@@ -108,6 +115,7 @@
                             </div>
                         </div>
                     </section>
+
                     <div class="actions">
                         <button type="submit" disabled>Run Benchmark</button>
                         <button type="reset">Reset</button>
