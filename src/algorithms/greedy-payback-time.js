@@ -3,12 +3,12 @@ import Decision from "./decisions/decision.js";
 import PurchaseDecision from "./decisions/purchase-decision.js";
 import WaitDecision from "./decisions/wait-decision.js";
 
-export default class ShortestPaybackPlusSaveup extends Algorithm {
+export default class ShortestPaybackPlusSaveUp extends Algorithm {
     // Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
     static dummy = Algorithm.derived.add({
         name: this.name,
         title: "[Greedy] Shortest Payback (+Save-up)",
-        instance: new ShortestPaybackPlusSaveup(),
+        instance: new ShortestPaybackPlusSaveUp(),
     });
 
     /**
@@ -36,7 +36,7 @@ export default class ShortestPaybackPlusSaveup extends Algorithm {
             paybackSaveUpTime = saveUpTime + paybackTime;
             tempDecision = [key, paybackSaveUpTime];
 
-            if (numOfBuildingsAssessed == 0) {
+            if (numOfBuildingsAssessed === 0) {
                 bestDecision[0] = tempDecision[0];
                 bestDecision[1] = tempDecision[1];
                 numOfBuildingsAssessed++;

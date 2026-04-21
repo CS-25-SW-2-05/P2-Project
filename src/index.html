@@ -20,147 +20,149 @@
             <h1>Cookie Clicker Benchmarking Tool</h1>
         </header>
 
-        <main>
-            <form>
-                <section>
-                    <h2>Algorithm Selection</h2>
-                    <div class="field">
-                        <p class="algorithm-selected" id="algorithm-count">
-                            0 algorithms selected
-                        </p>
-                        <label for="algorithm-select"
-                            >Select one or more algorithms to benchmark</label
-                        >
-                        <!-- <br /> -->
-                        <!-- <p>Greedy Algorithms</p> -->
-                        <div class="greedy-algorithms"></div>
-                        <!-- <br /> -->
-                        <!-- <p>Brute Force</p> -->
-                        <div class="brute-force-algorithms"></div>
-                    </div>
-                </section>
-
-                <section>
-                    <h2>Settings</h2>
-                    <div class="grid">
+        <div class="wrapper">
+            <main>
+                <form>
+                    <section>
+                        <h2>Algorithm Selection</h2>
                         <div class="field">
-                            <label for="base-cps">
-                                <p>Base CpS</p>
-                                <input
-                                    type="number"
-                                    id="base-cps"
-                                    min="1"
-                                    value="6"
-                                />
-                            </label>
+                            <p class="algorithm-selected" id="algorithm-count">
+                                0 algorithms selected
+                            </p>
+                            <label for="algorithm-select"
+                                >Select one or more algorithms to
+                                benchmark</label
+                            >
+                            <!-- <br /> -->
+                            <!-- <p>Greedy Algorithms</p> -->
+                            <div class="greedy-algorithms"></div>
+                            <!-- <br /> -->
+                            <!-- <p>Brute Force</p> -->
+                            <div class="brute-force-algorithms"></div>
                         </div>
-                        <div class="field">
-                            <label for="building-length">
-                                <p>Buildings</p>
-                                <div>
+                    </section>
+
+                    <section>
+                        <h2>Settings</h2>
+                        <div class="grid">
+                            <div class="field">
+                                <label for="clicks-per-second">
+                                    <p>Clicks per Second</p>
                                     <input
-                                        type="range"
-                                        id="building-length"
+                                        type="number"
+                                        id="clicks-per-second"
                                         min="1"
-                                        max="20"
-                                        value="10"
+                                        value="6"
                                     />
-                                    <output>10</output>
-                                </div>
-                            </label>
+                                </label>
+                            </div>
+                            <div class="field">
+                                <label for="building-length">
+                                    <p>Buildings</p>
+                                    <div>
+                                        <input
+                                            type="range"
+                                            id="building-length"
+                                            min="1"
+                                            max="20"
+                                            value="10"
+                                        />
+                                        <output>10</output>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="field">
+                                <label for="brute-force-horizon">
+                                    <p>Brute Force Horizon</p>
+                                    <input
+                                        type="number"
+                                        id="brute-force-horizon"
+                                        min="1"
+                                        value="5"
+                                    />
+                                </label>
+                            </div>
                         </div>
-                        <div class="field">
-                            <label for="brute-force-horizon">
-                                <p>Brute Force Horizon</p>
-                                <input
-                                    type="number"
-                                    id="brute-force-horizon"
-                                    min="1"
-                                    value="5"
-                                />
-                            </label>
-                        </div>
-                    </div>
-                </section>
+                    </section>
 
-                <section>
-                    <h2>Objective</h2>
-                    <div class="grid">
-                        <div class="field">
-                            <label for="objective-type">
-                                <p>Objective type</p>
-                                <select id="objective-type">
-                                    <option value="cookies">Cookies</option>
-                                    <option value="production">
-                                        Production Rate
-                                    </option>
-                                    <option value="time limit">
-                                        Time Limit
-                                    </option>
-                                </select>
-                            </label>
+                    <section>
+                        <h2>Objective</h2>
+                        <div class="grid">
+                            <div class="field">
+                                <label for="objective-type">
+                                    <p>Objective type</p>
+                                    <select id="objective-type">
+                                        <option value="cookies">Cookies</option>
+                                        <option value="production">
+                                            Production Rate
+                                        </option>
+                                        <option value="time limit">
+                                            Time Limit
+                                        </option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="field">
+                                <label for="objective-value">
+                                    <p>Objective value</p>
+                                    <input
+                                        type="number"
+                                        id="objective-value"
+                                        min="1"
+                                        value="1000"
+                                    />
+                                </label>
+                            </div>
                         </div>
-                        <div class="field">
-                            <label for="objective-value">
-                                <p>Objective value</p>
-                                <input
-                                    type="number"
-                                    id="objective-value"
-                                    min="1"
-                                    value="1000"
-                                />
-                            </label>
-                        </div>
-                    </div>
-                </section>
+                    </section>
 
-                <div class="actions">
-                    <button type="submit" disabled>Run Benchmark</button>
-                    <button type="reset">Reset</button>
+                    <div class="actions">
+                        <button type="submit" disabled>Run Benchmark</button>
+                        <button type="reset">Reset</button>
+                    </div>
+                </form>
+                <div class="benchmark-results hide">
+                    <section>
+                        <h2>Results</h2>
+                        <canvas id="chart" width="2560" height="1440"></canvas>
+                        <div class="previews">
+                            <canvas
+                                id="cps-chart"
+                                width="2560"
+                                height="1440"
+                            ></canvas>
+                            <canvas
+                                id="cookie-chart"
+                                width="2560"
+                                height="1440"
+                            ></canvas>
+                            <canvas
+                                id="building-graph"
+                                width="2560"
+                                height="1440"
+                            ></canvas>
+                        </div>
+                        <div>
+                            <table class="result-data">
+                                <thead>
+                                    <tr>
+                                        <th>Algorithm</th>
+                                        <th>Iterations</th>
+                                        <th>Iteration Time (μs)</th>
+                                        <th>Benchmark Time (ms)</th>
+                                        <th>Simulation Time (s)</th>
+                                        <th>CpS</th>
+                                        <th>Cookies</th>
+                                        <th>Total Cookies</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </section>
                 </div>
-            </form>
-            <div class="benchmark-results hide">
-                <section>
-                    <h2>Results</h2>
-                    <canvas id="chart" width="2560" height="1440"></canvas>
-                    <div class="previews">
-                        <canvas
-                            id="cps-chart"
-                            width="2560"
-                            height="1440"
-                        ></canvas>
-                        <canvas
-                            id="cookie-chart"
-                            width="2560"
-                            height="1440"
-                        ></canvas>
-                        <canvas
-                            id="building-graph"
-                            width="2560"
-                            height="1440"
-                        ></canvas>
-                    </div>
-                    <div class="labels">
-                        <p class="cps-chart-label">CpS over Time</p>
-                        <p class="cookie-chart-label">Cookies over Time</p>
-                        <p class="building-graph-label">Building Summary</p>
-                    </div>
-                    <br />
-                    <table class="result-data">
-                        <thead>
-                            <tr>
-                                <th>Algorithm</th>
-                                <th>Benchmark Time (ms)</th>
-                                <th>Simulation Time (s)</th>
-                                <th>Total Cookies</th>
-                                <th>CpS</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </section>
-            </div>
-        </main>
+            </main>
+        </div>
 
         <span class="toast">
             <h2>Toast Title</h2>

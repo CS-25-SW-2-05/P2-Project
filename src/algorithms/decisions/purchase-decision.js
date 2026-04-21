@@ -1,31 +1,33 @@
 import Decision from "./decision.js";
 
 export default class PurchaseDecision extends Decision {
-	purchaseable = null;
+    purchaseable = null;
 
-	/**
-	 * @param {GameState} gameState
-	 * @param {Purchasable} purchaseable
-	 */
-	constructor(gameState, purchaseable) {
-		super(gameState);
+    /**
+     * @param {GameState} gameState
+     * @param {Purchasable} purchaseable
+     */
+    constructor(gameState, purchaseable) {
+        super(gameState);
 
-		this.purchaseable = purchaseable;
-		this._wait = purchaseable.cost / gameState.cps;
-		this.isValid =
-			this.purchaseable != null &&
-			this.purchaseable.canPurchase() &&
-			this._wait > 0;
-	}
+        this.purchaseable = purchaseable;
+        this.wait = purchaseable.cost / gameState.cps;
+        this.isValid =
+            this.purchaseable != null &&
+            this.purchaseable.canPurchase() &&
+            this.wait > 0;
+    }
 
-	perform() {
-		this.beforeCookies = this._gameState.cookies;
-		this._gameState.simulationTime += this._wait;
-		this._gameState.cookies += this.purchaseable.cost;
-		this.afterCookies = this._gameState.cookies;
+    perform() {
+        this._gameState.simulationTime += this.wait;
+        this._gameState.cookies += this.purchaseable.cost;
 
-		const wasSuccesful = this.purchaseable.purchase(this._gameState);
-		console.log("Result:", this._gameState);
-		return wasSuccesful;
-	}
+        this.cpsBefore = this._gameState.buildingCpS;
+        this.cookiesBefore = this._gameState.cookies;
+        const wasSuccesful = this.purchaseable.purchase(this._gameState);
+        this.cookiesAfter = this._gameState.cookies;
+        this.cpsAfter = this._gameState.buildingCpS;
+
+        return wasSuccesful;
+    }
 }
