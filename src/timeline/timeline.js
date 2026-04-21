@@ -91,16 +91,19 @@ function display() {
     `;
 }
 
-function setDecisionIndex(index) {
+function setDecisionIndex(index, shouldUpdateUrl = true) {
     if (index < 0) return;
     if (index > result.data.length - 1) return;
 
     indexSlider.value = index;
     decisionIndex = index;
+
+    display();
+
+    if (!shouldUpdateUrl) return;
     const newURL = new URL(window.location);
     newURL.searchParams.set("decision", index);
     window.history.pushState({}, "", newURL);
-    display();
 }
 
 prevBtn.addEventListener("click", () => {
@@ -112,6 +115,11 @@ nextBtn.addEventListener("click", () => {
 });
 
 indexSlider.addEventListener("input", () => {
+    const index = indexSlider.valueAsNumber;
+    setDecisionIndex(index, false);
+});
+
+indexSlider.addEventListener("change", () => {
     const index = indexSlider.valueAsNumber;
     setDecisionIndex(index);
 });

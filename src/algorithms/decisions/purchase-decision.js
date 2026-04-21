@@ -27,7 +27,6 @@ export default class PurchaseDecision extends Decision {
         const wasSuccesful = this.purchaseable.purchase(this._gameState);
         this.cookiesAfter = this._gameState.cookies;
         this.cpsAfter = this._gameState.buildingCpS;
-        console.log("Result:", this._gameState);
 
         return wasSuccesful;
     }
