@@ -114,7 +114,7 @@ export default class GreedyPayback extends Algorithm {
 		console.log("Wait:", waitTime);
 		console.log("Payback:", bestDecision.paybackTime);
 
-		if (objective.type !== "cookies") {
+		if (objective.type === "production") {
 			console.log("Decision: " + bestDecision.buildingKey);
 			console.log("Payback + wait time: " + bestDecision.paybackTime + "s");
 			return new PurchaseDecision(
