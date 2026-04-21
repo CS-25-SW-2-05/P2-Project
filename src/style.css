@@ -154,6 +154,14 @@ canvas.zoomed {
     filter: brightness(1.1);
 }
 
+.labels {
+    display: grid;
+    gap: 4px;
+    grid-template-columns: repeat(5, 1fr);
+    text-align: center;
+    font-size: 14px;
+}
+
 hr {
     all: unset;
     background-color: var(--primary-foreground);
