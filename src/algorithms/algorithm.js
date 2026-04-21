@@ -39,7 +39,7 @@ export default class Algorithm {
 		this.#stopRequested = true;
 	}
 
-	async run(objective, baseCpS, baseCpS) {
+	async run(objective, baseCpS) {
 		if (this.#isRunning) return this.#runPromise;
 		this.#isRunning = true;
 		this.#stopRequested = false;
@@ -66,7 +66,7 @@ export default class Algorithm {
 				}
 				// Filter buildings for buildings that reached max level
 				// or reached price of infinity
-				const validBuildings = filterValid(gameState.gameState.buildings);
+				const validBuildings = filterValid(gameState.buildings);
 
 				// Break the loop if no more buildings are available
 				if (Object.keys(validBuildings).length === 0) {
