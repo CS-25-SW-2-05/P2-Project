@@ -117,7 +117,9 @@ function displayResults(results, objective) {
             const d = r.data[j];
 
             x.push(d.gameState.simulationTime);
-            y.push(d.gameState.buildingCpS);
+            y.push(d.decision.cpsBefore);
+            x.push(d.gameState.simulationTime);
+            y.push(d.decision.cpsAfter);
         }
 
         cpsChart.add(label, x, y);
