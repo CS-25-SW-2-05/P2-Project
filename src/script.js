@@ -396,21 +396,21 @@ function show(title, msg) {
 }
 
 // Initialize
-// for (const algorithm of Algorithm.derived) {
-//     const activeByDefault =
-//         [
-//             "BuyCheapest",
-//             "ShortestPaybackPlusSaveUp",
-//             "ShortestPaybackAfterPurchase",
-//         ].findIndex((i) => i === algorithm.name) !== -1;
-//     greedyAlgorithmsContainer.innerHTML += `
-// 		<div>
-// 			<label for="${algorithm.name}">${algorithm.title}
-// 				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
-// 			</label>
-// 		</div>
-// 	`;
-// }
+for (const algorithm of Algorithm.derived) {
+    const activeByDefault =
+        [
+            "BuyCheapest",
+            "ShortestPaybackPlusSaveUp",
+            "ShortestPaybackAfterPurchase",
+        ].findIndex((i) => i === algorithm.name) !== -1;
+    greedyAlgorithmsContainer.innerHTML += `
+		<div>
+			<label for="${algorithm.name}">${algorithm.title}
+				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
+			</label>
+		</div>
+	`;
+}
 
 console.log("Algorithms", Algorithm.derived);
 
