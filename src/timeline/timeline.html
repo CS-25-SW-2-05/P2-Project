@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="../style.css" />
+        <link
+            rel="shortcut icon"
+            href="../images/cookie.png"
+            type="image/x-icon"
+        />
+        <script type="module" src="timeline.js"></script>
+        <title>Decision Timeline</title>
+    </head>
+    <body>
+        <header>
+            <img src="../images/cookie.png" alt="Cookie Image" />
+            <h1></h1>
+        </header>
+        <div class="wrapper">
+            <main>
+                <div>
+                    <section>
+                        <h2 id="decision-title"></h2>
+                        <p id="index"></p>
+                        <div>
+                            <table
+                                id="decision-data"
+                                style="min-width: 256px"
+                            ></table>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+        <footer>
+            <button id="prev">Previous</button>
+            <input type="range" id="decision-index" min="0" step="1" />
+            <button id="next">Next</button>
+        </footer>
+    </body>
+</html>

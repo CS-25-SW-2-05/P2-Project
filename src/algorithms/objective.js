@@ -26,16 +26,14 @@ export default class Objective {
 	 */
 	isCompleted(gameState) {
 		// If type is "cookies", check gameState.cookies against this.value
-		if (this.type === "cookies")
-			return gameState.cookies >= this.value;
-		
+		if (this.type === "cookies") return gameState.cookies >= this.value;
+
 		// If type is "production", check gameState.buildingcps against this.#value
-		if (this.type === "production")
-			return gameState.buildingCpS >= this.value;
+		if (this.type === "production") return gameState.buildingCpS >= this.value;
 
 		if (this.type === "fixed-cookies" || this.type === "fixed-production")
 			return gameState.simulationTime >= this.value;
-		
+
 		// If type is unknown return false (not completed)
 		return false;
 	}
