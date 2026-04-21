@@ -66,7 +66,7 @@ export default class BruteForceSegmented extends Algorithm {
 	}
 */
     //
-    getAllDecisionPermutationsBASICEDITION(
+    getAllDecisionPermutations(
         permutationArr,
         decisions,
         segmentedSearchDepth,
@@ -159,6 +159,10 @@ export default class BruteForceSegmented extends Algorithm {
         }
         return permutationArr;
     }
+    /*
+    comparePermuationsProduction() {}
+
+    comparePermuationsCookies() {}*/
 
     // finds the solution to each segment
     getSegmentSolution(
@@ -180,7 +184,7 @@ export default class BruteForceSegmented extends Algorithm {
         //console.log(permutationArr);
 
         // finds all decision permutations and puts them into decisionArr
-        permutationArr = this.getAllDecisionPermutationsBASICEDITION(
+        permutationArr = this.getAllDecisionPermutations(
             permutationArr,
             decisions,
             segmentedSearchDepth,
@@ -392,6 +396,10 @@ export default class BruteForceSegmented extends Algorithm {
 
     // connects the segmented solutions together and returns the final solution
     getBruteForceSegmentedSolution(objective, decisions) {
+        if (objective.type !== "production") {
+            throw new Error(`Brute force only works with production objective`);
+        }
+
         let currentGameState = new GameState();
         console.log(currentGameState.buildings);
         let referenceGameState = currentGameState.copy();
