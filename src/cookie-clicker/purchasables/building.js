@@ -1,6 +1,7 @@
 import { round } from "../../utils.js";
 import GameState from "../game-state.js";
 import Purchasable from "./purchasable.js";
+import * as numberformat from "https://esm.sh/swarm-numberformat";
 
 export default class Building extends Purchasable {
 	baseCost = 0;
@@ -105,11 +106,11 @@ export function logBuildingStats(buildings) {
 
 		// Logging current building prices
 		console.log(
-			currentBuilding.name.padEnd(15) +
-				" price: " +
-				String(currentBuilding.cost).padEnd(25) +
-				" owned: " +
-				currentBuilding.owned,
+			currentBuilding.name.padEnd(25) +
+			" price: " +
+			String(numberformat.formatShort(currentBuilding.cost)).padEnd(10) +
+			" owned: " +
+			currentBuilding.owned,
 		);
 	}
 }
@@ -118,12 +119,18 @@ export function logBuildingStats(buildings) {
  * Clone the Buildings list for possible later mutation.
  * @returns {Building[]} a clone of Buildings, which can be mutated.
  */
-export function cloneBuildings() {
+export function cloneBuildings(buildings = Buildings) {
 	const copy = {};
-	for (const [key, b] of Object.entries(Buildings)) {
-		const inst = new Building(b.name, b.baseCost, b.baseCpS, b.maxBuildCount);
-		inst.owned = b.owned;
-		copy[key] = inst;
+	for (const [key, b] of Object.entries(buildings)) {
+		const instance = new Building(
+			b.name,
+			b.baseCost,
+			b.baseCpS,
+			b.maxBuildCount,
+		);
+		instance.owned = b.owned;
+		instance.updateCost();
+		copy[key] = instance;
 	}
 
 	return copy;

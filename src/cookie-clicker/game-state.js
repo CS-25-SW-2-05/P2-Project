@@ -22,6 +22,7 @@ export default class GameState {
 		const copy = new GameState();
 		copy.#cookies = this.#cookies;
 		copy.totalCookies = this.totalCookies;
+		copy.buildings = cloneBuildings(this.buildings);
 		copy.buildingCpS = this.buildingCpS;
 		copy.manualCpS = this.manualCpS;
 		copy.simulationTime = this.simulationTime;
