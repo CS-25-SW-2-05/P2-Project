@@ -499,9 +499,9 @@ export default class BruteForceSegmented extends Algorithm {
 
             console.log("solution: " + solution);
             console.log("best solution state: ");
-            logBuildingStats(segmentSolutionData[1].buildings);
+            // logBuildingStats(segmentSolutionData[1].buildings);
             console.log("reference game state: ");
-            logBuildingStats(referenceGameState.buildings);
+            // logBuildingStats(referenceGameState.buildings);
         }
 
         console.log("Final solution: " + solution);
