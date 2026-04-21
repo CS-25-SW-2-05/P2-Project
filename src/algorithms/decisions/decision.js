@@ -13,7 +13,7 @@ export default class Decision {
      * @param {GameState} gameState
      */
     constructor(gameState) {
-        if (new.target == Decision)
+        if (new.target === Decision)
             throw new Error(
                 "Cannot instantiate abstract class Decision directly.",
             );
@@ -25,8 +25,8 @@ export default class Decision {
      * Perform the decision, and update the game state.
      */
     perform() {
-        console.log("Decision:", this);
-        this.cookiesBefore = this._gameState.cookies;
-        this.cpsBefore = this._gameState.buildingCpS;
+        throw new Error(
+            `Method '${this.perform.name}' must be implemented by subclass.`,
+        );
     }
 }

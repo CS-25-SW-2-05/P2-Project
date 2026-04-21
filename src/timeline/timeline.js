@@ -18,7 +18,7 @@ const nextBtn = document.querySelector("#next");
 const indexSlider = document.querySelector("#decision-index");
 
 const result = await requestResult();
-indexSlider.max = result.data.length;
+indexSlider.max = result.data.length - 1;
 console.log(result);
 
 function requestResult() {

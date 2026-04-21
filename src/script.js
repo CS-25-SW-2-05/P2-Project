@@ -131,16 +131,23 @@ function displayResults(results, objective) {
 
         const x = [0];
         const y = [0];
-        for (let j = 0; j < r.data.length; j++) {
-            const d = r.data[j];
-            const isLast = j == r.data.length - 1;
+        for (let j = 1; j < r.data.length; j++) {
+            const data = r.data[j];
+            const dataBefore = r.data[j - 1];
+            const isLast = j === r.data.length - 1;
+            const isPurchase =
+                Object.keys(data.decision).findIndex(
+                    (k) => k === "purchaseable",
+                ) !== -1;
 
-            x.push(d.gameState.simulationTime);
-            y.push(d.decision.cookiesAfter);
-
-            if (isLast) continue;
-            x.push(d.gameState.simulationTime);
-            y.push(d.decision.cookiesBefore);
+            x.push(
+                isPurchase
+                    ? data.gameState.simulationTime
+                    : dataBefore.gameState.simulationTime,
+            );
+            y.push(data.decision.cookiesBefore);
+            x.push(data.gameState.simulationTime);
+            y.push(data.decision.cookiesAfter);
         }
 
         cookieChart.add(label, x, y);
