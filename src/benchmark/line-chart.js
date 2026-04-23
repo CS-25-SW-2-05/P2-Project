@@ -20,6 +20,7 @@ export class LineChartData {
 export default class LineChart {
     /** @type {HTMLCanvasElement} */
     #canvas = null;
+    #title = "";
     #data = [];
     #xLabel = "";
     #yLabel = "";
@@ -31,8 +32,9 @@ export default class LineChart {
      * @param {string} xLabel
      * @param {string} yLabel
      */
-    constructor(canvas, xLabel, yLabel, yGoal) {
+    constructor(canvas, title, xLabel, yLabel, yGoal) {
         this.#canvas = canvas;
+        this.#title = title;
         this.#xLabel = xLabel;
         this.#yLabel = yLabel;
         this.#yGoal = yGoal;
@@ -79,7 +81,7 @@ export default class LineChart {
         const yMax = Math.max(...ys);
         const yLength = Math.max(...this.#data.flatMap((d) => d.y.length));
 
-        const margin = { t: 64, b: 156, l: 160, r: 64 };
+        const margin = { t: 156, b: 172, l: 172, r: 64 };
 
         const clear = () => {
             const color = getComputedStyle(this.#canvas)
@@ -87,6 +89,14 @@ export default class LineChart {
                 .trim();
             ctx.fillStyle = color;
             ctx.fillRect(0, 0, width, height);
+        };
+
+        const drawTitle = () => {
+            ctx.font = "bold 48px sans-serif";
+            const measure = ctx.measureText(this.#title);
+            const x = width * 0.5 - measure.actualBoundingBoxRight * 0.5;
+            const y = margin.t * 0.5 - measure.actualBoundingBoxDescent * 0.5;
+            ctx.fillText(this.#title, x, y);
         };
 
         const drawGrid = () => {
@@ -137,7 +147,7 @@ export default class LineChart {
                 const x =
                     remap(pct, 0, 1, margin.l, width - margin.r) -
                     measure.actualBoundingBoxRight * 0.5;
-                const y = height - margin.b + 12;
+                const y = height - margin.b;
                 ctx.fillText(valueText, x, y);
             }
         };
@@ -165,14 +175,13 @@ export default class LineChart {
 
         const drawAxes = () => {
             ctx.font = "24px sans-serif";
-            ctx.textBaseline = "top";
-            ctx.fillStyle = "white";
 
             drawXAxis();
             drawYAxis();
         };
 
         const drawLabels = () => {
+            ctx.font = "32px sans-serif";
             ctx.textAlign = "center";
 
             // x-label
@@ -278,9 +287,14 @@ export default class LineChart {
 
         const drawGraph = () => {
             clear();
+
+            ctx.textBaseline = "top";
+            ctx.fillStyle = "white";
+
             drawGrid();
             drawDataLines();
             drawGoals();
+            drawTitle();
             drawAxes();
             drawLabels();
         };

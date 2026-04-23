@@ -243,12 +243,14 @@ function displayResults(results, objective) {
 
     const cpsChart = new LineChart(
         cpsCanvas,
+        "Production Over Time",
         "Time (s)",
         "Production (CpS)",
         objective.type === "production" ? objective.value : null,
     );
     const cookieChart = new LineChart(
         cookieCanvas,
+        "Cookies Over Time",
         "Time (s)",
         "Cookies",
         objective.type === "cookies" ? objective.value : null,
