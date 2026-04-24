@@ -8,6 +8,8 @@ export default class ShortestPaybackPlusSaveUp extends Algorithm {
     static dummy = Algorithm.derived.add({
         name: this.name,
         title: "[Greedy] Shortest Payback (+Save-up)",
+        tooltip:
+            "Purchases the building which has the fastest time to afford and pay itself back.",
         instance: new ShortestPaybackPlusSaveUp(),
     });
 

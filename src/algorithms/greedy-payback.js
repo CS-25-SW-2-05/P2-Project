@@ -9,6 +9,8 @@ export default class ShortestPaybackAfterPurchase extends Algorithm {
     static dummy = Algorithm.derived.add({
         name: this.name,
         title: "[Greedy] Shortest Payback (After Purchase)",
+        tooltip:
+            "Purchases the building which has the fastest time to pay itself back.",
         instance: new ShortestPaybackAfterPurchase(),
     });
 

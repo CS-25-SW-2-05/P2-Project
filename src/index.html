@@ -92,7 +92,9 @@
                             <label for="objective-type">
                                 <p>Objective type</p>
                                 <select id="objective-type">
-                                    <option value="cookies">Cookies</option>
+                                    <option value="cookies">
+                                            Number of Cookies
+                                        </option>
                                     <option value="production">
                                         Production Rate
                                     </option>
@@ -144,6 +146,14 @@
                                 height="1440"
                             ></canvas>
                         </div>
+                        <div class="labels">
+                            <p class="cps-chart-label">Production Over Time</p>
+                            <p class="cookie-chart-label">Cookies Over Time</p>
+                            <p class="building-graph-label">
+                                Building Configuration
+                            </p>
+                        </div>
+                        <br />
                         <div>
                             <table class="result-data">
                                 <thead>
@@ -170,6 +180,8 @@
             <h2>Toast Title</h2>
             <p>Toast Message</p>
         </span>
+
+        <span id="tooltip">Tooltip</span>
 
         <footer></footer>
     </body>
