@@ -81,7 +81,7 @@ export default class LineChart {
         const yMax = Math.max(...ys);
         const yLength = Math.max(...this.#data.flatMap((d) => d.y.length));
 
-        const margin = { t: 156, b: 172, l: 172, r: 64 };
+        const margin = { t: 156, b: 196, l: 256, r: 64 };
 
         const clear = () => {
             const color = getComputedStyle(this.#canvas)
@@ -141,7 +141,7 @@ export default class LineChart {
                 const valueText =
                     value >= 1000
                         ? numberformat.formatShort(value)
-                        : round(value, 1);
+                        : round(value, 0);
                 const measure = ctx.measureText(valueText);
 
                 const x =
@@ -162,7 +162,7 @@ export default class LineChart {
                 const valueText =
                     value >= 1000
                         ? numberformat.formatShort(value)
-                        : round(value, 1);
+                        : round(value, 0);
                 const measure = ctx.measureText(valueText);
 
                 const x = margin.l - measure.actualBoundingBoxRight - 12;
@@ -174,7 +174,7 @@ export default class LineChart {
         };
 
         const drawAxes = () => {
-            ctx.font = "36px sans-serif";
+            ctx.font = "42px sans-serif";
 
             drawXAxis();
             drawYAxis();
@@ -198,9 +198,9 @@ export default class LineChart {
             ctx.restore();
 
             // algorithm labels
-            ctx.font = "32px sans-serif";
+            ctx.font = "42px sans-serif";
             ctx.textAlign = "left";
-            const gap = 24;
+            const gap = 32;
             const labelsWidth =
                 this.#data
                     .flatMap(
