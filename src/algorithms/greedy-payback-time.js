@@ -21,12 +21,16 @@ export default class ShortestPaybackPlusSaveUp extends Algorithm {
 
 		// maximise the cPs before timer runs out:
 		if (objective.type === "fixed-production") {
+			const timeLeft = objective.value - gameState.simulationTime;
 			// Variables for "tracking" the best building (next purchase)
 			let bestBuilding = null;
 			let bestEfficiency = -Infinity; // Starts at -inf, so any positive value is greater
 
 			for (const key in buildings) {
 				const building = buildings[key];
+				// Skip buildings we can't afford to save up for before the deadline
+				const saveUpTime = building.cost / gameState.cps;
+				if (saveUpTime > timeLeft) continue;
 
 				// efficiency calculates: how much CpS you GET divided by how much it COSTS
 
@@ -39,7 +43,12 @@ export default class ShortestPaybackPlusSaveUp extends Algorithm {
 					bestBuilding = building;
 				}
 			}
-			console.log("Decision (fixed-production, Save-Payback): " + bestBuilding?.name);
+			// Nothing affordable within the time budget → wait out the remaining time
+			if (bestBuilding === null) {
+				console.log("Decision (fixed-production, Save-Payback): wait");
+				return new WaitDecision(gameState, Math.ceil(timeLeft));
+			}
+			console.log("Decision (fixed-production, Save-Payback): " + bestBuilding.name);
 
 			// Buy the most effecient building
 			return new PurchaseDecision(gameState, bestBuilding);
@@ -55,6 +64,9 @@ export default class ShortestPaybackPlusSaveUp extends Algorithm {
 
 			for (const key in buildings) {
 				const building = buildings[key];
+				// Skip buildings whose save-up time alone would blow past the deadline
+				const saveUpTime = building.cost / gameState.cps;
+				if (saveUpTime > timeLeft) continue;
 				// How many cookies this building will produce before time runs out
 				const cookiesEarned = building.baseCpS * timeLeft;
 				// How many cookies we still need to save up to afford it

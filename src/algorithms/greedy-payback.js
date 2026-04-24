@@ -23,18 +23,25 @@ export default class ShortestPaybackAfterPurchase extends Algorithm {
 
 		// Maximise CpS by end of time limit: buy the building with the best CpS per cookie spent
 		if (objective.type === "fixed-production") {
+			const timeLeft = objective.value - gameState.simulationTime;
 			let bestBuilding = null;
 			let bestEfficiency = -Infinity;
 
 			for (const key in buildings) {
 				const building = buildings[key];
+				const saveUp = building.cost / gameState.cps;
+				if (saveUp > timeLeft) continue;
 				const efficiency = building.baseCpS / building.cost;
 				if (efficiency > bestEfficiency) {
 					bestEfficiency = efficiency;
 					bestBuilding = building;
 				}
 			}
-			console.log("Decision (fixed-production, Payback): " + bestBuilding?.name);
+			if (bestBuilding === null) {
+				console.log("Decision (fixed-production, Payback): wait");
+				return new WaitDecision(gameState, Math.ceil(timeLeft));
+			}
+			console.log("Decision (fixed-production, Payback): " + bestBuilding.name);
 			return new PurchaseDecision(gameState, bestBuilding);
 		}
 
@@ -47,6 +54,8 @@ export default class ShortestPaybackAfterPurchase extends Algorithm {
 
 			for (const key in buildings) {
 				const building = buildings[key];
+				const saveUp = building.cost / gameState.cps;
+				if (saveUp > timeLeft) continue;
 				const profit = building.baseCpS * timeLeft - building.cost;
 				if (profit > bestProfit) {
 					bestProfit = profit;
