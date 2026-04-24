@@ -200,11 +200,14 @@ export default class LineChart {
             // algorithm labels
             ctx.font = "42px sans-serif";
             ctx.textAlign = "left";
-            const gap = 32;
+            const gap = 36;
             const labelsWidth =
                 this.#data
                     .flatMap(
-                        (d) => ctx.measureText(d.label).actualBoundingBoxRight,
+                        (d) =>
+                            ctx.measureText(
+                                d.label.replace(/\[.*?\]/g, "").trim(),
+                            ).actualBoundingBoxRight,
                     )
                     .reduce((sum, m) => sum + m) +
                 2.5 * gap * (this.#data.length - 1);
@@ -212,7 +215,8 @@ export default class LineChart {
 
             for (let i = 0; i < this.#data.length; i++) {
                 const d = this.#data[i];
-                const measure = ctx.measureText(d.label);
+                const label = d.label.replace(/\[.*?\]/g, "").trim();
+                const measure = ctx.measureText(label);
                 const x = width / 2 - labelsWidth / 2 + labelCurrentOffset;
                 const y = height - measure.actualBoundingBoxDescent - 24;
 
@@ -224,7 +228,7 @@ export default class LineChart {
                     measure.actualBoundingBoxDescent,
                 );
                 ctx.fillStyle = "white";
-                ctx.fillText(d.label, x + 1.5 * gap, y);
+                ctx.fillText(label, x + 1.5 * gap, y);
                 labelCurrentOffset +=
                     measure.actualBoundingBoxRight + 2.5 * gap;
             }
