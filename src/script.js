@@ -10,6 +10,13 @@ import Decision from "./algorithms/decisions/decision.js";
 import GameState from "./cookie-clicker/game-state.js";
 import * as numberformat from "https://esm.sh/swarm-numberformat";
 import LineChart from "./benchmark/line-chart.js";
+import {
+    gameStateToDataset,
+    getBuildingGraphData,
+    getBuildingGraphConfig,
+    updateBuildingGraphPreview,
+    createBuildingChartCanvas,
+} from "./benchmark/building-chart.js";
 import Chart from "https://esm.sh/chart.js/auto";
 
 // References
@@ -63,141 +70,6 @@ function getActiveAlgorithms() {
     return count;
 }
 
-function getBuildingGraphData(results) {
-    // Creating object to contain data and config for buildingGraph
-    const buildingConfigGraphData = {
-        labels: [],
-        datasets: [],
-    };
-
-    // Convert benchmark results into Chart.js format by extracting owned buildings
-    // from the final game state of each algorithm run
-    if (!results) return buildingConfigGraphData;
-
-    // for each algorithm
-    for (const result of results) {
-        // Get the algorithm label
-        const resultLabel = formatLabel(result.algorithm.name);
-
-        // Get the gamestate from the last decision
-        const lastGameState = result.data[result.data.length - 1].gameState;
-
-        // Get the building config from the gamestate
-        const lastBuildingConfig = lastGameState.buildings;
-
-        // Make a list of the number owned og each building in the gamestate
-        const resultData = Object.values(lastBuildingConfig).map(
-            (building) => building.owned,
-        );
-
-        // Construct a list of building name labels, if it hasn't been done already
-        if (buildingConfigGraphData.labels.length === 0) {
-            buildingConfigGraphData.labels =
-                Object.keys(lastBuildingConfig).map(formatLabel);
-        }
-
-        // Push the dataset for the algorithm
-        buildingConfigGraphData.datasets.push({
-            label: resultLabel,
-            data: resultData,
-        });
-    }
-
-    return buildingConfigGraphData;
-}
-
-// Config for buildingChart
-function getBuildingGraphConfig(buildingConfigGraphData, canvas) {
-    return {
-        type: "bar",
-        data: buildingConfigGraphData,
-        options: {
-            responsive: true,
-            animation: false,
-            devicePixelRatio: window.devicePixelRatio,
-            scales: {
-                x: {
-                    ticks: {
-                        color: "white",
-                    },
-                    grid: {
-                        color: getComputedStyle(canvas)
-                            .getPropertyValue("--border")
-                            .trim(),
-                    },
-                },
-                y: {
-                    ticks: {
-                        color: "white",
-                    },
-                    grid: {
-                        color: getComputedStyle(canvas)
-                            .getPropertyValue("--border")
-                            .trim(),
-                    },
-                },
-            },
-            plugins: {
-                title: {
-                    text: "Building configuration",
-                    display: true,
-                    color: "white",
-                    font: {
-                        size: 20,
-                    },
-                },
-                legend: {
-                    labels: {
-                        color: "white",
-                    },
-                },
-            },
-        },
-    };
-}
-
-// Converts a canvas to an image
-function drawCanvasInPreview(sourceCanvas, previewCanvas) {
-    const context = previewCanvas.getContext("2d");
-
-    context.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-    context.drawImage(
-        sourceCanvas,
-        0,
-        0,
-        sourceCanvas.width,
-        sourceCanvas.height,
-        0,
-        0,
-        previewCanvas.width,
-        previewCanvas.height,
-    );
-}
-
-function updateBuildingGraphPreview(buildingConfigGraphData, buildingCanvas) {
-    // Init config for the preview graph
-    const previewGraphConfig = getBuildingGraphConfig(
-        buildingConfigGraphData,
-        buildingCanvas,
-    );
-    previewGraphConfig.options.responsive = false;
-
-    // Create a temp canvas
-    const tempCanvas = document.createElement("canvas");
-
-    // Set the height and width according to rectangle from chartCanvas
-    tempCanvas.width = chartCanvas.width;
-    tempCanvas.height = chartCanvas.height;
-
-    // Create a temp chart
-    const tempChart = new Chart(tempCanvas, previewGraphConfig);
-    tempChart.update();
-
-    // Draw it in the preview canvas
-    drawCanvasInPreview(tempCanvas, buildingCanvas);
-    tempChart.destroy();
-}
-
 /**
  * @param {{
  *   algorithm: Algorithm,
@@ -209,11 +81,82 @@ function updateBuildingGraphPreview(buildingConfigGraphData, buildingCanvas) {
 function displayResults(results, objective) {
     if (results) console.log(results);
 
+    // Set variables for lowest/highest values
+
+    let lowestIterations = Infinity;
+    let lowestIterationTime = Infinity;
+    let lowestBenchmarkTime = Infinity;
+    let lowestSimulationTime = Infinity;
+    let highestCPS = 0;
+    let highestCookies = 0;
+    let highestTotalCookies = 0;
+
+    for (const r of results || []) {
+        const lastData = r.data.at(-1);
+
+        // Update lowest values:
+        // Number of iterations
+        if (r.data.length < lowestIterations) lowestIterations = r.data.length;
+        // Iteration time
+        if ((r.benchmarkTime * 1000) / r.data.length < lowestIterationTime)
+            lowestIterationTime = (r.benchmarkTime * 1000) / r.data.length;
+        // Benchmark time
+        if (r.benchmarkTime < lowestBenchmarkTime)
+            lowestBenchmarkTime = r.benchmarkTime;
+        // Simulation time
+        if (lastData.gameState.simulationTime < lowestSimulationTime)
+            lowestSimulationTime = lastData.gameState.simulationTime;
+
+        // Update highest values:
+        // CPS
+        if (lastData.gameState.buildingCpS > highestCPS)
+            highestCPS = lastData.gameState.buildingCpS;
+        // Cookies
+        if (lastData.gameState.cookies > highestCookies)
+            highestCookies = lastData.gameState.cookies;
+        // Total cookies
+        if (lastData.gameState.totalCookies > highestTotalCookies)
+            highestTotalCookies = lastData.gameState.totalCookies;
+    }
+
     // Table Results
     const tbody = document.querySelector(".result-data > tbody");
     tbody.innerHTML = "";
     for (const r of results || []) {
         const lastData = r.data.at(-1);
+
+        // Calculate percantage from lowest:
+        // Number of iterations
+        const iterationsPercentage =
+            ((r.data.length - lowestIterations) / lowestIterations) * 100;
+        // Iteration time
+        const iterationTimePercentage =
+            (((r.benchmarkTime * 1000) / r.data.length - lowestIterationTime) /
+                lowestIterationTime) *
+            100;
+        // Benchmark time
+        const BenchmarkTimePercentage =
+            ((r.benchmarkTime - lowestBenchmarkTime) / lowestBenchmarkTime) *
+            100;
+        // Simulation time
+        const simulationTimePercentage =
+            ((lastData.gameState.simulationTime - lowestSimulationTime) /
+                lowestSimulationTime) *
+            100;
+
+        // From highest:
+        // Building CPS
+        const cpsPercentage =
+            ((highestCPS - lastData.gameState.buildingCpS) / highestCPS) * 100;
+        // Cookies
+        const cookiesPercentage =
+            ((highestCookies - lastData.gameState.cookies) / highestCookies) *
+            100;
+        // Total cookies
+        const totalCookiesPercentage =
+            ((highestTotalCookies - lastData.gameState.totalCookies) /
+                highestTotalCookies) *
+            100;
 
         tbody.innerHTML += `
         <tr>
@@ -225,13 +168,60 @@ function displayResults(results, objective) {
                     ${r.algorithm.title}
                 </div>
             </td>
-            <td>${numberformat.formatShort(r.data.length)}</td>
-            <td>${round((r.benchmarkTime * 1000) / r.data.length, 1)}</td>
-            <td>${round(r.benchmarkTime, 0)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.simulationTime)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.buildingCpS)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.cookies)}</td>
-            <td>${numberformat.formatShort(lastData.gameState.totalCookies)}</td>
+            <td style="color: ${
+                iterationsPercentage > 0
+                    ? "rgb(255, 150, 150)"
+                    : "rgb(150, 255, 150)"
+            };">
+			${numberformat.formatShort(r.data.length)} 
+			${iterationsPercentage > 0 ? "(+" + Math.round(iterationsPercentage) + "%)" : ""}</td>
+
+            <td style="color: ${
+                iterationTimePercentage > 0
+                    ? "rgb(255, 150, 150)"
+                    : "rgb(150, 255, 150)"
+            };">
+			${round((r.benchmarkTime * 1000) / r.data.length, 1)} 
+			${iterationTimePercentage > 0 ? "(+" + Math.round(iterationTimePercentage) + "%)" : ""}</td>
+
+            <td style="color: ${
+                BenchmarkTimePercentage > 0
+                    ? "rgb(255, 150, 150)"
+                    : "rgb(150, 255, 150)"
+            };">
+			${round(r.benchmarkTime, 0)} 
+			${BenchmarkTimePercentage > 0 ? "(+" + Math.round(BenchmarkTimePercentage) + "%)" : ""}</td>
+
+            <td style="color: ${
+                simulationTimePercentage > 0
+                    ? "rgb(255, 150, 150)"
+                    : "rgb(150, 255, 150)"
+            };">
+			${numberformat.formatShort(lastData.gameState.simulationTime)} 
+			${simulationTimePercentage > 0 ? "(+" + Math.round(simulationTimePercentage) + "%)" : ""}</td>
+
+            <td style="color: ${
+                cpsPercentage > 0 ? "rgb(255, 150, 150)" : "rgb(150, 255, 150)"
+            };">
+			${numberformat.formatShort(lastData.gameState.buildingCpS)} 
+			${cpsPercentage > 0 ? "(-" + Math.round(cpsPercentage) + "%)" : ""}</td>
+
+            <td style="color: ${
+                cookiesPercentage > 0
+                    ? "rgb(255, 150, 150)"
+                    : "rgb(150, 255, 150)"
+            };">
+			${numberformat.formatShort(lastData.gameState.cookies)} 
+			${cookiesPercentage > 0 ? "(-" + Math.round(cookiesPercentage) + "%)" : ""}</td>
+
+            <td style="color: ${
+                totalCookiesPercentage > 0
+                    ? "rgb(255, 150, 150)"
+                    : "rgb(150, 255, 150)"
+            };">
+			${numberformat.formatShort(lastData.gameState.totalCookies)} 
+			${totalCookiesPercentage > 0 ? "(-" + Math.round(totalCookiesPercentage) + "%)" : ""}</td>
+
         </tr>
         `;
     }
