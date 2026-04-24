@@ -129,6 +129,9 @@ export default class Algorithm {
                 decisions,
             );
 
+            let iterations = 0;
+            const awaitIteration = 500;
+
             while (true) {
                 // This now checks, if the objective is completed, and breaks if it is.
                 if (objective.isCompleted(gameState)) {
@@ -174,6 +177,10 @@ export default class Algorithm {
 
                 const gameStateCopy = gameState.copy();
                 data.push({ decision: decision, gameState: gameStateCopy });
+
+                const shouldYield = iterations % awaitIteration === 0;
+                if (shouldYield) await yieldFrame();
+                iterations++;
             }
 
             this.#isRunning = false;

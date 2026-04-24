@@ -198,7 +198,9 @@ export default class BruteForceSegmented extends Algorithm {
         let objectiveWaitTime = 0;
         let cpsPerTime = 0;
         let decision = 0;
+        let iterations = 0;
 
+        const awaitIteration = 500;
         const testPrint = false;
         const isCookies = objective.type === "cookies" ? true : false;
         const permuationLength = permutationArr[0].length;
@@ -442,6 +444,7 @@ export default class BruteForceSegmented extends Algorithm {
                     );
                 }
             }
+
             //console.log(permutationArr[i]);
             //console.log("permutation nr. " + i + " completed");
             /*If this point is reached, the permuation has been calculated and evaluated. 
