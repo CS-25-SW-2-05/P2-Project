@@ -92,7 +92,7 @@ export default class LineChart {
         };
 
         const drawTitle = () => {
-            ctx.font = "bold 48px sans-serif";
+            ctx.font = "bold 64px sans-serif";
             const measure = ctx.measureText(this.#title);
             const x = width * 0.5 - measure.actualBoundingBoxRight * 0.5;
             const y = margin.t * 0.5 - measure.actualBoundingBoxDescent * 0.5;
@@ -174,14 +174,14 @@ export default class LineChart {
         };
 
         const drawAxes = () => {
-            ctx.font = "24px sans-serif";
+            ctx.font = "36px sans-serif";
 
             drawXAxis();
             drawYAxis();
         };
 
         const drawLabels = () => {
-            ctx.font = "32px sans-serif";
+            ctx.font = "42px sans-serif";
             ctx.textAlign = "center";
 
             // x-label
@@ -191,16 +191,14 @@ export default class LineChart {
             ctx.save();
 
             const yMeasure = ctx.measureText(this.#yLabel);
-            ctx.translate(
-                margin.l - yMeasure.actualBoundingBoxDescent - 124,
-                height / 2,
-            );
+            ctx.translate(24, height / 2);
             ctx.rotate(-Math.PI / 2);
             ctx.fillText(this.#yLabel, 0, 0);
 
             ctx.restore();
 
             // algorithm labels
+            ctx.font = "32px sans-serif";
             ctx.textAlign = "left";
             const gap = 24;
             const labelsWidth =
