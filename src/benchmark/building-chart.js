@@ -14,9 +14,7 @@ export function gameStateToDataset(gameState, label) {
     const buildings = gameState.buildings;
 
     // Make a list of the number owned of each building in the gamestate
-    const data = Object.values(buildings).map(
-        building => building.owned,
-    );
+    const data = Object.values(buildings).map((building) => building.owned);
 
     // Construct a list of building name labels
     const labels = Object.keys(buildings).map(formatLabel);
@@ -29,7 +27,6 @@ export function gameStateToDataset(gameState, label) {
 }
 
 export function getBuildingGraphData(results) {
-
     // Creating object to contain data and config for buildingGraph
     const graphData = {
         labels: [],
@@ -42,7 +39,6 @@ export function getBuildingGraphData(results) {
 
     // for each algorithm
     for (const result of results) {
-
         // Get the algorithm label
         const resultLabel = formatLabel(result.algorithm.name);
 
@@ -50,10 +46,7 @@ export function getBuildingGraphData(results) {
         const lastGameState = result.data[result.data.length - 1].gameState;
 
         // Compile dataset
-        const dataset = gameStateToDataset(
-            lastGameState,
-            resultLabel
-        );
+        const dataset = gameStateToDataset(lastGameState, resultLabel);
 
         // Set building labels only on the first run
         if (graphData.labels.length === 0) {
@@ -162,7 +155,10 @@ export function drawCanvasInPreview(sourceCanvas, previewCanvas) {
     );
 }
 
-export function updateBuildingGraphPreview(buildingConfigGraphData, buildingCanvas) {
+export function updateBuildingGraphPreview(
+    buildingConfigGraphData,
+    buildingCanvas,
+) {
     // Init config for the preview graph
     const previewGraphConfig = getBuildingGraphConfig(
         buildingConfigGraphData,

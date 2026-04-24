@@ -45,7 +45,10 @@ export function formatLabel(str) {
     return (
         str
             // Format dum payback directly
-            .replace("ShortestPaybackAfterPurchase", "Shortest Payback (After Purchase)")
+            .replace(
+                "ShortestPaybackAfterPurchase",
+                "Shortest Payback (After Purchase)",
+            )
             // Format smart payback directly
             .replace("ShortestPaybackPlusSaveUp", "Shortest Payback (+Save-up)")
             // snake_case -> space
