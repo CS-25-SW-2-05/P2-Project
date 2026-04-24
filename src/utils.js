@@ -44,17 +44,20 @@ export function formatTime(s) {
 export function formatLabel(str) {
     return (
         str
-            // Tilføj paranteser omkring "After Purchase" i "ShortestPaybackAfterPurchase"
-            .replace("AfterPurchase", " (After Purchase)")
-            // Tilføj paranteser omkring "After Purchase" i "ShortestPaybackAfterPurchase"
-            .replace("PlusSaveup", " (+Save-up)")
-            // snake_case -> mellemrum
+            // Format dum payback directly
+            .replace(
+                "ShortestPaybackAfterPurchase",
+                "Shortest Payback (After Purchase)",
+            )
+            // Format smart payback directly
+            .replace("ShortestPaybackPlusSaveUp", "Shortest Payback (+Save-up)")
+            // snake_case -> space
             .replace(/_/g, " ")
-            // camelCase -> mellemrum
+            // camelCase -> space
             .replace(/([a-z])([A-Z])/g, "$1 $2")
-            // lowercase alt først
+            // firstly, lowercase all
             .toLowerCase()
-            // Capitalize hvert ord
+            // Capitalize every word
             .replace(/\b\w/g, (char) => char.toUpperCase())
     );
 }
