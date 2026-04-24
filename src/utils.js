@@ -38,7 +38,35 @@ export function formatTime(s) {
     remaining -= minutes * secondsInMinute;
     const seconds = Math.floor(remaining);
 
-    return `${years} years ${months} months ${weeks} weeks ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`;
+    // Collect time units in order from largest to smallest
+    const units = [
+        [years, "years"],
+        [months, "months"],
+        [weeks, "weeks"],
+        [days, "days"],
+        [hours, "hours"],
+        [minutes, "minutes"],
+        [seconds, "seconds"],
+    ];
+
+    const result = [];
+
+    // Loop through units and collect the first two non-zero values
+    for (const unit of units) {
+        const value = unit[0];
+        const label = unit[1];
+
+        // Skip units with value 0
+        if (value === 0) continue;
+
+        result.push(value + " " + label);
+
+        // Stop after collecting two units
+        if (result.length === 2) break;
+    }
+
+    // If no units were added, return "0 seconds"
+    return result.length > 0 ? result.join(", ") : "0 seconds";
 }
 
 export function formatLabel(str) {
