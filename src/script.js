@@ -233,12 +233,14 @@ function displayResults(results, objective) {
 
     const cpsChart = new LineChart(
         cpsCanvas,
+        "Production Over Time",
         "Time (s)",
         "Production (CpS)",
         objective.type === "production" ? objective.value : null,
     );
     const cookieChart = new LineChart(
         cookieCanvas,
+        "Cookies Over Time",
         "Time (s)",
         "Cookies",
         objective.type === "cookies" ? objective.value : null,
@@ -395,11 +397,31 @@ for (const algorithm of Algorithm.derived) {
         ].findIndex((i) => i === algorithm.name) !== -1;
     greedyAlgorithmsContainer.innerHTML += `
 		<div>
-			<label for="${algorithm.name}">${algorithm.title}
+			<label for="${algorithm.name}">
+                ${algorithm.title}
+                <a tooltip="${algorithm.tooltip}">
+                    <img src="./images/info.svg" alt="Info" />
+                </a>
 				<input type="checkbox" class="hide" id="${algorithm.name}" name="${algorithm.name}" ${activeByDefault ? "checked" : ""} />
-			</label>
+            </label>
 		</div>
 	`;
+}
+
+const tooltip = document.querySelector("#tooltip");
+const tooltips = document.querySelectorAll("[tooltip]");
+for (const tt of tooltips) {
+    tt.addEventListener("mousemove", (e) => {
+        const text = tt.getAttribute("tooltip");
+        tooltip.innerText = text;
+        tooltip.style.left = e.clientX + 8 + "px";
+        tooltip.style.top = e.clientY + 16 + "px";
+        tooltip.style.display = "block";
+    });
+
+    tt.addEventListener("mouseleave", () => {
+        tooltip.style.display = "none";
+    });
 }
 
 console.log("Algorithms", Algorithm.derived);
