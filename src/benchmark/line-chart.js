@@ -81,7 +81,7 @@ export default class LineChart {
         const yMax = Math.max(...ys);
         const yLength = Math.max(...this.#data.flatMap((d) => d.y.length));
 
-        const margin = { t: 156, b: 196, l: 256, r: 64 };
+        const margin = { t: 156, b: 256, l: 256, r: 128 };
 
         const clear = () => {
             const color = getComputedStyle(this.#canvas)
@@ -185,7 +185,7 @@ export default class LineChart {
             ctx.textAlign = "center";
 
             // x-label
-            ctx.fillText(this.#xLabel, width / 2, height - margin.b + 48);
+            ctx.fillText(this.#xLabel, width / 2, height - margin.b + 64);
 
             // y-label
             ctx.save();
@@ -278,7 +278,7 @@ export default class LineChart {
 
             ctx.strokeStyle = "#ff2056";
             ctx.lineCap = "butt";
-            ctx.setLineDash([32, 32]);
+            ctx.setLineDash([25, 25]);
             ctx.stroke();
             ctx.setLineDash([]);
         };
