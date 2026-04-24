@@ -35,12 +35,15 @@ const benchmarkResults = document.querySelector(".benchmark-results");
 const form = document.querySelector("form");
 /** @type {HTMLButtonElement} */
 const runBtn = form.querySelector("button[type='submit']");
+/** @type {HTMLButtonElement} */
+const stopBtn = document.querySelector("#stop-btn");
 
 const channel = new BroadcastChannel("cookie_timeline");
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
 let isRunning = false;
+let stopRequested = false;
 let selectedCanvas = null;
 
 let mainChart = null;
@@ -427,10 +430,19 @@ for (const tt of tooltips) {
 console.log("Algorithms", Algorithm.derived);
 
 // Subscribe to events
+stopBtn.addEventListener("click", () => {
+    if (!isRunning) return;
+    stopRequested = true;
+    stopBtn.setAttribute("disabled", "disabled");
+    stopBtn.textContent = "Stopping...";
+    show("Stopping", "Benchmark will halt after the current step...");
+});
+
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     isRunning = true;
+    stopRequested = false;
 
     // Read the form and create an Objective instance right when the user clicks "Run"
     const objective = Objective.fromForm();
@@ -442,47 +454,68 @@ form.addEventListener("submit", async (e) => {
     const runBtnText = runBtn.textContent;
     runBtn.textContent = "Running...";
 
+    stopBtn.textContent = "Stop";
+    stopBtn.removeAttribute("disabled");
+
     const buildingLength = buildingLengthInput.valueAsNumber;
     await loadBuildings(buildingLength);
     const baseCpS = clicksPerSecondInput.valueAsNumber;
 
+    const shouldStop = () => stopRequested;
     const results = [];
-    for (const algorithm of Algorithm.derived) {
-        const active =
-            document.querySelector(`#${algorithm.name}:checked`) !== null;
+    try {
+        for (const algorithm of Algorithm.derived) {
+            if (stopRequested) break;
 
-        if (!active) continue;
+            const active =
+                document.querySelector(`#${algorithm.name}:checked`) !== null;
 
-        // Check whether Brute force segmented is selected
-        let isBruteForce = false;
-        if (algorithm.name === `BruteForceSegmented`) {
-            isBruteForce = true;
+            if (!active) continue;
+
+            // Check whether Brute force segmented is selected
+            let isBruteForce = false;
+            if (algorithm.name === `BruteForceSegmented`) {
+                isBruteForce = true;
+            }
+
+            const beforeTime = Date.now();
+            // Start the algorithm run, passing the objective in.
+
+            const data = await algorithm.instance.run(
+                objective,
+                baseCpS,
+                isBruteForce,
+                shouldStop,
+            );
+            const benchmarkTime = Date.now() - beforeTime;
+
+            if (data && data.length > 0) {
+                results.push({
+                    algorithm: algorithm,
+                    benchmarkTime: benchmarkTime,
+                    data: data,
+                });
+            }
         }
 
-        const beforeTime = Date.now();
-        // Start the algorithm run, passing the objective in.
+        if (results.length > 0) {
+            displayResults(results, objective);
+            benchmarkResults.classList.remove("hide");
+        }
 
-        const data = await algorithm.instance.run(
-            objective,
-            baseCpS,
-            isBruteForce,
-        );
-        const benchmarkTime = Date.now() - beforeTime;
+        if (stopRequested) {
+            show("Stopped", "Benchmark was stopped before completion.");
+        }
+    } finally {
+        runBtn.textContent = runBtnText;
+        runBtn.removeAttribute("disabled");
 
-        results.push({
-            algorithm: algorithm,
-            benchmarkTime: benchmarkTime,
-            data: data,
-        });
+        stopBtn.textContent = "Stop";
+        stopBtn.setAttribute("disabled", "disabled");
+
+        isRunning = false;
+        stopRequested = false;
     }
-
-    displayResults(results, objective);
-
-    runBtn.textContent = runBtnText;
-    runBtn.removeAttribute("disabled");
-    benchmarkResults.classList.remove("hide");
-
-    isRunning = false;
 });
 
 form.addEventListener("reset", () => {

@@ -365,7 +365,7 @@ button[type="submit"] {
     border: none;
 }
 
-button[type="stop"] {
+#stop-btn {
 	background-color: var(--destructive);
 	color: var(--secondary-foreground);
 	border: none;
