@@ -96,7 +96,7 @@ export function getBuildingGraphConfig(buildingConfigGraphData, canvas) {
             },
             plugins: {
                 title: {
-                    text: "Building configuration",
+                    text: "Building Configuration",
                     display: true,
                     color: "white",
                     font: {

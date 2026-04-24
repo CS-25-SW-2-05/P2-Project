@@ -439,6 +439,7 @@ kbd {
 }
 
 .greedy-algorithms > div > label {
+    position: relative;
     background-color: var(--accent);
     outline: solid 1px var(--input);
     color: var(--accent-foreground);
@@ -457,8 +458,31 @@ kbd {
     color: var(--primary-foreground);
 }
 
+.greedy-algorithms > div > label > a {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.greedy-algorithms > div > label:has(:checked) img {
+    filter: invert();
+}
+
 #index {
     position: absolute;
     top: 20px;
     right: 20px;
+}
+
+#tooltip {
+    display: none;
+    position: fixed;
+    pointer-events: none;
+    background-color: var(--accent);
+    padding: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    max-width: 320px;
+    hyphens: auto;
 }

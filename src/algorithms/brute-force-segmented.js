@@ -14,6 +14,8 @@ export default class BruteForceSegmented extends Algorithm {
     static dummy = Algorithm.derived.add({
         name: this.name,
         title: "[Brute Force] Segmented",
+        tooltip:
+            "Calculates all paths within a segment and chooses the best path–according to the goal–until the goal is met.",
         instance: new BruteForceSegmented(),
     });
 

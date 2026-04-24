@@ -8,6 +8,7 @@ export default class BuyCheapest extends Algorithm {
     static dummy = Algorithm.derived.add({
         name: this.name,
         title: "[Greedy] Buy Cheapest",
+        tooltip: "Purchases the cheapest building.",
         instance: new BuyCheapest(),
     });
 

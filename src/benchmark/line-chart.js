@@ -20,6 +20,7 @@ export class LineChartData {
 export default class LineChart {
     /** @type {HTMLCanvasElement} */
     #canvas = null;
+    #title = "";
     #data = [];
     #xLabel = "";
     #yLabel = "";
@@ -31,8 +32,9 @@ export default class LineChart {
      * @param {string} xLabel
      * @param {string} yLabel
      */
-    constructor(canvas, xLabel, yLabel, yGoal) {
+    constructor(canvas, title, xLabel, yLabel, yGoal) {
         this.#canvas = canvas;
+        this.#title = title;
         this.#xLabel = xLabel;
         this.#yLabel = yLabel;
         this.#yGoal = yGoal;
@@ -79,7 +81,7 @@ export default class LineChart {
         const yMax = Math.max(...ys);
         const yLength = Math.max(...this.#data.flatMap((d) => d.y.length));
 
-        const margin = { t: 64, b: 156, l: 160, r: 64 };
+        const margin = { t: 156, b: 256, l: 256, r: 128 };
 
         const clear = () => {
             const color = getComputedStyle(this.#canvas)
@@ -87,6 +89,14 @@ export default class LineChart {
                 .trim();
             ctx.fillStyle = color;
             ctx.fillRect(0, 0, width, height);
+        };
+
+        const drawTitle = () => {
+            ctx.font = "bold 64px sans-serif";
+            const measure = ctx.measureText(this.#title);
+            const x = width * 0.5 - measure.actualBoundingBoxRight * 0.5;
+            const y = margin.t * 0.5 - measure.actualBoundingBoxDescent * 0.5;
+            ctx.fillText(this.#title, x, y);
         };
 
         const drawGrid = () => {
@@ -131,13 +141,13 @@ export default class LineChart {
                 const valueText =
                     value >= 1000
                         ? numberformat.formatShort(value)
-                        : round(value, 1);
+                        : round(value, 0);
                 const measure = ctx.measureText(valueText);
 
                 const x =
                     remap(pct, 0, 1, margin.l, width - margin.r) -
                     measure.actualBoundingBoxRight * 0.5;
-                const y = height - margin.b + 12;
+                const y = height - margin.b;
                 ctx.fillText(valueText, x, y);
             }
         };
@@ -152,7 +162,7 @@ export default class LineChart {
                 const valueText =
                     value >= 1000
                         ? numberformat.formatShort(value)
-                        : round(value, 1);
+                        : round(value, 0);
                 const measure = ctx.measureText(valueText);
 
                 const x = margin.l - measure.actualBoundingBoxRight - 12;
@@ -164,40 +174,40 @@ export default class LineChart {
         };
 
         const drawAxes = () => {
-            ctx.font = "24px sans-serif";
-            ctx.textBaseline = "top";
-            ctx.fillStyle = "white";
+            ctx.font = "42px sans-serif";
 
             drawXAxis();
             drawYAxis();
         };
 
         const drawLabels = () => {
+            ctx.font = "42px sans-serif";
             ctx.textAlign = "center";
 
             // x-label
-            ctx.fillText(this.#xLabel, width / 2, height - margin.b + 48);
+            ctx.fillText(this.#xLabel, width / 2, height - margin.b + 64);
 
             // y-label
             ctx.save();
 
             const yMeasure = ctx.measureText(this.#yLabel);
-            ctx.translate(
-                margin.l - yMeasure.actualBoundingBoxDescent - 124,
-                height / 2,
-            );
+            ctx.translate(24, height / 2);
             ctx.rotate(-Math.PI / 2);
             ctx.fillText(this.#yLabel, 0, 0);
 
             ctx.restore();
 
             // algorithm labels
+            ctx.font = "42px sans-serif";
             ctx.textAlign = "left";
-            const gap = 24;
+            const gap = 36;
             const labelsWidth =
                 this.#data
                     .flatMap(
-                        (d) => ctx.measureText(d.label).actualBoundingBoxRight,
+                        (d) =>
+                            ctx.measureText(
+                                d.label.replace(/\[.*?\]/g, "").trim(),
+                            ).actualBoundingBoxRight,
                     )
                     .reduce((sum, m) => sum + m) +
                 2.5 * gap * (this.#data.length - 1);
@@ -205,7 +215,8 @@ export default class LineChart {
 
             for (let i = 0; i < this.#data.length; i++) {
                 const d = this.#data[i];
-                const measure = ctx.measureText(d.label);
+                const label = d.label.replace(/\[.*?\]/g, "").trim();
+                const measure = ctx.measureText(label);
                 const x = width / 2 - labelsWidth / 2 + labelCurrentOffset;
                 const y = height - measure.actualBoundingBoxDescent - 24;
 
@@ -217,7 +228,7 @@ export default class LineChart {
                     measure.actualBoundingBoxDescent,
                 );
                 ctx.fillStyle = "white";
-                ctx.fillText(d.label, x + 1.5 * gap, y);
+                ctx.fillText(label, x + 1.5 * gap, y);
                 labelCurrentOffset +=
                     measure.actualBoundingBoxRight + 2.5 * gap;
             }
@@ -271,16 +282,21 @@ export default class LineChart {
 
             ctx.strokeStyle = "#ff2056";
             ctx.lineCap = "butt";
-            ctx.setLineDash([32, 32]);
+            ctx.setLineDash([25, 25]);
             ctx.stroke();
             ctx.setLineDash([]);
         };
 
         const drawGraph = () => {
             clear();
+
+            ctx.textBaseline = "top";
+            ctx.fillStyle = "white";
+
             drawGrid();
             drawDataLines();
             drawGoals();
+            drawTitle();
             drawAxes();
             drawLabels();
         };
