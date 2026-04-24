@@ -477,7 +477,7 @@ kbd {
 
 #tooltip {
     display: none;
-    position: absolute;
+    position: fixed;
     pointer-events: none;
     background-color: var(--accent);
     padding: 12px;
