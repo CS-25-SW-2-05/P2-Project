@@ -580,9 +580,8 @@ chartCanvas.addEventListener("click", () => {
     else {
         zoomedChart = chartCanvas.cloneNode();
         zoomedChart.removeAttribute("id");
+        zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
     }
-
-    zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
 
     // Display the zoomed graph
     document.body.appendChild(zoomedChart);

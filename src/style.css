@@ -127,15 +127,21 @@ canvas {
     border-radius: var(--radius-md);
 }
 
+canvas:hover {
+    cursor: zoom-in;
+}
+
 canvas.zoomed {
     position: fixed;
     left: 50%;
     top: 50%;
     translate: -50% -50%;
+    z-index: 100;
     width: auto;
     height: auto;
     max-height: calc(100% - 48px);
     max-width: calc(100% - 48px);
+    cursor: zoom-out;
 }
 
 .previews {
