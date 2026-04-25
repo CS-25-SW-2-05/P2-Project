@@ -218,13 +218,15 @@ section {
     translate: -50% -50%;
     z-index: 100;
     width: calc(100% - 48px);
-    height: auto;
-    max-height: calc(100% - 48px);
+    height: 100%;
+    max-height: 100%;
     max-width: calc(100% - 48px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 #chart {
-    max-height: 55vh;
+    max-height: 50vh;
     object-fit: contain;
 }
 

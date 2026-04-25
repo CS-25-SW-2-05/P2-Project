@@ -52,6 +52,7 @@ let buildingGraph = null;
 let latestBuildingGraphConfig = null;
 let buildingGraphIsSelected = false;
 let isZoomedChartDisplayed = false;
+let resultSectionIsExpanded = false;
 
 // Functions
 function updateForm() {
@@ -609,8 +610,16 @@ chartCanvas.addEventListener("click", () => {
 
 // Expand result section
 expandButton.addEventListener("click", () => {
+    // Toggle wether the section is expended
+    resultSectionIsExpanded = !resultSectionIsExpanded;
+
+    // Mark resultsection class as expanded
     resultSection.classList.toggle("expanded");
-    inputForm.classList.toggle("hide");
+
+    // Hide input form if result section is expanded
+    if (resultSectionIsExpanded) inputForm.classList.add("hide");
+    // Otherwise, show it
+    else inputForm.classList.remove("hide");
 });
 
 form.addEventListener("change", updateForm);
