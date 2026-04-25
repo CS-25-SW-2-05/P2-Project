@@ -40,6 +40,9 @@ const channel = new BroadcastChannel("cookie_timeline");
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
+const resultSection = document.querySelector(".results-section");
+const expandButton = document.querySelector(".expand-btn");
+
 let isRunning = false;
 let selectedCanvas = null;
 
@@ -215,7 +218,7 @@ function displayResults(results, objective) {
                 ${formatFactorDifference(simulationTimeFactor)}</td>
 
                 <td style="color: ${getStatColor(r.benchmarkTime, lowestBenchmarkTime, highestBenchmarkTime)};">
-                ${round(r.benchmarkTime, 0)} 
+                ${round(r.benchmarkTime, 0)}ms 
                 ${formatFactorDifference(benchmarkTimeFactor)}</td>
 
                 <td style="color: ${getStatColor(r.data.length, lowestIterations, highestIterations)};">
@@ -223,7 +226,7 @@ function displayResults(results, objective) {
                 ${formatFactorDifference(iterationsFactor)}</td>
     
                 <td style="color: ${getStatColor(iterationTime, lowestIterationTime, highestIterationTime)};">
-                ${round(iterationTime, 1)} 
+                ${round(iterationTime, 1)}μs 
                 ${formatFactorDifference(iterationTimeFactor)}</td>
     
                 <td style="color: ${getStatColor(lastData.gameState.buildingCpS, highestCPS, lowestCPS)};">
@@ -594,6 +597,13 @@ chartCanvas.addEventListener("click", () => {
         // Update zoomed chart display status
         isZoomedChartDisplayed = false;
     });
+});
+
+// Expand results
+expandButton.addEventListener("click", () => {
+    resultSection.classList.toggle("expanded");
+    const inputForm = document.querySelector(".input-form");
+    inputForm.classList.toggle("hide");
 });
 
 form.addEventListener("change", updateForm);

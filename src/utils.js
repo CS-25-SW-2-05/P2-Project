@@ -40,13 +40,13 @@ export function formatTime(s) {
 
     // Collect time units in order from largest to smallest
     const units = [
-        [years, "years"],
-        [months, "months"],
-        [weeks, "weeks"],
-        [days, "days"],
-        [hours, "hours"],
-        [minutes, "minutes"],
-        [seconds, "seconds"],
+        [years, "y"],
+        [months, "mon"],
+        [weeks, "w"],
+        [days, "d"],
+        [hours, "h"],
+        [minutes, "m"],
+        [seconds, "s"],
     ];
 
     const result = [];
@@ -59,14 +59,14 @@ export function formatTime(s) {
         // Skip units with value 0
         if (value === 0) continue;
 
-        result.push(value + " " + label);
+        result.push(value + "" + label);
 
         // Stop after collecting two units
         if (result.length === 2) break;
     }
 
     // If no units were added, return "0 seconds"
-    return result.length > 0 ? result.join(", ") : "0 seconds";
+    return result.length > 0 ? result.join(" ") : "0 seconds";
 }
 
 export function formatLabel(str) {

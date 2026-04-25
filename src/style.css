@@ -184,6 +184,47 @@ section {
     margin-bottom: 1.5rem;
 }
 
+.results-section {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Knap */
+.expand-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+
+    background: var(--accent);
+    border: 1px solid var(--border);
+    color: white;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+}
+
+/* Expanded (full width) */
+.results-section.expanded {
+    max-width: none;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+}
+
+#chart {
+    max-height: 55vh;
+    object-fit: contain;
+}
+
+.previews {
+    max-height: 120px;
+}
+
+.previews > canvas {
+    max-height: 100px;
+}
+
 h2 {
     font-size: 12px;
     font-weight: bold;
