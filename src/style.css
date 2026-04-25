@@ -206,10 +206,13 @@ section {
 }
 
 /* Expanded (full width) */
-.results-section.expanded {
+.benchmark-results:has(.results-section.expanded) {
     max-width: none;
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
+}
+
+.results-section.expanded {
+    width: calc(100% - 48px);
+    max-width: none;
 }
 
 #chart {

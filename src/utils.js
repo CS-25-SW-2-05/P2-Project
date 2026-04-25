@@ -15,7 +15,17 @@ export function remap(value, srcMin, srcMax, destMin, destMax) {
 
 export const yieldFrame = () => new Promise((r) => requestAnimationFrame(r));
 
-export function formatTime(s) {
+export function formatTime(time, base) {
+    // Support us and ms
+    if (base === "ms") {
+        if (time < 1000) return `${round(time, 1)}ms`;
+        time = time / 1000;
+    } else if (base === "us") {
+        if (time < 1000) return `${round(time, 0)}µs`;
+        if (time < 1_000_000) return `${round(time / 1000, 1)}ms`;
+        time = time / 1_000_000;
+    }
+
     const secondsInMinute = 60;
     const secondsInHour = secondsInMinute * 60;
     const secondsInDay = secondsInHour * 24;
@@ -23,7 +33,7 @@ export function formatTime(s) {
     const secondsInYear = secondsInDay * 365.25;
     const secondsInMonth = secondsInYear / 12;
 
-    let remaining = s;
+    let remaining = time;
     const years = Math.floor(remaining / secondsInYear);
     remaining -= years * secondsInYear;
     const months = Math.floor(remaining / secondsInMonth);
@@ -36,7 +46,7 @@ export function formatTime(s) {
     remaining -= hours * secondsInHour;
     const minutes = Math.floor(remaining / secondsInMinute);
     remaining -= minutes * secondsInMinute;
-    const seconds = Math.floor(remaining);
+    const seconds = round(remaining, 2);
 
     // Collect time units in order from largest to smallest
     const units = [

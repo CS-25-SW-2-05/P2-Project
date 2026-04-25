@@ -209,16 +209,16 @@ function displayResults(results, objective) {
                         <a>
                             <img src="./images/open_in_new.svg" alt="Open in New" />
                         </a>
-                        ${r.algorithm.title}
+                        ${r.algorithm.title.replace("[Greedy]", "")}
                     </div>
                 </td>
                 
                 <td style="color: ${getStatColor(lastData.gameState.simulationTime, lowestSimulationTime, highestSimulationTime)};">
-                ${formatTime(lastData.gameState.simulationTime)} 
+                ${formatTime(lastData.gameState.simulationTime, "s")} 
                 ${formatFactorDifference(simulationTimeFactor)}</td>
 
                 <td style="color: ${getStatColor(r.benchmarkTime, lowestBenchmarkTime, highestBenchmarkTime)};">
-                ${round(r.benchmarkTime, 0)}ms 
+                ${formatTime(round(r.benchmarkTime, 0), "ms")} 
                 ${formatFactorDifference(benchmarkTimeFactor)}</td>
 
                 <td style="color: ${getStatColor(r.data.length, lowestIterations, highestIterations)};">
@@ -226,7 +226,7 @@ function displayResults(results, objective) {
                 ${formatFactorDifference(iterationsFactor)}</td>
     
                 <td style="color: ${getStatColor(iterationTime, lowestIterationTime, highestIterationTime)};">
-                ${round(iterationTime, 1)}μs 
+                ${formatTime(iterationTime, "us")} 
                 ${formatFactorDifference(iterationTimeFactor)}</td>
     
                 <td style="color: ${getStatColor(lastData.gameState.buildingCpS, highestCPS, lowestCPS)};">
@@ -599,7 +599,7 @@ chartCanvas.addEventListener("click", () => {
     });
 });
 
-// Expand results
+// Expand result section
 expandButton.addEventListener("click", () => {
     resultSection.classList.toggle("expanded");
     const inputForm = document.querySelector(".input-form");
