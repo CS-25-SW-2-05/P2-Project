@@ -212,8 +212,15 @@ section {
 }
 
 .results-section.expanded {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    z-index: 100;
     width: calc(100% - 48px);
-    max-width: none;
+    height: auto;
+    max-height: calc(100% - 48px);
+    max-width: calc(100% - 48px);
 }
 
 #chart {
