@@ -41,7 +41,7 @@ const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
 const resultSection = document.querySelector(".results-section");
-const expandButton = document.querySelector(".expand-btn");
+const expandButton = document.querySelector(".expand-button");
 
 let isRunning = false;
 let selectedCanvas = null;
@@ -49,7 +49,7 @@ let selectedCanvas = null;
 let mainChart = null;
 let buildingGraph = null;
 let latestBuildingGraphConfig = null;
-let isBuildingGraphSelected = false;
+let buildingGraphIsSelected = false;
 let isZoomedChartDisplayed = false;
 
 // Functions
@@ -533,7 +533,7 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
         // If the canvas is the building-graph, then draw chart
         if (canvas.id === "building-graph") {
             // Update buildingGraphSelected
-            isBuildingGraphSelected = true;
+            buildingGraphIsSelected = true;
 
             mainChart = new Chart(chartCanvas, {
                 ...latestBuildingGraphConfig,
@@ -547,7 +547,7 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
         }
 
         // Update buildingGraphSelected
-        isBuildingGraphSelected = false;
+        buildingGraphIsSelected = false;
 
         // Else draw image
         chartContext.drawImage(canvas, 0, 0);
@@ -567,7 +567,7 @@ chartCanvas.addEventListener("click", () => {
     isZoomedChartDisplayed = true;
 
     // Special handling for the buildingGraph bar chart
-    if (isBuildingGraphSelected) {
+    if (buildingGraphIsSelected) {
         // Create a new empty canvas element
         zoomedChart = document.createElement("canvas");
 
