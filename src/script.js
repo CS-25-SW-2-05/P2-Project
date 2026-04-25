@@ -42,6 +42,7 @@ const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
 const resultSection = document.querySelector(".results-section");
 const expandButton = document.querySelector(".expand-button");
+const inputForm = document.querySelector(".input-form");
 
 let isRunning = false;
 let selectedCanvas = null;
@@ -583,6 +584,10 @@ chartCanvas.addEventListener("click", () => {
         zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
     }
 
+    // Hide input form and result section when displaying zoomed chart
+    inputForm.classList.add("hide");
+    resultSection.classList.add("hide");
+
     // Display the zoomed graph
     document.body.appendChild(zoomedChart);
 
@@ -590,6 +595,10 @@ chartCanvas.addEventListener("click", () => {
 
     // Add event listener to remove zoomed chart
     zoomedChart.addEventListener("click", () => {
+        // Show input form when closing zoomed chart
+        inputForm.classList.remove("hide");
+        resultSection.classList.remove("hide");
+
         // Remove zoomed chart
         zoomedChart.remove();
 
@@ -601,7 +610,6 @@ chartCanvas.addEventListener("click", () => {
 // Expand result section
 expandButton.addEventListener("click", () => {
     resultSection.classList.toggle("expanded");
-    const inputForm = document.querySelector(".input-form");
     inputForm.classList.toggle("hide");
 });
 
