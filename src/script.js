@@ -44,7 +44,6 @@ let isRunning = false;
 let selectedCanvas = null;
 
 let mainChart = null;
-let buildingGraph = null;
 let latestBuildingGraphConfig = null;
 let isBuildingGraphSelected = false;
 let isZoomedChartDisplayed = false;
@@ -251,11 +250,6 @@ function displayResults(results, objective) {
     if (mainChart) {
         mainChart.destroy();
         mainChart = null;
-    }
-
-    if (buildingGraph) {
-        buildingGraph.destroy();
-        buildingGraph = null;
     }
 
     // Get building graph data from results
