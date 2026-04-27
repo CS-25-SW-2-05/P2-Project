@@ -116,6 +116,7 @@ footer {
     display: flex;
     gap: 12px;
     justify-content: center;
+    align-items: center;
     padding: 12px;
 }
 
@@ -344,11 +345,6 @@ button {
     transition-property: opacity, filter;
 }
 
-button:has(> img) {
-    display: inline-flex;
-    padding: 0px;
-}
-
 button:hover:not(:disabled) {
     filter: brightness(0.9);
 }
@@ -485,4 +481,26 @@ kbd {
     border: 1px solid var(--border);
     max-width: 320px;
     hyphens: auto;
+}
+
+#tests {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.test {
+    display: flex;
+    width: fit-content;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    padding: 12px;
+}
+
+.test button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px;
 }
