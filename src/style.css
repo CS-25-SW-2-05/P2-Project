@@ -135,7 +135,7 @@ canvas {
     border-radius: var(--radius-md);
 }
 
-canvas:hover {
+.zoom {
     cursor: zoom-in;
 }
 
