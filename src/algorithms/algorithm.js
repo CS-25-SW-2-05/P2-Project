@@ -124,7 +124,7 @@ export default class Algorithm {
             console.log(decisions);
 
             // Find the solution with the brute force segmented algorithm
-            const solutionArr = this.getBruteForceSegmentedSolution(
+            const solutionArr = await this.getBruteForceSegmentedSolution(
                 objective,
                 decisions,
             );
