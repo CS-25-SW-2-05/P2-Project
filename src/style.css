@@ -167,7 +167,8 @@ canvas.zoomed {
     gap: 4px;
     grid-template-columns: repeat(5, 1fr);
     text-align: center;
-    font-size: 14px;
+    font-size: 12px;
+    white-space: nowrap;
 }
 
 hr {
