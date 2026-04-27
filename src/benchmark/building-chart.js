@@ -128,11 +128,14 @@ export function createBuildingChartCanvas(gameState) {
     };
 
     const canvas = document.createElement("canvas");
+    canvas.width = 1280;
+    canvas.height = 720;
 
     const config = getBuildingGraphConfig(graphData, canvas);
     config.options.responsive = false;
 
     new Chart(canvas, config);
+    canvas.style = "";
 
     return canvas;
 }
