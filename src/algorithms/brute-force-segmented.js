@@ -188,7 +188,7 @@ export default class BruteForceSegmented extends Algorithm {
 
             if (progressPrint) {
                 if (i % Math.floor(permutationArr.length / 4) === 0) {
-                    const progress = Math.floor(
+                    const progress = Math.ceil(
                         (i / permutationArr.length) * 100,
                     );
                     console.log(`Segment solution progress: ` + progress + `%`);
