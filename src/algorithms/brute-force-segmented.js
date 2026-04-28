@@ -270,6 +270,16 @@ export default class BruteForceSegmented extends Algorithm {
             }
             // the permuation has now been performed and must now be evaluated
 
+            /**if the new permutation has the exact same decisions and order as
+             * the last permutation, it can be skipped */
+            if (
+                i > 0 &&
+                permutationArr[i].toString() ===
+                    permutationArr[i - 1].toString()
+            ) {
+                continue;
+            }
+
             objectiveWaitTime =
                 currentGameState.simulationTime +
                 (objective.value - currentGameState.cookies) /
@@ -318,7 +328,7 @@ export default class BruteForceSegmented extends Algorithm {
                     bestSolution[0][bestSolution[0].length - 1] ===
                         decisions.length - 1
                 ) {
-                    if (tempSolution[3] <= bestSolution[3]) {
+                    if (tempSolution[3] < bestSolution[3]) {
                         bestSolution[0] = tempSolution[0];
                         bestSolution[1] = tempSolution[1];
                         bestSolution[2] = tempSolution[2];
@@ -335,7 +345,7 @@ export default class BruteForceSegmented extends Algorithm {
                     continue;
                 }
 
-                if (tempSolution[1] >= bestSolution[1]) {
+                if (tempSolution[1] > bestSolution[1]) {
                     bestSolution[0] = tempSolution[0];
                     bestSolution[1] = tempSolution[1];
                     bestSolution[2] = tempSolution[2];
@@ -363,7 +373,7 @@ export default class BruteForceSegmented extends Algorithm {
                 currentGameState.buildingCpS < objective.value
             ) {
                 //console.log(tempSolution[2] + "s vs. " + bestSolution[2] + "s")
-                if (tempSolution[2] <= bestSolution[2]) {
+                if (tempSolution[2] < bestSolution[2]) {
                     //console.log(tempSolution[2] + "s is smaller or equal to " + bestSolution[2] + "s");
                     bestSolution[0] = tempSolution[0];
                     bestSolution[1] = tempSolution[1];
@@ -384,7 +394,7 @@ export default class BruteForceSegmented extends Algorithm {
                 continue;
             }
 
-            if (tempSolution[1] >= bestSolution[1]) {
+            if (tempSolution[1] > bestSolution[1]) {
                 //console.log(tempSolution[1] + " cps/time vs. " + bestSolution[1] + " cps/time");
                 //console.log(tempSolution[1] + " is bigger or equal to " + bestSolution[1]);
                 bestSolution[0] = tempSolution[0];
@@ -459,8 +469,8 @@ export default class BruteForceSegmented extends Algorithm {
                     segmentSolutionData[1].buildingCpS
                 ) {
                     throw new Error(
-                        `Best solution game state is somehow lower or equal to the last, 
-			                indicating inconsistency in game state`,
+                        `Best solution game state is somehow lower than last iteration, 
+			                indicating inconsistency in game state transfer`,
                     );
                 }
 
@@ -517,8 +527,8 @@ export default class BruteForceSegmented extends Algorithm {
                 segmentSolutionData[1].buildingCpS
             ) {
                 throw new Error(
-                    `Best solution game state is somehow lower than last, 
-			                indicating inconsistency in game state`,
+                    `Best solution game state is somehow lower than last iteration, 
+			                indicating inconsistency in game state transfer`,
                 );
             }
 
