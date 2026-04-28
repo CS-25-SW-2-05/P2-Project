@@ -72,7 +72,7 @@ export default class BruteForceSegmented extends Algorithm {
             for (let i = 0; i < permutation.length; i++) {
                 permutationArr[permutationNumber].push(permutation[i]);
             }
-            //console.log(permutationArr[permutationNumber]);
+
             if (permutation.every((p) => p === S - 1)) {
                 break;
             }
@@ -81,16 +81,10 @@ export default class BruteForceSegmented extends Algorithm {
             if (shouldYield) await yieldFrame();
 
             permutationNumber++;
-            //console.log(permutationArr);
-            //console.log([i, j, k, l, m])
             permutation[permutation.length - 1]++;
         }
         return permutationArr;
     }
-    /*
-    comparePermuationsProduction() {}
-
-    comparePermuationsCookies() {}*/
 
     /**function checks if the total JS heap size is bigger than
      * the memory limit margin. THIS ONLY WORKS WITH CHROMIUM BROWSERS!!!
@@ -130,7 +124,6 @@ export default class BruteForceSegmented extends Algorithm {
             { length: Math.pow(decisions.length, segmentedSearchDepth) },
             () => [],
         );
-        //console.log(permutationArr);
 
         // memory size limit is saved with a margin of 10%
         const memoryLimit = performance.memory.jsHeapSizeLimit * 0.9;
@@ -215,9 +208,6 @@ export default class BruteForceSegmented extends Algorithm {
                             permutationArr[i].pop();
                         }
                         permutationArr[i].push(Number(decisions.length));
-                        //console.log("point 1 reached: " + permutationArr[i]);
-                        //console.log(currentGameState);
-                        //console.log("cps: " + currentGameState.cps);
                         break;
                     }
 
@@ -244,7 +234,6 @@ export default class BruteForceSegmented extends Algorithm {
                         permutationArr[i].pop();
                     }
 
-                    //console.log(permutationArr[i]);
                     break;
                 }
 
@@ -372,17 +361,12 @@ export default class BruteForceSegmented extends Algorithm {
                     decisions.length ||
                 currentGameState.buildingCpS < objective.value
             ) {
-                //console.log(tempSolution[2] + "s vs. " + bestSolution[2] + "s")
                 if (tempSolution[2] < bestSolution[2]) {
-                    //console.log(tempSolution[2] + "s is smaller or equal to " + bestSolution[2] + "s");
                     bestSolution[0] = tempSolution[0];
                     bestSolution[1] = tempSolution[1];
                     bestSolution[2] = tempSolution[2];
                     bestSolution[3] = tempSolution[3];
-                    //console.log(tempSolution[0]);
                     bestSolutionGameState = currentGameState.copy();
-                    //console.log("Best solution buildings: ");
-                    //logBuildingStats(bestSolutionGameState.buildings);
                     if (testPrint) {
                         console.log(
                             `Temp BEST segment solution:`,
@@ -395,15 +379,11 @@ export default class BruteForceSegmented extends Algorithm {
             }
 
             if (tempSolution[1] > bestSolution[1]) {
-                //console.log(tempSolution[1] + " cps/time vs. " + bestSolution[1] + " cps/time");
-                //console.log(tempSolution[1] + " is bigger or equal to " + bestSolution[1]);
                 bestSolution[0] = tempSolution[0];
                 bestSolution[1] = tempSolution[1];
                 bestSolution[2] = tempSolution[2];
                 bestSolution[3] = tempSolution[3];
                 bestSolutionGameState = currentGameState.copy();
-                //console.log("Best solution buildings: ");
-                //logBuildingStats(bestSolutionGameState.buildings);
                 if (testPrint) {
                     console.log(
                         `Temp BEST segment solution:`,
@@ -411,9 +391,11 @@ export default class BruteForceSegmented extends Algorithm {
                     );
                 }
             }
+
             /*If this point is reached, the permuation has been calculated and evaluated. 
             The algorithm will now move onto the next permuation, if there are more left */
         }
+
         /*When this point is reached, all permuations have been evaluated, 
         and the best solution has been found */
         if (testPrint) {
@@ -427,9 +409,6 @@ export default class BruteForceSegmented extends Algorithm {
 
     // connects the segmented solutions together and returns the final solution
     async getBruteForceSegmentedSolution(objective, decisions) {
-        /*if (objective.type !== "production") {
-            throw new Error(`Brute force only works with production objective`);
-        }*/
         let endMarker = 0;
         let totalSimulationTime = 0;
         let segmentSolutionData = [];
