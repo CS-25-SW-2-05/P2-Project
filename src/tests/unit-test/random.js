@@ -1,8 +1,8 @@
-import Test from "./test.js";
+import UnitTest from "./unit-test.js";
 import { sleep } from "../../utils.js";
 
-export default class RandomTest extends Test {
-    static dummy = Test.derived.add({
+export default class RandomTest extends UnitTest {
+    static dummy = UnitTest.derived.add({
         name: this.name,
         title: "Random",
         instance: new RandomTest(),

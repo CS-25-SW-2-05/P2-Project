@@ -1,5 +1,5 @@
-import Test from "./test/test.js";
-import "./test/random.js";
+import UnitTest from "./unit-test/unit-test.js";
+import "./unit-test/random.js";
 
 const testsWrapper = document.querySelector("#tests");
 const runAllBtn = document.querySelector("#run-all");
@@ -18,7 +18,7 @@ async function run(data) {
     return result;
 }
 
-for (const test of Test.derived) {
+for (const test of UnitTest.derived) {
     const template = document.createElement("template");
     template.innerHTML = `
         <section class="test">

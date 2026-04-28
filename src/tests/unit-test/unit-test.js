@@ -1,4 +1,4 @@
-export default class Test {
+export default class UnitTest {
     static derived = new Set();
 
     run() {
