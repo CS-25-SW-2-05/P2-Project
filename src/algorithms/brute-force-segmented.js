@@ -92,10 +92,14 @@ export default class BruteForceSegmented extends Algorithm {
     getMemoryStatus(memoryLimit) {
         // toggle on or off
         const memoryLimitActive = true;
-        if (memoryLimitActive) {
-            if (performance.memory.totalJSHeapSize >= memoryLimit * 0.9) {
-                throw new Error("Memory limit reached");
+        try {
+            if (memoryLimitActive) {
+                if (performance.memory.totalJSHeapSize >= memoryLimit * 0.9) {
+                    throw new Error("Memory limit reached");
+                }
             }
+        } catch {
+            return;
         }
     }
 
@@ -113,6 +117,7 @@ export default class BruteForceSegmented extends Algorithm {
                 Math.pow(decisions.length, segmentedSearchDepth),
         );
 
+        // hard-coded permutation limit to stop out of memory errors
         if (Math.pow(decisions.length, segmentedSearchDepth) >= 10000000) {
             throw new Error(
                 "The number of permuations is too high. Try lowering the brute force horizon or the number of buildings",
@@ -125,10 +130,16 @@ export default class BruteForceSegmented extends Algorithm {
             () => [],
         );
 
-        // memory size limit is saved with a margin of 10%
-        const memoryLimit = performance.memory.jsHeapSizeLimit * 0.9;
+        let memoryLimit = 0;
 
-        // finds all decision permutations and puts them into decisionArr
+        /**memory size limit is saved with a margin of 10%.
+         * If the browser does not support performance.memory.jsHeapSizeLimit it moves on
+         */
+        try {
+            memoryLimit = performance.memory.jsHeapSizeLimit * 0.9;
+        } catch {}
+
+        // finds all decision permutations and saves them to permutationArr
         permutationArr = await this.getAllDecisionPermutations(
             permutationArr,
             decisions,
@@ -269,10 +280,25 @@ export default class BruteForceSegmented extends Algorithm {
                 continue;
             }
 
-            objectiveWaitTime =
-                currentGameState.simulationTime +
-                (objective.value - currentGameState.cookies) /
-                    currentGameState.cps;
+            /**The objective wait time is the time until the cookie objective is met
+             * plus the simulationTime of the permuation. If the permuation already has
+             * a wait decision, then the objective wait time is already included in the
+             * simulationTime variable.
+             */
+            if (
+                tempSolution[0][tempSolution[0].length - 1] ===
+                decisions.length - 1
+            ) {
+                objectiveWaitTime =
+                    currentGameState.simulationTime -
+                    referenceGameState.simulationTime;
+            } else {
+                objectiveWaitTime =
+                    currentGameState.simulationTime -
+                    referenceGameState.simulationTime +
+                    (objective.value - currentGameState.cookies) /
+                        currentGameState.cps;
+            }
 
             cpsPerTime =
                 (currentGameState.buildingCpS -
@@ -293,7 +319,7 @@ export default class BruteForceSegmented extends Algorithm {
                 console.log(currentGameState);
             }
 
-            // first permutation is the best one since there are no others to compare to yet
+            // first permutation is the best one, since there are no others to compare to yet
             if (i === 0) {
                 bestSolution[0] = tempSolution[0];
                 bestSolution[1] = tempSolution[1];
@@ -317,6 +343,7 @@ export default class BruteForceSegmented extends Algorithm {
                     bestSolution[0][bestSolution[0].length - 1] ===
                         decisions.length - 1
                 ) {
+                    // lowest objectiveWaitTime
                     if (tempSolution[3] < bestSolution[3]) {
                         bestSolution[0] = tempSolution[0];
                         bestSolution[1] = tempSolution[1];
@@ -334,6 +361,7 @@ export default class BruteForceSegmented extends Algorithm {
                     continue;
                 }
 
+                // highest cpsPerTime
                 if (tempSolution[1] > bestSolution[1]) {
                     bestSolution[0] = tempSolution[0];
                     bestSolution[1] = tempSolution[1];
@@ -361,6 +389,7 @@ export default class BruteForceSegmented extends Algorithm {
                     decisions.length ||
                 currentGameState.buildingCpS < objective.value
             ) {
+                // lowest simulationTime
                 if (tempSolution[2] < bestSolution[2]) {
                     bestSolution[0] = tempSolution[0];
                     bestSolution[1] = tempSolution[1];
@@ -378,6 +407,7 @@ export default class BruteForceSegmented extends Algorithm {
                 continue;
             }
 
+            // highest cpsPerTime
             if (tempSolution[1] > bestSolution[1]) {
                 bestSolution[0] = tempSolution[0];
                 bestSolution[1] = tempSolution[1];
