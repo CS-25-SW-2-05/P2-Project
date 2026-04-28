@@ -22,7 +22,7 @@
 
         <div class="wrapper">
             <main>
-                <form>
+                <form class="input-form">
                     <section>
                         <h2>Algorithm Selection</h2>
                         <div class="field">
@@ -124,9 +124,15 @@
                     </div>
                 </form>
                 <div class="benchmark-results hide">
-                    <section>
+                    <section class="results-section">
+                        <button class="expand-button">⤢</button>
                         <h2>Results</h2>
-                        <canvas id="chart" width="2560" height="1440"></canvas>
+                        <canvas
+                            id="chart"
+                            class="zoom"
+                            width="2560"
+                            height="1440"
+                        ></canvas>
                         <div class="previews">
                             <canvas
                                 id="cps-chart"
@@ -157,10 +163,10 @@
                                 <thead>
                                     <tr>
                                         <th>Algorithm</th>
+                                        <th>Simulation Time</th>
+                                        <th>Benchmark Time</th>
                                         <th>Iterations</th>
-                                        <th>Iteration Time (μs)</th>
-                                        <th>Benchmark Time (ms)</th>
-                                        <th>Simulation Time (s)</th>
+                                        <th>Iteration Time</th>
                                         <th>CpS</th>
                                         <th>Cookies</th>
                                         <th>Total Cookies</th>

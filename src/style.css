@@ -74,6 +74,10 @@ body {
     height: 100%;
 }
 
+body:has(footer) main {
+    padding-bottom: 64px;
+}
+
 header {
     display: flex;
     justify-content: center;
@@ -113,9 +117,14 @@ main {
 }
 
 footer {
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+    background-color: var(--background);
     display: flex;
     gap: 12px;
     justify-content: center;
+    align-items: center;
     padding: 12px;
 }
 
@@ -127,7 +136,7 @@ canvas {
     border-radius: var(--radius-md);
 }
 
-canvas:hover {
+.zoom {
     cursor: zoom-in;
 }
 
@@ -136,6 +145,7 @@ canvas.zoomed {
     left: 50%;
     top: 50%;
     translate: -50% -50%;
+    z-index: 100;
     width: auto;
     height: auto;
     max-height: calc(100% - 48px);
@@ -159,7 +169,8 @@ canvas.zoomed {
     gap: 4px;
     grid-template-columns: repeat(5, 1fr);
     text-align: center;
-    font-size: 14px;
+    font-size: 12px;
+    white-space: nowrap;
 }
 
 hr {
@@ -182,6 +193,66 @@ section {
     border-radius: var(--radius);
     padding: 1.25rem 1.5rem;
     margin-bottom: 1.5rem;
+}
+
+.results-section {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Expand button */
+.expand-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+
+    background: var(--accent);
+    border: 1px solid var(--border);
+    color: white;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+}
+
+/* Expanded result section */
+.benchmark-results:has(.results-section.expanded) {
+    max-width: none;
+}
+
+.results-section.expanded {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    z-index: 100;
+    width: calc(100% - 48px);
+    height: 100%;
+    max-height: calc(100% - 48px);
+    max-width: calc(100% - 48px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.results-section.expanded #chart {
+    width: 100%;
+    height: auto;
+    max-height: 46dvh;
+}
+
+#chart {
+    height: 100%;
+    max-height: 70%;
+    object-fit: contain;
+}
+
+.previews {
+    max-height: 120px;
+}
+
+.previews > canvas {
+    max-height: 100px;
 }
 
 h2 {
@@ -344,11 +415,6 @@ button {
     transition-property: opacity, filter;
 }
 
-button:has(> img) {
-    display: inline-flex;
-    padding: 0px;
-}
-
 button:hover:not(:disabled) {
     filter: brightness(0.9);
 }
@@ -485,4 +551,26 @@ kbd {
     border: 1px solid var(--border);
     max-width: 320px;
     hyphens: auto;
+}
+
+#tests {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.test {
+    display: flex;
+    width: fit-content;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    padding: 12px;
+}
+
+.test button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px;
 }

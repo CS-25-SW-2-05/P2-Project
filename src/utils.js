@@ -15,7 +15,17 @@ export function remap(value, srcMin, srcMax, destMin, destMax) {
 
 export const yieldFrame = () => new Promise((r) => requestAnimationFrame(r));
 
-export function formatTime(s) {
+export function formatTime(time, base) {
+    // Support us and ms
+    if (base === "ms") {
+        if (time < 1000) return `${round(time, 1)}ms`;
+        time = time / 1000;
+    } else if (base === "us") {
+        if (time < 1000) return `${round(time, 0)}µs`;
+        if (time < 1_000_000) return `${round(time / 1000, 1)}ms`;
+        time = time / 1_000_000;
+    }
+
     const secondsInMinute = 60;
     const secondsInHour = secondsInMinute * 60;
     const secondsInDay = secondsInHour * 24;
@@ -23,7 +33,7 @@ export function formatTime(s) {
     const secondsInYear = secondsInDay * 365.25;
     const secondsInMonth = secondsInYear / 12;
 
-    let remaining = s;
+    let remaining = time;
     const years = Math.floor(remaining / secondsInYear);
     remaining -= years * secondsInYear;
     const months = Math.floor(remaining / secondsInMonth);
@@ -36,9 +46,37 @@ export function formatTime(s) {
     remaining -= hours * secondsInHour;
     const minutes = Math.floor(remaining / secondsInMinute);
     remaining -= minutes * secondsInMinute;
-    const seconds = Math.floor(remaining);
+    const seconds = round(remaining, 2);
 
-    return `${years} years ${months} months ${weeks} weeks ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`;
+    // Collect time units in order from largest to smallest
+    const units = [
+        [years, "y"],
+        [months, "mon"],
+        [weeks, "w"],
+        [days, "d"],
+        [hours, "h"],
+        [minutes, "m"],
+        [seconds, "s"],
+    ];
+
+    const result = [];
+
+    // Loop through units and collect the first two non-zero values
+    for (const unit of units) {
+        const value = unit[0];
+        const label = unit[1];
+
+        // Skip units with value 0
+        if (value === 0) continue;
+
+        result.push(value + "" + label);
+
+        // Stop after collecting two units
+        if (result.length === 2) break;
+    }
+
+    // If no units were added, return "0 seconds"
+    return result.length > 0 ? result.join(" ") : "0 seconds";
 }
 
 export function formatLabel(str) {
