@@ -37,6 +37,10 @@ export function getBuildingGraphData(results) {
     // from the final game state of each algorithm run
     if (!results) return graphData;
 
+    const graphColors = ["#1447e6", "#00bc7d", "#fe9a00", "#ad46ff", "#ff2056"];
+
+    let i = 0;
+
     // for each algorithm
     for (const result of results) {
         // Get the algorithm label
@@ -57,7 +61,9 @@ export function getBuildingGraphData(results) {
         graphData.datasets.push({
             label: dataset.label,
             data: dataset.data,
+            backgroundColor: graphColors[i],
         });
+        i++;
     }
 
     return graphData;
@@ -72,6 +78,10 @@ export function getBuildingGraphConfig(buildingConfigGraphData, canvas) {
             responsive: true,
             animation: false,
             devicePixelRatio: window.devicePixelRatio,
+            onHover: (event, chartElements) => {
+                event.native.target.style.cursor =
+                    chartElements.length > 0 ? "pointer" : "zoom-in";
+            },
             scales: {
                 x: {
                     ticks: {
