@@ -50,6 +50,7 @@ export default class BruteForceSegmented extends Algorithm {
         const awaitIteration = 100000;
         const permutation = Array(segmentedSearchDepth).fill(0);
         const S = decisions.length;
+        console.log(`Generating permuations...`);
 
         while (true) {
             this.getMemoryStatus(memoryLimit);
@@ -92,14 +93,18 @@ export default class BruteForceSegmented extends Algorithm {
     getMemoryStatus(memoryLimit) {
         // toggle on or off
         const memoryLimitActive = true;
+        let memoryAllocatedNow = 0;
+
         try {
-            if (memoryLimitActive) {
-                if (performance.memory.totalJSHeapSize >= memoryLimit * 0.9) {
-                    throw new Error("Memory limit reached");
-                }
-            }
+            memoryAllocatedNow = performance.memory.totalJSHeapSize;
         } catch {
             return;
+        }
+
+        if (memoryLimitActive) {
+            if (memoryAllocatedNow >= memoryLimit) {
+                throw new Error("Memory limit reached");
+            }
         }
     }
 
@@ -118,7 +123,7 @@ export default class BruteForceSegmented extends Algorithm {
         );
 
         // hard-coded permutation limit to stop out of memory errors
-        if (Math.pow(decisions.length, segmentedSearchDepth) >= 10000000) {
+        if (Math.pow(decisions.length, segmentedSearchDepth) >= 20000000) {
             throw new Error(
                 "The number of permuations is too high. Try lowering the brute force horizon or the number of buildings",
             );
