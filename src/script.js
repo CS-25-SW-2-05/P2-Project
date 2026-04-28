@@ -1,7 +1,7 @@
 import { loadBuildings } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
-import { getPlural, round, formatLabel } from "./utils.js";
+import { getPlural, round, formatLabel, formatTime } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
 import "./algorithms/greedy-payback-time.js";
@@ -42,15 +42,19 @@ const channel = new BroadcastChannel("cookie_timeline");
 const toast = document.querySelector(".toast");
 const toastTitle = toast.querySelector("h2");
 const toastMsg = toast.querySelector("p");
+const resultSection = document.querySelector(".results-section");
+const expandButton = document.querySelector(".expand-button");
+const inputForm = document.querySelector(".input-form");
+
 let isRunning = false;
 let stopRequested = false;
 let selectedCanvas = null;
 
 let mainChart = null;
-let buildingGraph = null;
 let latestBuildingGraphConfig = null;
-let isBuildingGraphSelected = false;
+let buildingGraphIsSelected = false;
 let isZoomedChartDisplayed = false;
+let resultSectionIsExpanded = false;
 
 // Functions
 function updateForm() {
@@ -73,6 +77,18 @@ function getActiveAlgorithms() {
     return count;
 }
 
+function getStatColor(value, bestValue, worstValue) {
+    if (value === bestValue) return "rgb(150, 255, 150)";
+    if (value === worstValue) return "rgb(255, 150, 150)";
+    return "white";
+}
+
+function formatFactorDifference(factor) {
+    if (factor <= 1) return "";
+
+    return "(+" + round(factor - 1, 2) + "x)";
+}
+
 /**
  * @param {{
  *   algorithm: Algorithm,
@@ -84,7 +100,7 @@ function getActiveAlgorithms() {
 function displayResults(results, objective) {
     if (results) console.log(results);
 
-    // Set variables for lowest/highest values
+    // Set variables for best values
 
     let lowestIterations = Infinity;
     let lowestIterationTime = Infinity;
@@ -94,15 +110,27 @@ function displayResults(results, objective) {
     let highestCookies = 0;
     let highestTotalCookies = 0;
 
+    // Set variables for worst values
+
+    let highestIterations = 0;
+    let highestIterationTime = 0;
+    let highestBenchmarkTime = 0;
+    let highestSimulationTime = 0;
+    let lowestCPS = Infinity;
+    let lowestCookies = Infinity;
+    let lowestTotalCookies = Infinity;
+
     for (const r of results || []) {
         const lastData = r.data.at(-1);
+
+        const iterationTime = (r.benchmarkTime * 1000) / r.data.length;
 
         // Update lowest values:
         // Number of iterations
         if (r.data.length < lowestIterations) lowestIterations = r.data.length;
         // Iteration time
-        if ((r.benchmarkTime * 1000) / r.data.length < lowestIterationTime)
-            lowestIterationTime = (r.benchmarkTime * 1000) / r.data.length;
+        if (iterationTime < lowestIterationTime)
+            lowestIterationTime = iterationTime;
         // Benchmark time
         if (r.benchmarkTime < lowestBenchmarkTime)
             lowestBenchmarkTime = r.benchmarkTime;
@@ -120,6 +148,29 @@ function displayResults(results, objective) {
         // Total cookies
         if (lastData.gameState.totalCookies > highestTotalCookies)
             highestTotalCookies = lastData.gameState.totalCookies;
+
+        // Update worst values:
+        // Number of iterations
+        if (r.data.length > highestIterations)
+            highestIterations = r.data.length;
+        // Iteration time
+        if (iterationTime > highestIterationTime)
+            highestIterationTime = iterationTime;
+        // Benchmark time
+        if (r.benchmarkTime > highestBenchmarkTime)
+            highestBenchmarkTime = r.benchmarkTime;
+        // Simulation time
+        if (lastData.gameState.simulationTime > highestSimulationTime)
+            highestSimulationTime = lastData.gameState.simulationTime;
+        // CPS
+        if (lastData.gameState.buildingCpS < lowestCPS)
+            lowestCPS = lastData.gameState.buildingCpS;
+        // Cookies
+        if (lastData.gameState.cookies < lowestCookies)
+            lowestCookies = lastData.gameState.cookies;
+        // Total cookies
+        if (lastData.gameState.totalCookies < lowestTotalCookies)
+            lowestTotalCookies = lastData.gameState.totalCookies;
     }
 
     // Table Results
@@ -128,105 +179,74 @@ function displayResults(results, objective) {
     for (const r of results || []) {
         const lastData = r.data.at(-1);
 
-        // Calculate percantage from lowest:
+        const iterationTime = (r.benchmarkTime * 1000) / r.data.length;
+
+        // Calculate factor difference from lowest:
         // Number of iterations
-        const iterationsPercentage =
-            ((r.data.length - lowestIterations) / lowestIterations) * 100;
+        const iterationsFactor = r.data.length / lowestIterations;
         // Iteration time
-        const iterationTimePercentage =
-            (((r.benchmarkTime * 1000) / r.data.length - lowestIterationTime) /
-                lowestIterationTime) *
-            100;
+        const iterationTimeFactor = iterationTime / lowestIterationTime;
         // Benchmark time
-        const BenchmarkTimePercentage =
-            ((r.benchmarkTime - lowestBenchmarkTime) / lowestBenchmarkTime) *
-            100;
+        const benchmarkTimeFactor = r.benchmarkTime / lowestBenchmarkTime;
         // Simulation time
-        const simulationTimePercentage =
-            ((lastData.gameState.simulationTime - lowestSimulationTime) /
-                lowestSimulationTime) *
-            100;
+        const simulationTimeFactor =
+            lastData.gameState.simulationTime / lowestSimulationTime;
 
         // From highest:
         // Building CPS
-        const cpsPercentage =
-            ((highestCPS - lastData.gameState.buildingCpS) / highestCPS) * 100;
+        const cpsFactor = highestCPS / lastData.gameState.buildingCpS;
         // Cookies
-        const cookiesPercentage =
-            ((highestCookies - lastData.gameState.cookies) / highestCookies) *
-            100;
+        const cookiesFactor =
+            highestCookies === 0 || lastData.gameState.cookies === 0
+                ? 1
+                : highestCookies / lastData.gameState.cookies;
         // Total cookies
-        const totalCookiesPercentage =
-            ((highestTotalCookies - lastData.gameState.totalCookies) /
-                highestTotalCookies) *
-            100;
+        const totalCookiesFactor =
+            highestTotalCookies === 0 || lastData.gameState.totalCookies === 0
+                ? 1
+                : highestTotalCookies / lastData.gameState.totalCookies;
 
         tbody.innerHTML += `
-        <tr>
-            <td>
-                <div>
-                    <a>
-                        <img src="./images/open_in_new.svg" alt="Open in New" />
-                    </a>
-                    ${r.algorithm.title}
-                </div>
-            </td>
-            <td style="color: ${
-                iterationsPercentage > 0
-                    ? "rgb(255, 150, 150)"
-                    : "rgb(150, 255, 150)"
-            };">
-			${numberformat.formatShort(r.data.length)} 
-			${iterationsPercentage > 0 ? "(+" + Math.round(iterationsPercentage) + "%)" : ""}</td>
+            <tr>
+                <td>
+                    <div>
+                        <a>
+                            <img src="./images/open_in_new.svg" alt="Open in New" />
+                        </a>
+                        ${r.algorithm.title.replace("[Greedy]", "")}
+                    </div>
+                </td>
+                
+                <td style="color: ${getStatColor(lastData.gameState.simulationTime, lowestSimulationTime, highestSimulationTime)};">
+                ${formatTime(lastData.gameState.simulationTime, "s")} 
+                ${formatFactorDifference(simulationTimeFactor)}</td>
 
-            <td style="color: ${
-                iterationTimePercentage > 0
-                    ? "rgb(255, 150, 150)"
-                    : "rgb(150, 255, 150)"
-            };">
-			${round((r.benchmarkTime * 1000) / r.data.length, 1)} 
-			${iterationTimePercentage > 0 ? "(+" + Math.round(iterationTimePercentage) + "%)" : ""}</td>
+                <td style="color: ${getStatColor(r.benchmarkTime, lowestBenchmarkTime, highestBenchmarkTime)};">
+                ${formatTime(round(r.benchmarkTime, 0), "ms")} 
+                ${formatFactorDifference(benchmarkTimeFactor)}</td>
 
-            <td style="color: ${
-                BenchmarkTimePercentage > 0
-                    ? "rgb(255, 150, 150)"
-                    : "rgb(150, 255, 150)"
-            };">
-			${round(r.benchmarkTime, 0)} 
-			${BenchmarkTimePercentage > 0 ? "(+" + Math.round(BenchmarkTimePercentage) + "%)" : ""}</td>
-
-            <td style="color: ${
-                simulationTimePercentage > 0
-                    ? "rgb(255, 150, 150)"
-                    : "rgb(150, 255, 150)"
-            };">
-			${numberformat.formatShort(lastData.gameState.simulationTime)} 
-			${simulationTimePercentage > 0 ? "(+" + Math.round(simulationTimePercentage) + "%)" : ""}</td>
-
-            <td style="color: ${
-                cpsPercentage > 0 ? "rgb(255, 150, 150)" : "rgb(150, 255, 150)"
-            };">
-			${numberformat.formatShort(lastData.gameState.buildingCpS)} 
-			${cpsPercentage > 0 ? "(-" + Math.round(cpsPercentage) + "%)" : ""}</td>
-
-            <td style="color: ${
-                cookiesPercentage > 0
-                    ? "rgb(255, 150, 150)"
-                    : "rgb(150, 255, 150)"
-            };">
-			${numberformat.formatShort(lastData.gameState.cookies)} 
-			${cookiesPercentage > 0 ? "(-" + Math.round(cookiesPercentage) + "%)" : ""}</td>
-
-            <td style="color: ${
-                totalCookiesPercentage > 0
-                    ? "rgb(255, 150, 150)"
-                    : "rgb(150, 255, 150)"
-            };">
-			${numberformat.formatShort(lastData.gameState.totalCookies)} 
-			${totalCookiesPercentage > 0 ? "(-" + Math.round(totalCookiesPercentage) + "%)" : ""}</td>
-
-        </tr>
-        `;
+                <td style="color: ${getStatColor(r.data.length, lowestIterations, highestIterations)};">
+                ${numberformat.format(r.data.length)} 
+                ${formatFactorDifference(iterationsFactor)}</td>
+    
+                <td style="color: ${getStatColor(iterationTime, lowestIterationTime, highestIterationTime)};">
+                ${formatTime(iterationTime, "us")} 
+                ${formatFactorDifference(iterationTimeFactor)}</td>
+    
+                <td style="color: ${getStatColor(lastData.gameState.buildingCpS, highestCPS, lowestCPS)};">
+                ${numberformat.format(lastData.gameState.buildingCpS)} 
+                ${formatFactorDifference(cpsFactor)}</td>
+    
+                <td style="color: ${getStatColor(lastData.gameState.cookies, highestCookies, lowestCookies)};">
+                ${numberformat.format(lastData.gameState.cookies)} 
+                ${formatFactorDifference(cookiesFactor)}</td>
+    
+                <td style="color: ${getStatColor(lastData.gameState.totalCookies, highestTotalCookies, lowestTotalCookies)};">
+                ${numberformat.format(lastData.gameState.totalCookies)} 
+                ${formatFactorDifference(totalCookiesFactor)}</td>
+    
+            </tr>
+            `;
     }
 
     // Chart Results
@@ -254,11 +274,6 @@ function displayResults(results, objective) {
     if (mainChart) {
         mainChart.destroy();
         mainChart = null;
-    }
-
-    if (buildingGraph) {
-        buildingGraph.destroy();
-        buildingGraph = null;
     }
 
     // Get building graph data from results
@@ -300,10 +315,13 @@ function displayResults(results, objective) {
 
         const x = [0];
         const y = [0];
-        for (let j = 1; j < r.data.length; j++) {
+        for (let j = 0; j < r.data.length; j++) {
             const data = r.data[j];
-            const dataBefore = r.data[j - 1];
-            const isLast = j === r.data.length - 1;
+            const dataBefore = r.data[j - 1] ?? {
+                gameState: {
+                    simulationTime: 0,
+                },
+            };
             const isPurchase =
                 Object.keys(data.decision).findIndex(
                     (k) => k === "purchaseable",
@@ -547,7 +565,7 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
         // If the canvas is the building-graph, then draw chart
         if (canvas.id === "building-graph") {
             // Update buildingGraphSelected
-            isBuildingGraphSelected = true;
+            buildingGraphIsSelected = true;
 
             mainChart = new Chart(chartCanvas, {
                 ...latestBuildingGraphConfig,
@@ -561,7 +579,7 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
         }
 
         // Update buildingGraphSelected
-        isBuildingGraphSelected = false;
+        buildingGraphIsSelected = false;
 
         // Else draw image
         chartContext.drawImage(canvas, 0, 0);
@@ -581,7 +599,7 @@ chartCanvas.addEventListener("click", () => {
     isZoomedChartDisplayed = true;
 
     // Special handling for the buildingGraph bar chart
-    if (isBuildingGraphSelected) {
+    if (buildingGraphIsSelected) {
         // Create a new empty canvas element
         zoomedChart = document.createElement("canvas");
 
@@ -594,9 +612,12 @@ chartCanvas.addEventListener("click", () => {
     else {
         zoomedChart = chartCanvas.cloneNode();
         zoomedChart.removeAttribute("id");
+        zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
     }
 
-    zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
+    // Hide input form and result section when displaying zoomed chart
+    inputForm.classList.add("hide");
+    resultSection.classList.add("hide");
 
     // Display the zoomed graph
     document.body.appendChild(zoomedChart);
@@ -605,12 +626,30 @@ chartCanvas.addEventListener("click", () => {
 
     // Add event listener to remove zoomed chart
     zoomedChart.addEventListener("click", () => {
+        // Show input form when closing zoomed chart
+        inputForm.classList.remove("hide");
+        resultSection.classList.remove("hide");
+
         // Remove zoomed chart
         zoomedChart.remove();
 
         // Update zoomed chart display status
         isZoomedChartDisplayed = false;
     });
+});
+
+// Expand result section
+expandButton.addEventListener("click", () => {
+    // Toggle wether the section is expended
+    resultSectionIsExpanded = !resultSectionIsExpanded;
+
+    // Mark resultsection class as expanded
+    resultSection.classList.toggle("expanded");
+
+    // Hide input form if result section is expanded
+    if (resultSectionIsExpanded) inputForm.classList.add("hide");
+    // Otherwise, show it
+    else inputForm.classList.remove("hide");
 });
 
 form.addEventListener("change", updateForm);
