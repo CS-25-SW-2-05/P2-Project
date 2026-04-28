@@ -69,12 +69,10 @@ export default class BruteForceSegmented extends Algorithm {
 	}
 */
     //
-    // async function, so we can "await" inside it
-    async getAllDecisionPermutations(
+    getAllDecisionPermutations(
         permutationArr,
         decisions,
         segmentedSearchDepth,
-        shouldStop = () => false,
     ) {
         let permutationNumber = 0;
         /*let i = 0;
@@ -86,13 +84,7 @@ export default class BruteForceSegmented extends Algorithm {
         const S = decisions.length;
         console.log(S);
 
-        // After 10k iterations, the function yields 1 frame, and checks if it should stop (stop button active), breaks, or else continues.
-        let yieldCounter = 0;
         while (true) {
-            if (++yieldCounter % 10000 === 0) {
-                await yieldFrame();
-                if (shouldStop()) return null;
-            }
             let didChange = false;
             for (let i = permutation.length - 1; i >= 0; i--) {
                 if (permutation[i] < S) continue;
@@ -176,55 +168,36 @@ export default class BruteForceSegmented extends Algorithm {
     comparePermuationsCookies() {}*/
 
     // finds the solution to each segment
-    // async function, so we can "await" inside it
-    async getSegmentSolution(
+    getSegmentSolution(
         currentGameState,
         decisions,
         segmentedSearchDepth,
         objective,
         referenceGameState,
         bestSolutionGameState,
-        shouldStop = () => false,
     ) {
         console.log(
             "Expected nr. of permuations: " +
                 Math.pow(decisions.length, segmentedSearchDepth),
         );
-        const totalPermutations = Math.pow(
-            decisions.length,
-            segmentedSearchDepth,
-        );
 
-        /*
+        
         //Original Code
         let permutationArr = Array.from(
             { length: Math.pow(decisions.length, segmentedSearchDepth) },
             () => [],
         );
         
-        This caused problems, because example: decisions.length = 20 and segmentedSearchDepth = 5, that's 20^5 = 3.200.000 arrays allocated in one shot
-        */
 
-        // New code splits it into 100K at a time, with yielding to check
-        // for stop button, also it doesn't crash anymore.
-        let permutationArr = [];
-        for (let k = 0; k < totalPermutations; k++) {
-            permutationArr.push([]);
-            if (k % 100000 === 0) {
-                await yieldFrame();
-                if (shouldStop()) return null;
-            }
-        }
         //console.log(permutationArr);
 
         // finds all decision permutations and puts them into decisionArr
-        permutationArr = await this.getAllDecisionPermutations(
+        permutationArr = this.getAllDecisionPermutations(
             permutationArr,
             decisions,
             segmentedSearchDepth,
             shouldStop,
         );
-        if (permutationArr === null) return null;
         console.log(permutationArr);
 
         let saveUpTime = 0;
@@ -253,12 +226,7 @@ export default class BruteForceSegmented extends Algorithm {
         ];
 
         // Runs through all decision permutations and saves the best one
-        // But yields every 1000 iteration to check for any events in the browser.
         for (let i = 0; i < permutationArr.length; i++) {
-            if (i % 1000 === 0) {
-                await yieldFrame();
-                if (shouldStop()) return null;
-            }
             currentGameState = referenceGameState.copy();
             paybackSaveUpTime = 0;
             saveUpTime = 0;
@@ -508,8 +476,7 @@ export default class BruteForceSegmented extends Algorithm {
     }
 
     // connects the segmented solutions together and returns the final solution
-    // async function, so we can "await" inside it
-    async getBruteForceSegmentedSolution(objective, decisions, shouldStop = () => false) {
+    getBruteForceSegmentedSolution(objective, decisions) {
         /*if (objective.type !== "production") {
             throw new Error(`Brute force only works with production objective`);
         }*/
@@ -537,17 +504,15 @@ export default class BruteForceSegmented extends Algorithm {
 
         if (objective.type === "production") {
             for (let i = 0; endMarker !== decisions.length; i++) {
-                if (shouldStop()) return null;
                 console.log(endMarker);
 
-                segmentSolutionData = await this.getSegmentSolution(
+                segmentSolutionData = this.getSegmentSolution(
                     currentGameState,
                     decisions,
                     segmentedSearchDepth,
                     objective,
                     referenceGameState,
                     bestSolutionGameState,
-                    shouldStop,
                 );
                 if (segmentSolutionData === null) return null;
 
@@ -607,19 +572,16 @@ export default class BruteForceSegmented extends Algorithm {
 
         //This loop is for the cookies objective
         for (let i = 0; endMarker !== decisions.length - 1; i++) {
-            if (shouldStop()) return null;
             console.log(endMarker);
 
-            segmentSolutionData = await this.getSegmentSolution(
+            segmentSolutionData = this.getSegmentSolution(
                 currentGameState,
                 decisions,
                 segmentedSearchDepth,
                 objective,
                 referenceGameState,
                 bestSolutionGameState,
-                shouldStop,
             );
-            if (segmentSolutionData === null) return null;
 
             console.log(
                 "bestSolutionGameState.buildingCpS3",
