@@ -44,7 +44,6 @@ let isRunning = false;
 let selectedCanvas = null;
 
 let mainChart = null;
-let buildingGraph = null;
 let latestBuildingGraphConfig = null;
 let isBuildingGraphSelected = false;
 let isZoomedChartDisplayed = false;
@@ -253,11 +252,6 @@ function displayResults(results, objective) {
         mainChart = null;
     }
 
-    if (buildingGraph) {
-        buildingGraph.destroy();
-        buildingGraph = null;
-    }
-
     // Get building graph data from results
     const buildingConfigGraphData = getBuildingGraphData(results);
 
@@ -297,10 +291,13 @@ function displayResults(results, objective) {
 
         const x = [0];
         const y = [0];
-        for (let j = 1; j < r.data.length; j++) {
+        for (let j = 0; j < r.data.length; j++) {
             const data = r.data[j];
-            const dataBefore = r.data[j - 1];
-            const isLast = j === r.data.length - 1;
+            const dataBefore = r.data[j - 1] ?? {
+                gameState: {
+                    simulationTime: 0,
+                },
+            };
             const isPurchase =
                 Object.keys(data.decision).findIndex(
                     (k) => k === "purchaseable",
