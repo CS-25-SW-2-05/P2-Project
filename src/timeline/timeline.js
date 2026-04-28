@@ -73,6 +73,10 @@ function display() {
                 <td style="text-align: right;">${decision.isValid ? "✅" : "❌"}</td>
             </tr>
             <tr>
+                <td>Simulated Time (s)</td>
+                <td style="text-align: right;">${round(result.data[decisionIndex].gameState.simulationTime, 1)}</td>
+            </tr>
+            <tr>
                 <td>Wait Time (s)</td>
                 <td style="text-align: right;">${round(decision.wait, 1)}</td>
             </tr>

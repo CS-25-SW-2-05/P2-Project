@@ -14,69 +14,16 @@ export default class ShortestPaybackAfterPurchase extends Algorithm {
         instance: new ShortestPaybackAfterPurchase(),
     });
 
-	/**
-	 * @param {GameState} game the current game state
-	 * @param {Building} buildings a list of all buildings, in their current state
-	 * @param {Objective} objective
-	 * @returns {Decision} the next decision to be performed, if it is valid.
-	 */
-	getNextDecision(gameState, buildings, objective) {
-		// --- Fixed-time objectives handled first ---
-
-		// Maximise CpS by end of time limit: buy the building with the best CpS per cookie spent
-		if (objective.type === "fixed-production") {
-			const timeLeft = objective.value - gameState.simulationTime;
-			let bestBuilding = null;
-			let bestEfficiency = -Infinity;
-
-			for (const key in buildings) {
-				const building = buildings[key];
-				const saveUp = building.cost / gameState.cps;
-				if (saveUp > timeLeft) continue;
-				const efficiency = building.baseCpS / building.cost;
-				if (efficiency > bestEfficiency) {
-					bestEfficiency = efficiency;
-					bestBuilding = building;
-				}
-			}
-			if (bestBuilding === null) {
-				console.log("Decision (fixed-production, Payback): wait");
-				return new WaitDecision(gameState, Math.ceil(timeLeft));
-			}
-			console.log("Decision (fixed-production, Payback): " + bestBuilding.name);
-			return new PurchaseDecision(gameState, bestBuilding);
-		}
-
-		// Maximise total cookies by end of time limit: only buy if the building pays back its cost before timer runs out, else wait
-		if (objective.type === "fixed-cookies") {
-			const timeLeft = objective.value - gameState.simulationTime;
-
-			let bestBuilding = null;
-			let bestProfit = -Infinity;
-
-			for (const key in buildings) {
-				const building = buildings[key];
-				const saveUp = building.cost / gameState.cps;
-				if (saveUp > timeLeft) continue;
-				const profit = building.baseCpS * timeLeft - building.cost;
-				if (profit > bestProfit) {
-					bestProfit = profit;
-					bestBuilding = building;
-				}
-			}
-			// No building turns a profit → just wait out the time
-			if (bestBuilding === null || bestProfit <= 0) {
-				console.log("Decision (fixed-cookies, Payback): wait");
-				return new WaitDecision(gameState, Math.ceil(timeLeft));
-			}
-			console.log("Decision (fixed-cookies, Payback): " + bestBuilding.name);
-			return new PurchaseDecision(gameState, bestBuilding);
-		}
-
-		// --- Standard objectives: pure payback logic ---
-
-    let paybackTime = 0;
-    let numOfBuildingsAssessed = 0;
+    /**
+     * @param {GameState} game the current game state
+     * @param {Building} buildings a list of all buildings, in their current state
+     * @param {Objective} objective
+     * @returns {Decision} the next decision to be performed, if it is valid.
+     */
+    getNextDecision(gameState, buildings, objective) {
+        let paybackTime = 0;
+        let numOfBuildingsAssessed = 0;
+        let timeLeft = 0;
 
         let bestDecision = {
             buildingKey: "cursor",
@@ -88,6 +35,42 @@ export default class ShortestPaybackAfterPurchase extends Algorithm {
             paybackTime: 0,
             cost: 0,
         };
+
+        // If objective is fixed horizon, filter out buildings
+        // that we cannot save up for within the remaining time
+        // to ensure that the algorithm doesnt choose to buy these
+        if (
+            objective.type === "fixed-cookies" ||
+            objective.type === "fixed-production"
+        ) {
+            // Array to store buildings that can be bought
+            const filteredBuildings = {};
+
+            // Calculate remaining time until target time
+            timeLeft = objective.value - gameState.simulationTime;
+
+            for (const key in buildings) {
+                const building = buildings[key];
+
+                // Calculate time to save up for building
+                const saveUpTime =
+                    (building.cost - gameState.cookies) / gameState.cps;
+
+                // If save up time is shorter, add it to filtered buildings
+                if (saveUpTime <= timeLeft) {
+                    filteredBuildings[key] = building;
+                }
+            }
+
+            // If no more buildings can be afforded before time target,
+            // just wait
+            if (Object.keys(filteredBuildings).length === 0) {
+                return new WaitDecision(gameState, Math.ceil(timeLeft));
+            }
+
+            // Update the buildings object
+            buildings = filteredBuildings;
+        }
 
         for (let key in buildings) {
             let b = buildings[key];
@@ -120,28 +103,20 @@ export default class ShortestPaybackAfterPurchase extends Algorithm {
             numOfBuildingsAssessed++;
         }
 
+        // Get best decision building object
+        const bestDecisionBuilding = buildings[bestDecision.buildingKey];
         const waitTime = objective.value / gameState.cps;
 
         console.log("Wait:", waitTime);
         console.log("Payback:", bestDecision.paybackTime);
 
-		if (objective.type === "production") {
-			console.log("Decision: " + bestDecision.buildingKey);
-			console.log("Payback + wait time: " + bestDecision.paybackTime + "s");
-			return new PurchaseDecision(
-				gameState,
-				buildings[bestDecision.buildingKey],
-			);
-		}
-
-        const shouldWait =
-            waitTime <= bestDecision.paybackTime ||
-            bestDecision.cost >= objective.value;
-
-        if (!shouldWait) {
+        if (
+            objective.type === "production" ||
+            objective.type === "fixed-production"
+        ) {
             console.log("Decision: " + bestDecision.buildingKey);
             console.log(
-                "Payback + save up time: " + bestDecision.paybackTime + "s",
+                "Payback + wait time: " + bestDecision.paybackTime + "s",
             );
             return new PurchaseDecision(
                 gameState,
@@ -149,8 +124,56 @@ export default class ShortestPaybackAfterPurchase extends Algorithm {
             );
         }
 
-        console.log("Decision: wait");
-        console.log("Wait time: " + waitTime + "s");
-        return new WaitDecision(gameState, Math.ceil(waitTime));
+        // Cookies objective: wait if it's faster than buying
+        if (objective.type === "cookies") {
+            const shouldWait =
+                waitTime <= bestDecision.paybackTime ||
+                bestDecision.cost >= objective.value;
+
+            if (!shouldWait) {
+                console.log("Decision: " + bestDecision.buildingKey);
+                console.log(
+                    "Payback + save up time: " + bestDecision.paybackTime + "s",
+                );
+                return new PurchaseDecision(
+                    gameState,
+                    buildings[bestDecision.buildingKey],
+                );
+            }
+
+            console.log("Decision: wait");
+            console.log("Wait time: " + waitTime + "s");
+            return new WaitDecision(gameState, Math.ceil(waitTime));
+        }
+
+        // Cookies [fixed horizon]: Wait, if it gains more cookies at time target
+        if (objective.type === "fixed-cookies") {
+            // Calculate cookies earned at time target by waiting
+            const cookiesFromWaiting =
+                gameState.cookies + gameState.cps * timeLeft;
+            console.log("Cookies from waiting: ", cookiesFromWaiting);
+
+            //Calculate saveup time for best building
+            const bestSaveUpTime =
+                (bestDecisionBuilding.cost - gameState.cookies) / gameState.cps;
+
+            // Calculate the extra production from building
+            const cookiesGainedFromBuying =
+                (timeLeft - bestSaveUpTime) * bestDecisionBuilding.baseCpS;
+
+            // Calculate cookies earned at time target from buying
+            // the building with the shortest payback + saveup time
+            const cookiesFromBuying =
+                cookiesFromWaiting -
+                bestDecisionBuilding.cost +
+                cookiesGainedFromBuying;
+            console.log("Cookies from buying: ", cookiesFromBuying);
+
+            if (cookiesFromWaiting >= cookiesFromBuying) {
+                return new WaitDecision(gameState, Math.ceil(timeLeft));
+            } else {
+                return new PurchaseDecision(gameState, bestDecisionBuilding);
+            }
+        }
     }
 }

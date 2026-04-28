@@ -1,7 +1,13 @@
 import { loadBuildings } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
-import { getPlural, round, formatLabel, formatTime } from "./utils.js";
+import {
+    getPlural,
+    round,
+    formatLabel,
+    formatTime,
+    safeDivide,
+} from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
 import "./algorithms/greedy-payback-time.js";
@@ -83,10 +89,10 @@ function getStatColor(value, bestValue, worstValue) {
     return "white";
 }
 
-function formatFactorDifference(factor) {
+function formatFactorDifference(factor, sign) {
     if (factor <= 1) return "";
 
-    return "(+" + round(factor - 1, 2) + "x)";
+    return "(" + sign + round(factor - 1, 2) + "x)";
 }
 
 /**
@@ -123,7 +129,11 @@ function displayResults(results, objective) {
     for (const r of results || []) {
         const lastData = r.data.at(-1);
 
-        const iterationTime = (r.benchmarkTime * 1000) / r.data.length;
+        const iterationTime = safeDivide(
+            r.benchmarkTime * 1000,
+            r.data.length,
+            0,
+        );
 
         // Update lowest values:
         // Number of iterations
@@ -183,28 +193,44 @@ function displayResults(results, objective) {
 
         // Calculate factor difference from lowest:
         // Number of iterations
-        const iterationsFactor = r.data.length / lowestIterations;
+        const iterationsFactor = safeDivide(r.data.length, lowestIterations);
+
         // Iteration time
-        const iterationTimeFactor = iterationTime / lowestIterationTime;
+        const iterationTimeFactor = safeDivide(
+            iterationTime,
+            lowestIterationTime,
+        );
+
         // Benchmark time
-        const benchmarkTimeFactor = r.benchmarkTime / lowestBenchmarkTime;
+        const benchmarkTimeFactor = safeDivide(
+            r.benchmarkTime,
+            lowestBenchmarkTime,
+        );
+
         // Simulation time
-        const simulationTimeFactor =
-            lastData.gameState.simulationTime / lowestSimulationTime;
+        const simulationTimeFactor = safeDivide(
+            lastData.gameState.simulationTime,
+            lowestSimulationTime,
+        );
 
         // From highest:
         // Building CPS
-        const cpsFactor = highestCPS / lastData.gameState.buildingCpS;
+        const cpsFactor = safeDivide(
+            highestCPS,
+            lastData.gameState.buildingCpS,
+        );
+
         // Cookies
-        const cookiesFactor =
-            highestCookies === 0 || lastData.gameState.cookies === 0
-                ? 1
-                : highestCookies / lastData.gameState.cookies;
+        const cookiesFactor = safeDivide(
+            highestCookies,
+            lastData.gameState.cookies,
+        );
+
         // Total cookies
-        const totalCookiesFactor =
-            highestTotalCookies === 0 || lastData.gameState.totalCookies === 0
-                ? 1
-                : highestTotalCookies / lastData.gameState.totalCookies;
+        const totalCookiesFactor = safeDivide(
+            highestTotalCookies,
+            lastData.gameState.totalCookies,
+        );
 
         tbody.innerHTML += `
             <tr>
@@ -219,31 +245,31 @@ function displayResults(results, objective) {
                 
                 <td style="color: ${getStatColor(lastData.gameState.simulationTime, lowestSimulationTime, highestSimulationTime)};">
                 ${formatTime(lastData.gameState.simulationTime, "s")} 
-                ${formatFactorDifference(simulationTimeFactor)}</td>
+                ${formatFactorDifference(simulationTimeFactor, "+")}</td>
 
                 <td style="color: ${getStatColor(r.benchmarkTime, lowestBenchmarkTime, highestBenchmarkTime)};">
                 ${formatTime(round(r.benchmarkTime, 0), "ms")} 
-                ${formatFactorDifference(benchmarkTimeFactor)}</td>
+                ${formatFactorDifference(benchmarkTimeFactor, "+")}</td>
 
                 <td style="color: ${getStatColor(r.data.length, lowestIterations, highestIterations)};">
                 ${numberformat.format(r.data.length)} 
-                ${formatFactorDifference(iterationsFactor)}</td>
+                ${formatFactorDifference(iterationsFactor, "+")}</td>
     
                 <td style="color: ${getStatColor(iterationTime, lowestIterationTime, highestIterationTime)};">
                 ${formatTime(iterationTime, "us")} 
-                ${formatFactorDifference(iterationTimeFactor)}</td>
+                ${formatFactorDifference(iterationTimeFactor, "+")}</td>
     
                 <td style="color: ${getStatColor(lastData.gameState.buildingCpS, highestCPS, lowestCPS)};">
                 ${numberformat.format(lastData.gameState.buildingCpS)} 
-                ${formatFactorDifference(cpsFactor)}</td>
+                ${formatFactorDifference(cpsFactor, "-")}</td>
     
                 <td style="color: ${getStatColor(lastData.gameState.cookies, highestCookies, lowestCookies)};">
                 ${numberformat.format(lastData.gameState.cookies)} 
-                ${formatFactorDifference(cookiesFactor)}</td>
+                ${formatFactorDifference(cookiesFactor, "-")}</td>
     
                 <td style="color: ${getStatColor(lastData.gameState.totalCookies, highestTotalCookies, lowestTotalCookies)};">
                 ${numberformat.format(lastData.gameState.totalCookies)} 
-                ${formatFactorDifference(totalCookiesFactor)}</td>
+                ${formatFactorDifference(totalCookiesFactor, "-")}</td>
     
             </tr>
             `;
@@ -496,6 +522,17 @@ form.addEventListener("submit", async (e) => {
                 isBruteForce = true;
             }
 
+            // Abort if the algorithm is bruteforce and the objective is
+            // fixed horizon (not supported)
+            if (
+                (isBruteForce && objective.type === "fixed-cookies") ||
+                (isBruteForce && objective.type === "fixed-production")
+            ) {
+                // Remove algorithm selection
+                document.getElementById("BruteForceSegmented").checked = false;
+                continue;
+            }
+
             const beforeTime = Date.now();
             // Start the algorithm run, passing the objective in.
 
@@ -640,7 +677,7 @@ chartCanvas.addEventListener("click", () => {
 
 // Expand result section
 expandButton.addEventListener("click", () => {
-    // Toggle wether the section is expended
+    // Toggle wether the section is expanded
     resultSectionIsExpanded = !resultSectionIsExpanded;
 
     // Mark resultsection class as expanded

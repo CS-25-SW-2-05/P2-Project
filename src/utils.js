@@ -99,3 +99,9 @@ export function formatLabel(str) {
             .replace(/\b\w/g, (char) => char.toUpperCase())
     );
 }
+
+export function safeDivide(numerator, denominator, fallback = 1) {
+    return denominator === 0 || !Number.isFinite(denominator)
+        ? fallback
+        : numerator / denominator;
+}
