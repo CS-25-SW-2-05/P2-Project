@@ -1,8 +1,17 @@
 import { round } from "../utils.js";
+import {
+    gameStateToDataset,
+    getBuildingGraphData,
+    getBuildingGraphConfig,
+    updateBuildingGraphPreview,
+    createBuildingChartCanvas,
+} from "../benchmark/building-chart.js";
+import Chart from "https://esm.sh/chart.js/auto";
 
 const params = new URLSearchParams(window.location.search);
 const algorithmIndex = parseInt(params.get("algorithm")) || 0;
 let decisionIndex = parseInt(params.get("decision")) || 0;
+const buildingGraph = document.querySelector("#building-graph");
 
 const titleHeader = document.querySelector("h1");
 const decisionHeader = document.querySelector("#decision-title");
@@ -89,6 +98,11 @@ function display() {
             </tr>
         </tbody>
     `;
+
+    buildingGraph.innerHTML = "";
+    buildingGraph.appendChild(
+        createBuildingChartCanvas(result.data[decisionIndex].gameState),
+    );
 }
 
 function setDecisionIndex(index, shouldUpdateUrl = true) {
