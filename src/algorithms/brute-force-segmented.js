@@ -196,7 +196,6 @@ export default class BruteForceSegmented extends Algorithm {
             permutationArr,
             decisions,
             segmentedSearchDepth,
-            shouldStop,
         );
         console.log(permutationArr);
 
