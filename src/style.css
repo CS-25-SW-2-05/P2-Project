@@ -234,7 +234,7 @@ section {
     overscroll-behavior: contain;
 }
 
-.results-section .charts {
+.results-section.expanded .charts {
     display: flex;
     flex-direction: column;
     gap: 4px;
