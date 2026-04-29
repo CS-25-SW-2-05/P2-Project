@@ -279,9 +279,28 @@ export default class BuyCheapestTest extends UnitTest {
             },
             {
                 testName:
+                    "Buys cheapest for fixed-cookies if it can be bought before horizon",
+                objective: {
+                    type: "fixed-time-cookies",
+                    value: 20,
+                },
+                gameState: {
+                    cookies: 0,
+                    cps: 1,
+                    simulationTime: 0,
+                },
+                buildings: createBuildings({
+                    cursor: { cost: 15 },
+                    grandma: { cost: 100 },
+                }),
+                expectedDecisionType: PurchaseDecision,
+                expectedBuilding: "cursor",
+            },
+            {
+                testName:
                     "Waits for fixed-cookies if cheapest cannot be bought before horizon",
                 objective: {
-                    type: "fixed-cookies",
+                    type: "fixed-time-cookies",
                     value: 10,
                 },
                 gameState: {
@@ -299,7 +318,7 @@ export default class BuyCheapestTest extends UnitTest {
                 testName:
                     "Buys cheapest for fixed-production if it can be bought before horizon",
                 objective: {
-                    type: "fixed-production",
+                    type: "fixed-time-production",
                     value: 20,
                 },
                 gameState: {
@@ -313,6 +332,24 @@ export default class BuyCheapestTest extends UnitTest {
                 }),
                 expectedDecisionType: PurchaseDecision,
                 expectedBuilding: "cursor",
+            },
+            {
+                testName:
+                    "Waits for fixed-production if cheapest cannot be bought before horizon",
+                objective: {
+                    type: "fixed-time-production",
+                    value: 10,
+                },
+                gameState: {
+                    cookies: 0,
+                    cps: 1,
+                    simulationTime: 0,
+                },
+                buildings: createBuildings({
+                    cursor: { cost: 15 },
+                    grandma: { cost: 100 },
+                }),
+                expectedDecisionType: WaitDecision,
             },
         ];
 

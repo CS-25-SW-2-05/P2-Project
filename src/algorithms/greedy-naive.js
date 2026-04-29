@@ -43,8 +43,8 @@ export default class BuyCheapest extends Algorithm {
         // Fixed-time objectives: buy the cheapest until the clock runs out,
         // then wait out the remaining time so simulationTime doesn't "overshoot".
         if (
-            objective.type === "fixed-production" ||
-            objective.type === "fixed-cookies"
+            objective.type === "fixed-time-production" ||
+            objective.type === "fixed-time-cookies"
         ) {
             const timeLeft = objective.value - gameState.simulationTime;
             const saveUp = cheapestBuilding.cost / gameState.cps;

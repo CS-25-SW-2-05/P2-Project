@@ -37,8 +37,8 @@ export default class ShortestPaybackPlusSaveUp extends Algorithm {
         // that we cannot save up for within the remaining time
         // to ensure that the algorithm doesnt choose to buy these
         if (
-            objective.type === "fixed-cookies" ||
-            objective.type === "fixed-production"
+            objective.type === "fixed-time-cookies" ||
+            objective.type === "fixed-time-production"
         ) {
             // Array to store buildings that can be bought
             const filteredBuildings = {};
@@ -115,7 +115,7 @@ export default class ShortestPaybackPlusSaveUp extends Algorithm {
         // If the objective is production then WaitDecision is ignored
         if (
             objective.type === "production" ||
-            objective.type === "fixed-production"
+            objective.type === "fixed-time-production"
         ) {
             console.log("Decision: " + bestDecisionBuilding);
             console.log(
@@ -143,7 +143,7 @@ export default class ShortestPaybackPlusSaveUp extends Algorithm {
         }
 
         // Cookies [fixed horizon]: Wait, if it gains more cookies at time target
-        if (objective.type === "fixed-cookies") {
+        if (objective.type === "fixed-time-cookies") {
             // Calculate cookies earned at time target by waiting
             const cookiesFromWaiting =
                 gameState.cookies + gameState.cps * timeLeft;
