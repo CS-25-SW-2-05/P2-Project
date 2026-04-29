@@ -142,6 +142,7 @@ export default class BuyCheapestTest extends UnitTest {
                     grandma: { cost: 100 },
                     farm: { cost: 500 },
                 }),
+
                 // Wich decision type the test expects from the algorithm
                 // Can either be PurchaseDecision og WaitDecision
                 expectedDecisionType: PurchaseDecision,
@@ -237,14 +238,18 @@ export default class BuyCheapestTest extends UnitTest {
             },
             {
                 testName: "Handles very large building costs",
-                objective: defaultObjective,
+                objective: {
+                    type: "production",
+                    value: 1000,
+                },
                 gameState: defaultGameState,
                 buildings: createBuildings({
                     cursor: { cost: 1e100 },
                     grandma: { cost: 1e50 },
                     farm: { cost: 1e75 },
                 }),
-                expectedDecisionType: WaitDecision,
+                expectedDecisionType: PurchaseDecision,
+                expectedBuilding: "grandma",
             },
             {
                 testName:
