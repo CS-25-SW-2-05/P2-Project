@@ -183,9 +183,9 @@ export default class BuyCheapestTest extends UnitTest {
                 objective: defaultObjective,
                 gameState: defaultGameState,
                 buildings: createBuildings({
-                    cursor: { cost: 16 },
+                    cursor: { cost: 15.01 },
                     grandma: { cost: 15 },
-                    farm: { cost: 17 },
+                    farm: { cost: 15.02 },
                 }),
                 expectedDecisionType: PurchaseDecision,
                 expectedBuilding: "grandma",
@@ -215,7 +215,7 @@ export default class BuyCheapestTest extends UnitTest {
                 expectedBuilding: "cursor",
             },
             {
-                testName: "Handles only one building",
+                testName: "Handles only one building available",
                 objective: defaultObjective,
                 gameState: defaultGameState,
                 buildings: createBuildings({
