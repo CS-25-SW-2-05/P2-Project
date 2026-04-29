@@ -29,18 +29,21 @@ function createBuildings(buildingsInput) {
 
 // Helper function for running one test case
 function runSingleTest(algorithm, test) {
-    console.log(`\n --- Running test: ---`);
-    console.log(test);
+    console.log(`\nRunning test:`);
+    console.log(test.testName);
+    console.log({ test });
 
+    // Perform the decision
     const decision = algorithm.getNextDecision(
         test.gameState,
         test.buildings,
         test.objective,
     );
 
-    const expectedDecisionType = test.expectedDecisionType ?? PurchaseDecision;
+    // Get the expected decision type (purchase/wait)
+    const expectedDecisionType = test.expectedDecisionType;
 
-    // Check 1: Correct decision type
+    // Check 1: Is the decision output from the algorithm the correct type and format?
     if (!(decision instanceof expectedDecisionType)) {
         console.log(
             `✖ Failed: Expected ${expectedDecisionType.name}, got ${decision.constructor.name}`,
@@ -50,9 +53,9 @@ function runSingleTest(algorithm, test) {
 
     console.log(`✔ Passed: Decision is ${expectedDecisionType.name}`);
 
-    // If it's a PurchaseDecision → validate building
+    // If it's a PurchaseDecision, then validate the building
     if (decision instanceof PurchaseDecision) {
-        // Check 2: Has purchaseable
+        // Check 2: Is the building purchaseable?
         if (!decision.purchaseable) {
             console.log("✖ Failed: Decision has no purchaseable building");
             return false;
@@ -62,7 +65,8 @@ function runSingleTest(algorithm, test) {
 
         const selectedBuilding = decision.purchaseable.name;
 
-        // Check 3: Correct building
+        // Check 3: Is the building the expected building?
+        // First, handle if there is several expected buildings
         if (test.expectedOptions) {
             if (!test.expectedOptions.includes(selectedBuilding)) {
                 console.log(
@@ -70,10 +74,12 @@ function runSingleTest(algorithm, test) {
                 );
                 return false;
             }
+
+            // Else handle if there is a single expected building
         } else {
-            if (selectedBuilding !== test.expected) {
+            if (selectedBuilding !== test.expectedBuilding) {
                 console.log(
-                    `✖ Failed: Expected ${test.expected}, got ${selectedBuilding}`,
+                    `✖ Failed: Expected ${test.expectedBuilding}, got ${selectedBuilding}`,
                 );
                 return false;
             }
@@ -82,7 +88,7 @@ function runSingleTest(algorithm, test) {
         console.log(`✔ Passed: Selected ${selectedBuilding}`);
     }
 
-    // If it's a WaitDecision → no further checks needed (for now)
+    // If it's a WaitDecision, no further checks needed
     if (decision.constructor.name === "WaitDecision") {
         console.log("✔ Passed: WaitDecision returned");
     }
@@ -99,32 +105,52 @@ export default class BuyCheapestTest extends UnitTest {
     });
 
     async run() {
+        // Algorithm used for the test
         const algorithm = new GreedyNaive();
 
+        // Default objective
         const defaultObjective = {
             type: "cookies",
             value: 1000,
         };
 
+        // Default gamestate
         const defaultGameState = {
             cookies: 100,
             cps: 1,
         };
 
         const tests = [
+            // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \\
+            // -------------------- WRITE TESTS HERE -------------------- \\
+            // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \\
             {
-                name: "Chooses cheapest building",
+                // The name of the test
+                testName: "Chooses cheapest building",
+
+                // The objective passed to the algorithm
+                // Can either be defaultObjective or custom (see below tests)
                 objective: defaultObjective,
+
+                // The gamestate passed to the algorithm
+                // Can either be defaultGameState or custom (see below tests)
                 gameState: defaultGameState,
+
+                // The building config passed to the algorithm
                 buildings: createBuildings({
                     cursor: { cost: 15 },
                     grandma: { cost: 100 },
                     farm: { cost: 500 },
                 }),
-                expected: "cursor",
+                // Wich decision type the test expects from the algorithm
+                // Can either be PurchaseDecision og WaitDecision
+                expectedDecisionType: PurchaseDecision,
+
+                // Which building the test expects to be purchased
+                expectedBuilding: "cursor",
             },
             {
-                name: "Chooses cheapest building when order is different",
+                testName: "Chooses cheapest building when order is different",
                 objective: defaultObjective,
                 gameState: defaultGameState,
                 buildings: createBuildings({
@@ -132,10 +158,12 @@ export default class BuyCheapestTest extends UnitTest {
                     grandma: { cost: 100 },
                     cursor: { cost: 15 },
                 }),
-                expected: "cursor",
+                expectedDecisionType: PurchaseDecision,
+                expectedBuilding: "cursor",
             },
             {
-                name: "Chooses cheapest building even if player cannot afford it yet",
+                testName:
+                    "Chooses cheapest building even if player cannot afford it yet",
                 objective: defaultObjective,
                 gameState: {
                     cookies: 0,
@@ -146,10 +174,11 @@ export default class BuyCheapestTest extends UnitTest {
                     grandma: { cost: 100 },
                     farm: { cost: 500 },
                 }),
-                expected: "cursor",
+                expectedDecisionType: PurchaseDecision,
+                expectedBuilding: "cursor",
             },
             {
-                name: "Chooses cheapest building when costs are close",
+                testName: "Chooses cheapest building when costs are close",
                 objective: defaultObjective,
                 gameState: defaultGameState,
                 buildings: createBuildings({
@@ -157,10 +186,11 @@ export default class BuyCheapestTest extends UnitTest {
                     grandma: { cost: 15 },
                     farm: { cost: 17 },
                 }),
-                expected: "grandma",
+                expectedDecisionType: PurchaseDecision,
+                expectedBuilding: "grandma",
             },
             {
-                name: "Handles same-cost buildings",
+                testName: "Handles same-cost buildings",
                 objective: defaultObjective,
                 gameState: defaultGameState,
                 buildings: createBuildings({
@@ -168,10 +198,11 @@ export default class BuyCheapestTest extends UnitTest {
                     grandma: { cost: 15 },
                     farm: { cost: 500 },
                 }),
+                expectedDecisionType: PurchaseDecision,
                 expectedOptions: ["cursor", "grandma"],
             },
             {
-                name: "Ignores CpS and only uses cost",
+                testName: "Ignores CpS and only uses cost",
                 objective: defaultObjective,
                 gameState: defaultGameState,
                 buildings: createBuildings({
@@ -179,19 +210,21 @@ export default class BuyCheapestTest extends UnitTest {
                     grandma: { cost: 100, baseCpS: 1000 },
                     farm: { cost: 500, baseCpS: 10000 },
                 }),
-                expected: "cursor",
+                expectedDecisionType: PurchaseDecision,
+                expectedBuilding: "cursor",
             },
             {
-                name: "Handles only one building",
+                testName: "Handles only one building",
                 objective: defaultObjective,
                 gameState: defaultGameState,
                 buildings: createBuildings({
                     cursor: { cost: 15 },
                 }),
-                expected: "cursor",
+                expectedDecisionType: PurchaseDecision,
+                expectedBuilding: "cursor",
             },
             {
-                name: "Chooses free building",
+                testName: "Chooses free building",
                 objective: defaultObjective,
                 gameState: defaultGameState,
                 buildings: createBuildings({
@@ -199,10 +232,11 @@ export default class BuyCheapestTest extends UnitTest {
                     grandma: { cost: 100 },
                     farm: { cost: 500 },
                 }),
-                expected: "cursor",
+                expectedDecisionType: PurchaseDecision,
+                expectedBuilding: "cursor",
             },
             {
-                name: "Handles very large building costs",
+                testName: "Handles very large building costs",
                 objective: defaultObjective,
                 gameState: defaultGameState,
                 buildings: createBuildings({
@@ -213,7 +247,8 @@ export default class BuyCheapestTest extends UnitTest {
                 expectedDecisionType: WaitDecision,
             },
             {
-                name: "Waits when cookies objective can be reached before buying",
+                testName:
+                    "Waits when cookies objective can be reached before buying",
                 objective: {
                     type: "cookies",
                     value: 110,
@@ -229,7 +264,7 @@ export default class BuyCheapestTest extends UnitTest {
                 expectedDecisionType: WaitDecision,
             },
             {
-                name: "Buys cheapest for production objective",
+                testName: "Buys cheapest for production objective",
                 objective: {
                     type: "production",
                     value: 10,
@@ -240,10 +275,11 @@ export default class BuyCheapestTest extends UnitTest {
                     grandma: { cost: 100 },
                 }),
                 expectedDecisionType: PurchaseDecision,
-                expected: "cursor",
+                expectedBuilding: "cursor",
             },
             {
-                name: "Waits for fixed-cookies if cheapest cannot be bought before horizon",
+                testName:
+                    "Waits for fixed-cookies if cheapest cannot be bought before horizon",
                 objective: {
                     type: "fixed-cookies",
                     value: 10,
@@ -260,7 +296,8 @@ export default class BuyCheapestTest extends UnitTest {
                 expectedDecisionType: WaitDecision,
             },
             {
-                name: "Buys cheapest for fixed-production if it can be bought before horizon",
+                testName:
+                    "Buys cheapest for fixed-production if it can be bought before horizon",
                 objective: {
                     type: "fixed-production",
                     value: 20,
@@ -275,21 +312,26 @@ export default class BuyCheapestTest extends UnitTest {
                     grandma: { cost: 100 },
                 }),
                 expectedDecisionType: PurchaseDecision,
-                expected: "cursor",
+                expectedBuilding: "cursor",
             },
         ];
 
+        // A variable that is true, as long as no tests has failed
         let allTestsPassed = true;
 
+        // Loop through the tests
         for (const test of tests) {
+            // Use the helper function to run tests
             const passed = runSingleTest(algorithm, test);
 
+            // If a test fails, update "allTestPassed"
             if (!passed) {
                 console.log(`❌ Test failed`);
                 allTestsPassed = false;
             }
         }
 
+        // Return wether a test has failed
         return allTestsPassed;
     }
 }
