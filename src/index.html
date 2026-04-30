@@ -85,43 +85,47 @@
                         </div>
                     </section>
 
-                <section>
-                    <h2>Objective</h2>
-                    <div class="grid">
-                        <div class="field">
-                            <label for="objective-type">
-                                <p>Objective type</p>
-                                <select id="objective-type">
-                                    <option value="cookies">
+                    <section>
+                        <h2>Objective</h2>
+                        <div class="grid">
+                            <div class="field">
+                                <label for="objective-type">
+                                    <p>Objective type</p>
+                                    <select id="objective-type">
+                                        <option value="cookies">
                                             Number of Cookies
                                         </option>
-                                    <option value="production">
-                                        Production Rate
-                                    </option>
-                                    <option value="fixed-production">[Fixed Time] Production Rate</option>
-									<option value="fixed-cookies">[Fixed 
-                                        Time] Cookies
-                                    </option>
-                                </select>
-                            </label>
+                                        <option value="production">
+                                            Production Rate
+                                        </option>
+                                        <option value="fixed-time-production">
+                                            [Fixed Time] Production Rate
+                                        </option>
+                                        <option value="fixed-time-cookies">
+                                            [Fixed Time] Cookies
+                                        </option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="field">
+                                <label for="objective-value">
+                                    <p>Objective value</p>
+                                    <input
+                                        type="number"
+                                        id="objective-value"
+                                        min="1"
+                                        value="1000"
+                                    />
+                                </label>
+                            </div>
                         </div>
-                        <div class="field">
-                            <label for="objective-value">
-                                <p>Objective value</p>
-                                <input
-                                    type="number"
-                                    id="objective-value"
-                                    min="1"
-                                    value="1000"
-                                />
-                            </label>
-                        </div>
-                    </div>
-                </section>
+                    </section>
 
                     <div class="actions">
                         <button type="submit" disabled>Run Benchmark</button>
-                        <button type="button" id="stop-btn" disabled>Stop</button>
+                        <button type="button" id="stop-btn" disabled>
+                            Stop
+                        </button>
                         <button type="reset">Reset</button>
                     </div>
                 </form>

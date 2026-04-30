@@ -525,8 +525,8 @@ form.addEventListener("submit", async (e) => {
             // Abort if the algorithm is bruteforce and the objective is
             // fixed horizon (not supported)
             if (
-                (isBruteForce && objective.type === "fixed-cookies") ||
-                (isBruteForce && objective.type === "fixed-production")
+                (isBruteForce && objective.type === "fixed-time-cookies") ||
+                (isBruteForce && objective.type === "fixed-time-production")
             ) {
                 // Remove algorithm selection
                 document.getElementById("BruteForceSegmented").checked = false;
