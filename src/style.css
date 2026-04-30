@@ -436,6 +436,12 @@ button[type="submit"] {
     border: none;
 }
 
+#stop-btn {
+	background-color: var(--destructive);
+	color: var(--secondary-foreground);
+	border: none;
+}
+
 button[type="reset"] {
     background-color: var(--destructive);
     color: var(--secondary-foreground);

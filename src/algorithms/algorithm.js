@@ -42,7 +42,7 @@ export default class Algorithm {
      * @param {number} baseCpS base cookies per second, passed in by the caller
      * @returns {Promise<GameState>} the run process promise.
      */
-    async run(objective, baseCpS, isBruteForce) {
+    async run(objective, baseCpS, isBruteForce, shouldStop = () => false) {
         if (this.#isRunning) return this.#runPromise;
         this.#isRunning = true;
 
@@ -56,6 +56,10 @@ export default class Algorithm {
                 let iterations = 0;
                 const awaitIteration = 500;
                 while (true) {
+                    if (shouldStop()) {
+                        console.log("Stop requested. Terminating algorithm...");
+                        break;
+                    }
                     // This now checks, if the objective is completed, and breaks if it is.
                     if (objective.isCompleted(gameState)) {
                         console.log("TEST: Objective Completed");
@@ -127,12 +131,24 @@ export default class Algorithm {
             const solutionArr = await this.getBruteForceSegmentedSolution(
                 objective,
                 decisions,
+                shouldStop,
             );
 
             let iterations = 0;
             const awaitIteration = 500;
 
+            if (solutionArr === null) {
+                console.log("Brute force stopped before producing a solution.");
+                this.#isRunning = false;
+                this.#runPromise = null;
+                return data;
+            }
+
             while (true) {
+                if (shouldStop()) {
+                    console.log("Stop requested. Terminating algorithm...");
+                    break;
+                }
                 // This now checks, if the objective is completed, and breaks if it is.
                 if (objective.isCompleted(gameState)) {
                     console.log("TEST: Objective Completed");

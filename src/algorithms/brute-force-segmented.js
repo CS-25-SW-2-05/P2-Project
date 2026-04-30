@@ -4,11 +4,11 @@ import Building, {
     filterValid,
     logBuildingStats,
 } from "../cookie-clicker/purchasables/building.js";
+import { yieldFrame } from "../utils.js";
 import Algorithm from "./algorithm.js";
 import Decision from "./decisions/decision.js";
 import PurchaseDecision from "./decisions/purchase-decision.js";
 import WaitDecision from "./decisions/wait-decision.js";
-import { yieldFrame } from "../utils.js";
 
 export default class BruteForceSegmented extends Algorithm {
     // Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
@@ -477,6 +477,14 @@ export default class BruteForceSegmented extends Algorithm {
                     referenceGameState,
                     bestSolutionGameState,
                 );
+                if (segmentSolutionData === null) return null;
+
+                console.log(
+                    "bestSolutionGameState.buildingCpS3",
+                    segmentSolutionData[1].buildingCpS,
+                );
+
+                console.log("Segment solution: " + segmentSolution);
 
                 if (
                     referenceGameState.buildingCpS >=

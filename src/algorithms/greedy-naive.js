@@ -36,9 +36,22 @@ export default class BuyCheapest extends Algorithm {
         //Logging the result building
         console.log("Cheapest building:    " + String(cheapestBuilding.name));
 
-        // Buy cheapest building, if the objective is production
+        // Buy cheapest building if the objective is production
         if (objective.type === "production")
             return new PurchaseDecision(gameState, cheapestBuilding);
+
+        // Fixed-time objectives: buy the cheapest until the clock runs out,
+        // then wait out the remaining time so simulationTime doesn't "overshoot".
+        if (
+            objective.type === "fixed-time-production" ||
+            objective.type === "fixed-time-cookies"
+        ) {
+            const timeLeft = objective.value - gameState.simulationTime;
+            const saveUp = cheapestBuilding.cost / gameState.cps;
+            if (saveUp > timeLeft)
+                return new WaitDecision(gameState, Math.ceil(timeLeft));
+            return new PurchaseDecision(gameState, cheapestBuilding);
+        }
 
         // Calculate cookies needed to reach objective
         const cookiesNeeded = Math.max(0, objective.value - gameState.cookies);

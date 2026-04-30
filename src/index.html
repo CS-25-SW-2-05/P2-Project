@@ -98,8 +98,11 @@
                                         <option value="production">
                                             Production Rate
                                         </option>
-                                        <option value="time limit">
-                                            Time Limit
+                                        <option value="fixed-time-production">
+                                            [Fixed Time] Production Rate
+                                        </option>
+                                        <option value="fixed-time-cookies">
+                                            [Fixed Time] Cookies
                                         </option>
                                     </select>
                                 </label>
@@ -120,6 +123,9 @@
 
                     <div class="actions">
                         <button type="submit" disabled>Run Benchmark</button>
+                        <button type="button" id="stop-btn" disabled>
+                            Stop
+                        </button>
                         <button type="reset">Reset</button>
                     </div>
                 </form>
