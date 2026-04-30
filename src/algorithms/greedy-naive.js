@@ -36,13 +36,16 @@ export default class BuyCheapest extends Algorithm {
         //Logging the result building
         console.log("Cheapest building:    " + String(cheapestBuilding.name));
 
-		// Buy cheapest building if the objective is production
-		if (objective.type === "production")
-			return new PurchaseDecision(gameState, cheapestBuilding);
+        // Buy cheapest building if the objective is production
+        if (objective.type === "production")
+            return new PurchaseDecision(gameState, cheapestBuilding);
 
         // Fixed-time objectives: buy the cheapest until the clock runs out,
         // then wait out the remaining time so simulationTime doesn't "overshoot".
-        if (objective.type === "fixed-production" || objective.type === "fixed-cookies") {
+        if (
+            objective.type === "fixed-time-production" ||
+            objective.type === "fixed-time-cookies"
+        ) {
             const timeLeft = objective.value - gameState.simulationTime;
             const saveUp = cheapestBuilding.cost / gameState.cps;
             if (saveUp > timeLeft)
@@ -52,17 +55,6 @@ export default class BuyCheapest extends Algorithm {
 
         // Calculate cookies needed to reach objective
         const cookiesNeeded = Math.max(0, objective.value - gameState.cookies);
-
-        console.log(
-            "Cookies needed for objective:",
-            Math.round(cookiesNeeded),
-            "cookies",
-        );
-        console.log(
-            "Cookies needed for purchase:",
-            Math.round(cheapestPrice),
-            "cookies",
-        );
 
         // If the cookies needed to reach the objective is less than the cheapest building price
         if (cookiesNeeded <= cheapestPrice) {
@@ -75,51 +67,5 @@ export default class BuyCheapest extends Algorithm {
 
         // Else buy the cheapest building
         return new PurchaseDecision(gameState, cheapestBuilding);
-
-        // 1 step look ahead:
-        // If the time to objective is faster when buying the building,
-        // buy the cheapest building, else wait until the objective is reached
-
-        /*
-		// Calculate time to reach objective without buying
-		const waitTimeWithoutBuying =
-			(objective.value - gameState.cookies) / gameState.cps;
-
-		// Calculate time to afford cheapest building
-		const timeToAfford =
-			gameState.cookies < cheapestPrice
-				? (cheapestPrice - gameState.cookies) / gameState.cps
-				: 0;
-
-		// Calculate cookies after buying
-		const cookiesAfterBuy =
-			gameState.cookies + gameState.cps * timeToAfford - cheapestPrice;
-
-		// Calculate new CPS
-		const newCps = gameState.cps + cheapestBuilding.baseCpS;
-
-		// Calculate time to reach objective after buying building
-		const timeAfterBuy = (objective.value - cookiesAfterBuy) / newCps;
-
-		// Calculate overall time to reach objective when buying cheapest building
-		const waitTimeWithBuying = timeToAfford + timeAfterBuy;
-
-		console.log(
-			"Time without buy:",
-			Math.round(waitTimeWithoutBuying),
-			"seconds",
-		);
-		console.log("Time with buy:", Math.round(waitTimeWithBuying), "seconds");
-
-		//If the time to objective is faster when buying the building
-		if (waitTimeWithBuying < waitTimeWithoutBuying) {
-			// Buy the cheapest building
-			return new PurchaseDecision(gameState, cheapestBuilding);
-		}
-
-		// Else wait until the objective is reached
-		return new WaitDecision(gameState, Math.ceil(waitTimeWithoutBuying));
-
-		*/
     }
 }
