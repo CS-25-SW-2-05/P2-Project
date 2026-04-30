@@ -445,7 +445,6 @@ export default class BruteForceSegmented extends Algorithm {
     // connects the segmented solutions together and returns the final solution
     async getBruteForceSegmentedSolution(objective, decisions) {
         let endMarker = 0;
-        let totalSimulationTime = 0;
         let segmentSolutionData = [];
         let segmentSolution = [];
         let solution = [];

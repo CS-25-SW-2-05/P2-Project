@@ -1,5 +1,6 @@
 import UnitTest from "./unit-test/unit-test.js";
 import "./unit-test/random.js";
+import "./unit-test/getSegmentSolution.js";
 
 const testsWrapper = document.querySelector("#tests");
 const runAllBtn = document.querySelector("#run-all");
