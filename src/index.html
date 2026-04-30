@@ -125,37 +125,45 @@
                 </form>
                 <div class="benchmark-results hide">
                     <section class="results-section">
-                        <button class="expand-button">⤢</button>
+                        <button class="expand-button">
+                            <img src="./images/expand.svg" alt="Expand" />
+                        </button>
                         <h2>Results</h2>
-                        <canvas
-                            id="chart"
-                            class="zoom"
-                            width="2560"
-                            height="1440"
-                        ></canvas>
-                        <div class="previews">
+                        <div class="charts">
                             <canvas
-                                id="cps-chart"
+                                id="chart"
+                                class="zoom"
                                 width="2560"
                                 height="1440"
                             ></canvas>
-                            <canvas
-                                id="cookie-chart"
-                                width="2560"
-                                height="1440"
-                            ></canvas>
-                            <canvas
-                                id="building-graph"
-                                width="2560"
-                                height="1440"
-                            ></canvas>
-                        </div>
-                        <div class="labels">
-                            <p class="cps-chart-label">Production Over Time</p>
-                            <p class="cookie-chart-label">Cookies Over Time</p>
-                            <p class="building-graph-label">
-                                Building Configuration
-                            </p>
+                            <div class="previews">
+                                <canvas
+                                    id="cps-chart"
+                                    width="2560"
+                                    height="1440"
+                                ></canvas>
+                                <canvas
+                                    id="cookie-chart"
+                                    width="2560"
+                                    height="1440"
+                                ></canvas>
+                                <canvas
+                                    id="building-graph"
+                                    width="2560"
+                                    height="1440"
+                                ></canvas>
+                            </div>
+                            <div class="labels">
+                                <p class="cps-chart-label">
+                                    Production Over Time
+                                </p>
+                                <p class="cookie-chart-label">
+                                    Cookies Over Time
+                                </p>
+                                <p class="building-graph-label">
+                                    Building Configuration
+                                </p>
+                            </div>
                         </div>
                         <br />
                         <div>
