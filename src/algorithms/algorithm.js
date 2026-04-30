@@ -134,6 +134,9 @@ export default class Algorithm {
                 shouldStop,
             );
 
+            let iterations = 0;
+            const awaitIteration = 500;
+
             if (solutionArr === null) {
                 console.log("Brute force stopped before producing a solution.");
                 this.#isRunning = false;
@@ -190,6 +193,10 @@ export default class Algorithm {
 
                 const gameStateCopy = gameState.copy();
                 data.push({ decision: decision, gameState: gameStateCopy });
+
+                const shouldYield = iterations % awaitIteration === 0;
+                if (shouldYield) await yieldFrame();
+                iterations++;
             }
 
             this.#isRunning = false;
