@@ -1,5 +1,4 @@
 import UnitTest from "./unit-test.js";
-import { sleep } from "../../utils.js";
 import BruteForceSegmented from "../../algorithms/brute-force-segmented.js";
 
 export default class PermutationsTest extends UnitTest {
@@ -11,11 +10,11 @@ export default class PermutationsTest extends UnitTest {
 
     async run() {
         const bruteForce = new BruteForceSegmented();
+        const memoryLimit = Infinity;
 
-        const decisions = ["cursor", "grandma"];
-        const memoryLimit = 3865470566;
-
-        const correctPermutations = [
+        // Test with 2 decisions (Base 2)
+        const decisionsBase2 = ["cursor", "grandma"];
+        const expectedBase2 = [
             [[]],
             [[0], [1]],
             [
@@ -36,12 +35,57 @@ export default class PermutationsTest extends UnitTest {
             ],
         ];
 
-        for (let i = 0; i < 4; i++) {
+        // Test with 3 decisions (Base 3)
+        const decisionsBase3 = ["cursor", "grandma", "farm"];
+        const expectedBase3 = [
+            [[]],
+            [[0], [1], [2]],
+            [
+                [0, 0],
+                [0, 1],
+                [0, 2],
+                [1, 0],
+                [1, 1],
+                [1, 2],
+                [2, 0],
+                [2, 1],
+                [2, 2],
+            ],
+        ];
+
+        const passedBase2 = await this.testPermutations(
+            bruteForce,
+            decisionsBase2,
+            expectedBase2,
+            memoryLimit,
+        );
+        if (!passedBase2) return false;
+
+        const passedBase3 = await this.testPermutations(
+            bruteForce,
+            decisionsBase3,
+            expectedBase3,
+            memoryLimit,
+        );
+        if (!passedBase3) return false;
+
+        console.log("✅ All permutations succeeded!");
+        return true;
+    }
+
+    async testPermutations(
+        bruteForce,
+        decisions,
+        expectedPermutations,
+        memoryLimit,
+    ) {
+        console.log(`%cTesting base-${decisions.length}...`, "color: #add8e6");
+
+        for (let i = 0; i < expectedPermutations.length; i++) {
             console.log(
-                "%cPermutation Depth%c:",
+                `%cPermutation Depth%c: ${i}`,
                 "font-weight: bold",
                 "font-weight: normal",
-                i,
             );
 
             let permutations = Array.from(
@@ -56,38 +100,19 @@ export default class PermutationsTest extends UnitTest {
                 memoryLimit,
             );
 
-            const doLengthsMatch =
-                correctPermutations[i].length === permutations.length;
-            if (!doLengthsMatch) {
-                console.log("Lengths do not match!");
+            if (
+                JSON.stringify(permutations) !==
+                JSON.stringify(expectedPermutations[i])
+            ) {
+                console.log(
+                    `Permutation with base ${decisions.length}, depth ${i} failed!`,
+                );
+                console.log("Expected:", expectedPermutations[i]);
+                console.log("Got:", permutations);
                 return false;
-            }
-
-            for (let j = 0; j < permutations.length; j++) {
-                const doSubLengthsMatch =
-                    correctPermutations[i][j].length === permutations[j].length;
-                if (!doSubLengthsMatch) {
-                    console.log("Sub lengths do not match!");
-                    return false;
-                }
-
-                for (let k = 0; k < permutations[j].length; k++) {
-                    const correct = correctPermutations[i][j][k];
-                    const actual = permutations[j][k];
-
-                    if (actual === correct) continue;
-
-                    console.log(`Permutation with depth ${i} failed!`);
-                    console.log("Expected:", correctPermutations[i]);
-                    console.log("Got:", permutations);
-
-                    return false;
-                }
             }
             console.log("✅ Succeeded!");
         }
-
-        console.log("✅ All permutations succeeded!");
         return true;
     }
 }
