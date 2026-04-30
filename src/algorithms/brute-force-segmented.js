@@ -50,7 +50,6 @@ export default class BruteForceSegmented extends Algorithm {
         const awaitIteration = 100000;
         const permutation = Array(segmentedSearchDepth).fill(0);
         const S = decisions.length;
-        console.log(`Generating permuations...`);
 
         while (true) {
             this.getMemoryStatus(memoryLimit);

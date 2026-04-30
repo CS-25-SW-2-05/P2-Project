@@ -12,52 +12,82 @@ export default class PermutationsTest extends UnitTest {
     async run() {
         const bruteForce = new BruteForceSegmented();
 
-        const segmentedSearchDepth = 3;
-        const decisions = Array(2).fill("cursor");
-        let permutations = Array.from(
-            { length: Math.pow(decisions.length, segmentedSearchDepth) },
-            () => [],
-        );
+        const decisions = ["cursor", "grandma"];
         const memoryLimit = 3865470566;
 
-        permutations = await bruteForce.getAllDecisionPermutations(
-            permutations,
-            decisions,
-            segmentedSearchDepth,
-            memoryLimit,
-        );
-
         const correctPermutations = [
-            [0, 0, 0],
-            [0, 0, 1],
-            [0, 1, 0],
-            [0, 1, 1],
-            [1, 0, 0],
-            [1, 0, 1],
-            [1, 1, 0],
-            [1, 1, 1],
+            [[]],
+            [[0], [1]],
+            [
+                [0, 0],
+                [0, 1],
+                [1, 0],
+                [1, 1],
+            ],
+            [
+                [0, 0, 0],
+                [0, 0, 1],
+                [0, 1, 0],
+                [0, 1, 1],
+                [1, 0, 0],
+                [1, 0, 1],
+                [1, 1, 0],
+                [1, 1, 1],
+            ],
         ];
 
-        const permutationsLength = Math.min(
-            correctPermutations.length,
-            permutations.length,
-        );
-        for (let i = 0; i < permutationsLength; i++) {
-            const correctPermutation = correctPermutations[i];
-            const permutation = permutations[i];
-            const permutationLength = Math.min(
-                correctPermutation.length,
-                permutation.length,
+        for (let i = 0; i < 4; i++) {
+            console.log(
+                "%cPermutation Depth%c:",
+                "font-weight: bold",
+                "font-weight: normal",
+                i,
             );
 
-            for (let j = 0; j < permutationLength; j++) {
-                const correct = correctPermutation[j];
-                const actual = permutation[j];
-                if (actual === correct) continue;
+            let permutations = Array.from(
+                { length: Math.pow(decisions.length, i) },
+                () => [],
+            );
+
+            permutations = await bruteForce.getAllDecisionPermutations(
+                permutations,
+                decisions,
+                i,
+                memoryLimit,
+            );
+
+            const doLengthsMatch =
+                correctPermutations[i].length === permutations.length;
+            if (!doLengthsMatch) {
+                console.log("Lengths do not match!");
                 return false;
             }
+
+            for (let j = 0; j < permutations.length; j++) {
+                const doSubLengthsMatch =
+                    correctPermutations[i][j].length === permutations[j].length;
+                if (!doSubLengthsMatch) {
+                    console.log("Sub lengths do not match!");
+                    return false;
+                }
+
+                for (let k = 0; k < permutations[j].length; k++) {
+                    const correct = correctPermutations[i][j][k];
+                    const actual = permutations[j][k];
+
+                    if (actual === correct) continue;
+
+                    console.log(`Permutation with depth ${i} failed!`);
+                    console.log("Expected:", correctPermutations[i]);
+                    console.log("Got:", permutations);
+
+                    return false;
+                }
+            }
+            console.log("✅ Succeeded!");
         }
 
+        console.log("✅ All permutations succeeded!");
         return true;
     }
 }
