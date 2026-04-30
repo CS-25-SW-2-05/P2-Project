@@ -124,10 +124,13 @@ export default class Algorithm {
             console.log(decisions);
 
             // Find the solution with the brute force segmented algorithm
-            const solutionArr = this.getBruteForceSegmentedSolution(
+            const solutionArr = await this.getBruteForceSegmentedSolution(
                 objective,
                 decisions,
             );
+
+            let iterations = 0;
+            const awaitIteration = 500;
 
             while (true) {
                 // This now checks, if the objective is completed, and breaks if it is.
@@ -174,6 +177,10 @@ export default class Algorithm {
 
                 const gameStateCopy = gameState.copy();
                 data.push({ decision: decision, gameState: gameStateCopy });
+
+                const shouldYield = iterations % awaitIteration === 0;
+                if (shouldYield) await yieldFrame();
+                iterations++;
             }
 
             this.#isRunning = false;
