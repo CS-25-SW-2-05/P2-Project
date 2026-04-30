@@ -9,7 +9,7 @@ export default class RandomTest extends UnitTest {
     });
 
     async run() {
-        await sleep(1000);
+        await sleep(100);
         return Math.random() < 0.5;
     }
 }
