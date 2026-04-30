@@ -9,6 +9,7 @@ import Algorithm from "./algorithm.js";
 import Decision from "./decisions/decision.js";
 import PurchaseDecision from "./decisions/purchase-decision.js";
 import WaitDecision from "./decisions/wait-decision.js";
+import { yieldFrame } from "../utils.js";
 
 export default class BruteForceSegmented extends Algorithm {
     // Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
@@ -39,52 +40,22 @@ export default class BruteForceSegmented extends Algorithm {
             gameState.buildings[decisions[solutionArr[j]]],
         );
     }
-    /*
-	getAllDecisionPermutations(segmentedSearchDepth, decisionArr, decisions, permutationMarker, permutation) {
 
-		if(!(permutationMarker === segmentedSearchDepth - 1)){
-			this.getAllDecisionPermutations(
-				segmentedSearchDepth, decisionArr, decisions, permutationMarker + 1, permutation
-			);
-		}
-
-		let permutationDepth = (segmentedSearchDepth - 1) - permutationMarker;
-
-		for(let l = segmentedSearchDepth - 1; l < permutationDepth; l++){
-			for(let k = 0; k < decisions.length; k++){
-				permutation[permutationMarker] = k;
-				console.log(permutation);
-				decisionArr.push(permutation);
-				
-			}
-		permutation[permutationMarker] = 0;
-		}
-		for(let k = 0; k < decisions.length; k++){
-			permutation[permutationMarker] = k;
-			console.log(permutation);
-			decisionArr.push(permutation);
-		}
-		permutation[permutationMarker] = 0;
-		return;
-	}
-*/
-    //
-    getAllDecisionPermutations(
+    async getAllDecisionPermutations(
         permutationArr,
         decisions,
         segmentedSearchDepth,
+        memoryLimit,
     ) {
         let permutationNumber = 0;
-        /*let i = 0;
-    let j = 0;
-    let k = 0;
-    let l = 0;
-    let m = 0;*/
+        const awaitIteration = 100000;
         const permutation = Array(segmentedSearchDepth).fill(0);
         const S = decisions.length;
-        console.log(S);
+        console.log(`Generating permuations...`);
 
         while (true) {
+            this.getMemoryStatus(memoryLimit);
+
             let didChange = false;
             for (let i = permutation.length - 1; i >= 0; i--) {
                 if (permutation[i] < S) continue;
@@ -99,76 +70,47 @@ export default class BruteForceSegmented extends Algorithm {
             }
 
             if (didChange) continue;
-            /*
-			if(m >= S){
-				m = 0;
-				l += 1;
-				continue;
-			}
-			if(l >= S){
-				l = 0;
-				k += 1;
-				continue;
-			}
-			if(k >= S){
-				k = 0;
-				j += 1;
-				continue;
-			}
-			if(j >= S){
-				j = 0;
-				i += 1;
-				continue;
-			}
-			if(i >= S){
-				m++;
-				continue;
-			}
-			if(
-				i === S - 1 &&
-				j === S - 1 &&
-				k === S - 1 &&
-				l === S - 1 && 
-				m === S - 1
-			){
-				permutationArr[permutationNumber].push(Number(i));
-				permutationArr[permutationNumber].push(Number(j));
-				permutationArr[permutationNumber].push(Number(k));
-				permutationArr[permutationNumber].push(Number(l));
-				permutationArr[permutationNumber].push(Number(m));
-	
-				//console.log(permutationArr[permutationNumber]);
-				break;
-			}
-
-			//console.log([i, j, k, l, m]);
-			//console.log("permutation " + permuation)
-			/*for(let p = 0; p < permutation.length; p++){
-				permutationArr[permutationNumber][p] = permutation[p];
-			}*/
 
             for (let i = 0; i < permutation.length; i++) {
                 permutationArr[permutationNumber].push(permutation[i]);
             }
-            //console.log(permutationArr[permutationNumber]);
+
             if (permutation.every((p) => p === S - 1)) {
                 break;
             }
 
+            const shouldYield = permutationNumber % awaitIteration === 0;
+            if (shouldYield) await yieldFrame();
+
             permutationNumber++;
-            //console.log(permutationArr);
-            //console.log([i, j, k, l, m])
             permutation[permutation.length - 1]++;
         }
         return permutationArr;
     }
-    /*
-    comparePermuationsProduction() {}
 
-    comparePermuationsCookies() {}*/
+    /**function checks if the total JS heap size is bigger than
+     * the memory limit margin. THIS ONLY WORKS WITH CHROMIUM BROWSERS!!!
+     */
+    getMemoryStatus(memoryLimit) {
+        // toggle on or off
+        const memoryLimitActive = true;
+        let memoryAllocatedNow = 0;
+
+        try {
+            memoryAllocatedNow = performance.memory.totalJSHeapSize;
+        } catch {
+            return;
+        }
+
+        if (memoryLimitActive) {
+            if (memoryAllocatedNow >= memoryLimit) {
+                throw new Error("Memory limit reached");
+            }
+        }
+    }
 
     // finds the solution to each segment
-    getSegmentSolution(
+    async getSegmentSolution(
         currentGameState,
         decisions,
         segmentedSearchDepth,
@@ -181,23 +123,35 @@ export default class BruteForceSegmented extends Algorithm {
                 Math.pow(decisions.length, segmentedSearchDepth),
         );
 
-        
-        //Original Code
+        // hard-coded permutation limit to stop out of memory errors
+        if (Math.pow(decisions.length, segmentedSearchDepth) >= 20000000) {
+            throw new Error(
+                "The number of permuations is too high. Try lowering the brute force horizon or the number of buildings",
+            );
+        }
+
+        // permutation array is initialized
         let permutationArr = Array.from(
             { length: Math.pow(decisions.length, segmentedSearchDepth) },
             () => [],
         );
-        
 
-        //console.log(permutationArr);
+        let memoryLimit = 0;
 
-        // finds all decision permutations and puts them into decisionArr
-        permutationArr = this.getAllDecisionPermutations(
+        /**memory size limit is saved with a margin of 10%.
+         * If the browser does not support performance.memory.jsHeapSizeLimit it moves on
+         */
+        try {
+            memoryLimit = performance.memory.jsHeapSizeLimit * 0.9;
+        } catch {}
+
+        // finds all decision permutations and saves them to permutationArr
+        permutationArr = await this.getAllDecisionPermutations(
             permutationArr,
             decisions,
             segmentedSearchDepth,
+            memoryLimit,
         );
-        console.log(permutationArr);
 
         let saveUpTime = 0;
         let paybackSaveUpTime = 0;
@@ -205,10 +159,14 @@ export default class BruteForceSegmented extends Algorithm {
         let cpsPerTime = 0;
         let decision = 0;
 
-        const testPrint = false;
+        const awaitIteration = 10000;
         const isCookies = objective.type === "cookies" ? true : false;
-        const permuationLength = permutationArr[0].length;
+        const permutationLength = permutationArr[0].length;
+        // toggle prints for debugging
+        const testPrint = false;
+        // toggle for using paybackSaveUp instead of CPS/simulationTime
         const usePaybackSaveUp = false;
+        const progressPrint = true;
 
         let bestSolution = [
             permutationArr[0],
@@ -224,19 +182,32 @@ export default class BruteForceSegmented extends Algorithm {
             objectiveWaitTime,
         ];
 
-        // Runs through all decision permutations and saves the best one
+        // runs through all decision permutations and saves the best one
         for (let i = 0; i < permutationArr.length; i++) {
             currentGameState = referenceGameState.copy();
             paybackSaveUpTime = 0;
             saveUpTime = 0;
             cpsPerTime = 0;
 
+            // memory limit check
+            this.getMemoryStatus(memoryLimit);
+
+            // gives way to frames so the html page is interactable while the algorithm is running
+            const shouldYield = i % awaitIteration === 0;
+            if (shouldYield) await yieldFrame();
+
+            if (progressPrint) {
+                if (i % Math.floor(permutationArr.length / 4) === 0) {
+                    const progress = Math.ceil(
+                        (i / permutationArr.length) * 100,
+                    );
+                    console.log(`Segment solution progress: ` + progress + `%`);
+                }
+            }
+
             // Runs through each decision in the permuation
             for (let j = 0; j < permutationArr[i].length; j++) {
-                //console.log("Permuation nr. " + i + " j = " + j + " decision: " + permutationArr[i][j] + " " + decisions[permutationArr[i][j]]);
                 if (!isCookies) {
-                    //console.log("point reached 1");
-                    //waitTime += (currentGameState.buildings[decisions[permutationArr[i][j]]].cost - currentGameState.cookies)/currentGameState.cps;
                     decision = new PurchaseDecision(
                         currentGameState,
                         currentGameState.buildings[
@@ -244,30 +215,24 @@ export default class BruteForceSegmented extends Algorithm {
                         ],
                     );
                     decision.perform();
-                    //logBuildingStats(currentGameState.buildings);
 
                     /*
 					if the production objective is reached, a marker is added at the end 
 					of the permutation, which corresponds to the last decision number + 1
 					*/
                     if (currentGameState.buildingCpS >= objective.value) {
-                        for (let l = 0; l < permuationLength - (j + 1); l++) {
+                        for (let l = 0; l < permutationLength - (j + 1); l++) {
                             permutationArr[i].pop();
                         }
                         permutationArr[i].push(Number(decisions.length));
-                        //console.log("point 1 reached: " + permutationArr[i]);
-                        //console.log(currentGameState);
-                        //console.log("cps: " + currentGameState.cps);
                         break;
                     }
 
                     continue;
                 }
 
-                //console.log("Error: can only use production as objective atm");
                 if (decisions[permutationArr[i][j]] === "wait") {
-                    // Calculate how long it takes until the cookie objective is reached
-                    //console.log("POINT REACHED 3");
+                    // calculates time until cookie objective completion
                     let waitSaveUpTime =
                         (objective.value - currentGameState.cookies) /
                         currentGameState.cps;
@@ -286,7 +251,6 @@ export default class BruteForceSegmented extends Algorithm {
                         permutationArr[i].pop();
                     }
 
-                    //console.log(permutationArr[i]);
                     break;
                 }
 
@@ -304,23 +268,43 @@ export default class BruteForceSegmented extends Algorithm {
                         ].baseCpS +
                     saveUpTime;
 
-                //console.log("j = " + j);
-                //console.log(permutationArr[i][j]);
-                //console.log("point reached 2");
                 decision = new PurchaseDecision(
                     currentGameState,
                     currentGameState.buildings[decisions[permutationArr[i][j]]],
                 );
                 decision.perform();
-                //logBuildingStats(currentGameState.buildings);
             }
-            // The permuation has now been performed and must now be evaluated
+            // the permuation has now been performed and must now be evaluated
 
-            //console.log(waitTime);
-            objectiveWaitTime =
-                currentGameState.simulationTime +
-                (objective.value - currentGameState.cookies) /
-                    currentGameState.cps;
+            /**if the new permutation has the exact same decisions and order as
+             * the last permutation, it can be skipped */
+            if (
+                i > 0 &&
+                permutationArr[i].toString() ===
+                    permutationArr[i - 1].toString()
+            ) {
+                continue;
+            }
+
+            /**The objective wait time is the time until the cookie objective is met
+             * plus the simulationTime of the permuation. If the permuation already has
+             * a wait decision, then the objective wait time is already included in the
+             * simulationTime variable.
+             */
+            if (
+                tempSolution[0][tempSolution[0].length - 1] ===
+                decisions.length - 1
+            ) {
+                objectiveWaitTime =
+                    currentGameState.simulationTime -
+                    referenceGameState.simulationTime;
+            } else {
+                objectiveWaitTime =
+                    currentGameState.simulationTime -
+                    referenceGameState.simulationTime +
+                    (objective.value - currentGameState.cookies) /
+                        currentGameState.cps;
+            }
 
             cpsPerTime =
                 (currentGameState.buildingCpS -
@@ -341,7 +325,7 @@ export default class BruteForceSegmented extends Algorithm {
                 console.log(currentGameState);
             }
 
-            // First permutation is the best one since there are no others to compare to yet
+            // first permutation is the best one, since there are no others to compare to yet
             if (i === 0) {
                 bestSolution[0] = tempSolution[0];
                 bestSolution[1] = tempSolution[1];
@@ -357,7 +341,7 @@ export default class BruteForceSegmented extends Algorithm {
                 continue;
             }
 
-            //If cookies are the objective, permutations are evaluated differently
+            // if cookies are the objective, permutations are evaluated differently
             if (isCookies) {
                 if (
                     tempSolution[0][tempSolution[0].length - 1] ===
@@ -365,7 +349,8 @@ export default class BruteForceSegmented extends Algorithm {
                     bestSolution[0][bestSolution[0].length - 1] ===
                         decisions.length - 1
                 ) {
-                    if (tempSolution[3] <= bestSolution[3]) {
+                    // lowest objectiveWaitTime
+                    if (tempSolution[3] < bestSolution[3]) {
                         bestSolution[0] = tempSolution[0];
                         bestSolution[1] = tempSolution[1];
                         bestSolution[2] = tempSolution[2];
@@ -382,7 +367,8 @@ export default class BruteForceSegmented extends Algorithm {
                     continue;
                 }
 
-                if (tempSolution[1] >= bestSolution[1]) {
+                // highest cpsPerTime
+                if (tempSolution[1] > bestSolution[1]) {
                     bestSolution[0] = tempSolution[0];
                     bestSolution[1] = tempSolution[1];
                     bestSolution[2] = tempSolution[2];
@@ -409,17 +395,13 @@ export default class BruteForceSegmented extends Algorithm {
                     decisions.length ||
                 currentGameState.buildingCpS < objective.value
             ) {
-                //console.log(tempSolution[2] + "s vs. " + bestSolution[2] + "s")
-                if (tempSolution[2] <= bestSolution[2]) {
-                    //console.log(tempSolution[2] + "s is smaller or equal to " + bestSolution[2] + "s");
+                // lowest simulationTime
+                if (tempSolution[2] < bestSolution[2]) {
                     bestSolution[0] = tempSolution[0];
                     bestSolution[1] = tempSolution[1];
                     bestSolution[2] = tempSolution[2];
                     bestSolution[3] = tempSolution[3];
-                    //console.log(tempSolution[0]);
                     bestSolutionGameState = currentGameState.copy();
-                    //console.log("Best solution buildings: ");
-                    //logBuildingStats(bestSolutionGameState.buildings);
                     if (testPrint) {
                         console.log(
                             `Temp BEST segment solution:`,
@@ -431,16 +413,13 @@ export default class BruteForceSegmented extends Algorithm {
                 continue;
             }
 
-            if (tempSolution[1] >= bestSolution[1]) {
-                //console.log(tempSolution[1] + " cps/time vs. " + bestSolution[1] + " cps/time");
-                //console.log(tempSolution[1] + " is bigger or equal to " + bestSolution[1]);
+            // highest cpsPerTime
+            if (tempSolution[1] > bestSolution[1]) {
                 bestSolution[0] = tempSolution[0];
                 bestSolution[1] = tempSolution[1];
                 bestSolution[2] = tempSolution[2];
                 bestSolution[3] = tempSolution[3];
                 bestSolutionGameState = currentGameState.copy();
-                //console.log("Best solution buildings: ");
-                //logBuildingStats(bestSolutionGameState.buildings);
                 if (testPrint) {
                     console.log(
                         `Temp BEST segment solution:`,
@@ -448,37 +427,24 @@ export default class BruteForceSegmented extends Algorithm {
                     );
                 }
             }
-            //console.log(permutationArr[i]);
-            //console.log("permutation nr. " + i + " completed");
+
             /*If this point is reached, the permuation has been calculated and evaluated. 
             The algorithm will now move onto the next permuation, if there are more left */
         }
+
         /*When this point is reached, all permuations have been evaluated, 
         and the best solution has been found */
-
-        //logBuildingStats(referenceGameState.buildings);
-        //logBuildingStats(bestSolutionGameState.buildings);
-        //console.log("Best segment solution: " + bestSolution[0]);
-        console.log(
-            "bestSolutionGameState.buildingCpS",
-            bestSolutionGameState.buildingCpS,
-        );
         if (testPrint) {
             console.log(`BEST segment solution:`, bestSolution[0]);
         }
+
         let returnValue = [bestSolution[0], bestSolutionGameState];
-        console.log(
-            "bestSolutionGameState.buildingCpS2",
-            returnValue[1].buildingCpS,
-        );
+
         return returnValue;
     }
 
     // connects the segmented solutions together and returns the final solution
-    getBruteForceSegmentedSolution(objective, decisions) {
-        /*if (objective.type !== "production") {
-            throw new Error(`Brute force only works with production objective`);
-        }*/
+    async getBruteForceSegmentedSolution(objective, decisions) {
         let endMarker = 0;
         let totalSimulationTime = 0;
         let segmentSolutionData = [];
@@ -501,11 +467,10 @@ export default class BruteForceSegmented extends Algorithm {
             throw new Error(`Please select a search depth higher than 1`);
         }
 
+        //This loop is for the production objective
         if (objective.type === "production") {
             for (let i = 0; endMarker !== decisions.length; i++) {
-                console.log(endMarker);
-
-                segmentSolutionData = this.getSegmentSolution(
+                segmentSolutionData = await this.getSegmentSolution(
                     currentGameState,
                     decisions,
                     segmentedSearchDepth,
@@ -527,21 +492,28 @@ export default class BruteForceSegmented extends Algorithm {
                     segmentSolutionData[1].buildingCpS
                 ) {
                     throw new Error(
-                        `Best solution game state is somehow lower or equal to the last, 
-			                indicating inconsistency in game state`,
+                        `Best solution game state is somehow lower than last iteration, 
+			                indicating inconsistency in game state transfer`,
                     );
                 }
 
-                console.log(
+                /*console.log(
                     "referenceGameStateBEFORE",
                     referenceGameState.buildingCpS,
-                );
+                );*/
+
                 segmentSolution = segmentSolutionData[0];
                 referenceGameState = segmentSolutionData[1].copy();
+
                 console.log(
+                    `Segment solution ` + (i + 1) + `: ` + segmentSolution,
+                );
+
+                /*console.log(
                     "referenceGameStateAFTER",
                     referenceGameState.buildingCpS,
-                );
+                );*/
+
                 if (
                     referenceGameState.buildingCpS !==
                     segmentSolutionData[1].buildingCpS
@@ -555,14 +527,7 @@ export default class BruteForceSegmented extends Algorithm {
                 solution.push(...segmentSolution);
                 endMarker = solution[solution.length - 1];
 
-                //console.log("total simulation time: " + totalSimulationTime);
                 console.log(referenceGameState);
-                //console.log("Current CPS", referenceGameState.cps);
-                //console.log("solution: " + solution);
-                //console.log("best solution state: ");
-                //logBuildingStats(segmentSolutionData[1].buildings);
-                //console.log("reference game state: ");
-                //logBuildingStats(referenceGameState.buildings);
             }
 
             console.log("Final solution: " + solution);
@@ -571,9 +536,7 @@ export default class BruteForceSegmented extends Algorithm {
 
         //This loop is for the cookies objective
         for (let i = 0; endMarker !== decisions.length - 1; i++) {
-            console.log(endMarker);
-
-            segmentSolutionData = this.getSegmentSolution(
+            segmentSolutionData = await this.getSegmentSolution(
                 currentGameState,
                 decisions,
                 segmentedSearchDepth,
@@ -582,35 +545,30 @@ export default class BruteForceSegmented extends Algorithm {
                 bestSolutionGameState,
             );
 
-            console.log(
-                "bestSolutionGameState.buildingCpS3",
-                segmentSolutionData[1].buildingCpS,
-            );
-
-            console.log("Segment solution: " + segmentSolution);
-
             if (
                 referenceGameState.buildingCpS >
                 segmentSolutionData[1].buildingCpS
             ) {
                 throw new Error(
-                    `Best solution game state is somehow lower than last, 
-			                indicating inconsistency in game state`,
+                    `Best solution game state is somehow lower than last iteration, 
+			                indicating inconsistency in game state transfer`,
                 );
             }
 
-            console.log(
+            /*console.log(
                 "referenceGameStateBEFORE",
                 referenceGameState.buildingCpS,
-            );
+            );*/
 
             segmentSolution = segmentSolutionData[0];
             referenceGameState = segmentSolutionData[1].copy();
 
-            console.log(
+            console.log(`Segment solution ` + (i + 1) + `: ` + segmentSolution);
+
+            /*console.log(
                 "referenceGameStateAFTER",
                 referenceGameState.buildingCpS,
-            );
+            );*/
 
             if (
                 referenceGameState.buildingCpS !==
@@ -625,14 +583,7 @@ export default class BruteForceSegmented extends Algorithm {
             solution.push(...segmentSolution);
             endMarker = solution[solution.length - 1];
 
-            //console.log("total simulation time: " + totalSimulationTime);
             console.log(referenceGameState);
-            //console.log("Current CPS", referenceGameState.cps);
-            //console.log("solution: " + solution);
-            //console.log("best solution state: ");
-            //logBuildingStats(segmentSolutionData[1].buildings);
-            //console.log("reference game state: ");
-            //logBuildingStats(referenceGameState.buildings);
         }
         console.log("Final solution: " + solution);
         return solution;
