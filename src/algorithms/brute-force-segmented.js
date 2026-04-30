@@ -9,7 +9,6 @@ import Algorithm from "./algorithm.js";
 import Decision from "./decisions/decision.js";
 import PurchaseDecision from "./decisions/purchase-decision.js";
 import WaitDecision from "./decisions/wait-decision.js";
-import { yieldFrame } from "../utils.js";
 
 export default class BruteForceSegmented extends Algorithm {
     // Dummy to automatically add an instance of the algorithm to the derived set in the Algorithm class.
