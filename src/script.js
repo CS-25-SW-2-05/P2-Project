@@ -24,6 +24,7 @@ import {
     createBuildingChartCanvas,
 } from "./benchmark/building-chart.js";
 import Chart from "https://esm.sh/chart.js/auto";
+import BruteForceSegmented from "./algorithms/brute-force-segmented.js";
 
 // References
 /** @type {HTMLCanvasElement} */
@@ -53,7 +54,6 @@ const expandButton = document.querySelector(".expand-button");
 const inputForm = document.querySelector(".input-form");
 
 let isRunning = false;
-let stopRequested = false;
 let selectedCanvas = null;
 
 let mainChart = null;
@@ -473,20 +473,12 @@ for (const tt of tooltips) {
 
 console.log("Algorithms", Algorithm.derived);
 
-// Subscribe to events
-stopBtn.addEventListener("click", () => {
-    if (!isRunning) return;
-    stopRequested = true;
-    stopBtn.setAttribute("disabled", "disabled");
-    stopBtn.textContent = "Stopping...";
-    show("Stopping", "Benchmark will halt after the current step...");
-});
-
 form.addEventListener("submit", async (e) => {
+    console.log("Submit");
+
     e.preventDefault();
 
     isRunning = true;
-    stopRequested = false;
 
     // Read the form and create an Objective instance right when the user clicks "Run"
     const objective = Objective.fromForm();
@@ -505,62 +497,61 @@ form.addEventListener("submit", async (e) => {
     await loadBuildings(buildingLength);
     const baseCpS = clicksPerSecondInput.valueAsNumber;
 
-    const shouldStop = () => stopRequested;
     const results = [];
     try {
-        for (const algorithm of Algorithm.derived) {
-            if (stopRequested) break;
+        const controller = new AbortController();
+        const signal = controller.signal;
 
+        stopBtn.addEventListener("click", () => {
+            console.log("Cancelling...");
+
+            if (!isRunning) return;
+            stopBtn.setAttribute("disabled", "disabled");
+            stopBtn.textContent = "Stopping...";
+            show("Stopping", "Benchmark will halt after the current step...");
+            controller.abort();
+            show("Stopped", "Benchmark was stopped before completion.");
+        });
+
+        for (const algorithm of Algorithm.derived) {
             const active =
                 document.querySelector(`#${algorithm.name}:checked`) !== null;
-
             if (!active) continue;
 
             // Check whether Brute force segmented is selected
-            let isBruteForce = false;
-            if (algorithm.name === `BruteForceSegmented`) {
-                isBruteForce = true;
-            }
+            const isBruteForce = algorithm.name === "BruteForceSegmented";
 
-            // Abort if the algorithm is bruteforce and the objective is
+            // Abort if the algorithm is brute force and the objective is
             // fixed horizon (not supported)
-            if (
-                (isBruteForce && objective.type === "fixed-time-cookies") ||
-                (isBruteForce && objective.type === "fixed-time-production")
-            ) {
+            const isObjectiveSupportedByBruteForce =
+                !(isBruteForce && objective.type === "fixed-time-cookies") &&
+                !(isBruteForce && objective.type === "fixed-time-production");
+
+            if (!isObjectiveSupportedByBruteForce) {
                 // Remove algorithm selection
                 document.getElementById("BruteForceSegmented").checked = false;
                 continue;
             }
 
             const beforeTime = Date.now();
-            // Start the algorithm run, passing the objective in.
-
             const data = await algorithm.instance.run(
                 objective,
                 baseCpS,
-                isBruteForce,
-                shouldStop,
+                signal,
             );
             const benchmarkTime = Date.now() - beforeTime;
 
-            if (data && data.length > 0) {
-                results.push({
-                    algorithm: algorithm,
-                    benchmarkTime: benchmarkTime,
-                    data: data,
-                });
-            }
+            if (data && data.length <= 0) continue;
+            results.push({
+                algorithm: algorithm,
+                benchmarkTime: benchmarkTime,
+                data: data,
+            });
         }
 
-        if (results.length > 0) {
-            displayResults(results, objective);
-            benchmarkResults.classList.remove("hide");
-        }
-
-        if (stopRequested) {
-            show("Stopped", "Benchmark was stopped before completion.");
-        }
+        if (results.length <= 0) return;
+        displayResults(results, objective);
+        benchmarkResults.classList.remove("hide");
     } finally {
         runBtn.textContent = runBtnText;
         runBtn.removeAttribute("disabled");
@@ -569,7 +560,6 @@ form.addEventListener("submit", async (e) => {
         stopBtn.setAttribute("disabled", "disabled");
 
         isRunning = false;
-        stopRequested = false;
     }
 });
 
