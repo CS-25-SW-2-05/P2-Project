@@ -259,6 +259,10 @@ function displayResults(results, objective) {
                 ${numberformat.format(lastData.gameState.cookies)} 
                 ${formatFactorDifference(cookiesFactor, "-")}</td>
 
+				<td style="color: ${getStatColor(lastData.gameState.totalCookies, highestTotalCookies, lowestTotalCookies)};">
+                ${numberformat.format(lastData.gameState.totalCookies)} 
+                ${formatFactorDifference(totalCookiesFactor, "-")}</td>
+
                 <td style="color: ${getStatColor(r.data.length, lowestIterations, highestIterations)};">
                 ${numberformat.format(r.data.length)} 
                 ${formatFactorDifference(iterationsFactor, "+")}</td>
@@ -266,11 +270,7 @@ function displayResults(results, objective) {
                 <td style="color: ${getStatColor(iterationTime, lowestIterationTime, highestIterationTime)};">
                 ${formatTime(iterationTime, "us")} 
                 ${formatFactorDifference(iterationTimeFactor, "+")}</td>
-    
-                <td style="color: ${getStatColor(lastData.gameState.totalCookies, highestTotalCookies, lowestTotalCookies)};">
-                ${numberformat.format(lastData.gameState.totalCookies)} 
-                ${formatFactorDifference(totalCookiesFactor, "-")}</td>
-    
+       
             </tr>
             `;
     }
