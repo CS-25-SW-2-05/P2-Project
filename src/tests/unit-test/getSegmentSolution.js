@@ -28,11 +28,11 @@ export default class GetSegmentSolutionTest extends UnitTest {
         let referenceGameState = currentGameState.copy();
         let bestSolutionGameState = referenceGameState.copy();
         let segmentedSearchDepth = 2;
-        let decisions = ["cursor", "grandma"];
-        let objective = new Objective("production", 10);
+        const decisions = ["cursor", "grandma"];
+        const objective = new Objective("production", 10);
 
         const bruteForceTest = new BruteForceSegmented();
-        bruteForceTest.getSegmentSolution(
+        segmentSolutionData = await bruteForceTest.getSegmentSolution(
             currentGameState,
             decisions,
             segmentedSearchDepth,
@@ -40,6 +40,7 @@ export default class GetSegmentSolutionTest extends UnitTest {
             referenceGameState,
             bestSolutionGameState,
         );
+
         return false;
     }
 }
