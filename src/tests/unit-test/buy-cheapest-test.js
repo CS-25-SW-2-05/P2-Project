@@ -29,7 +29,7 @@ function createBuildings(buildingsInput) {
 
 // Helper function for running one test case
 function runSingleTest(algorithm, test) {
-    console.log(`\nRunning test:`);
+    console.log("\nRunning test:");
     console.log(test.testName);
     console.log({ test });
 
@@ -93,7 +93,7 @@ function runSingleTest(algorithm, test) {
         console.log("✔ Passed: WaitDecision returned");
     }
 
-    console.log(`✅ Test passed`);
+    console.log("✅ Test passed");
     return true;
 }
 
@@ -368,7 +368,7 @@ export default class BuyCheapestTest extends UnitTest {
 
             // If a test fails, update "allTestPassed"
             if (!passed) {
-                console.log(`❌ Test failed`);
+                console.log("❌ Test failed");
                 allTestsPassed = false;
             }
         }
