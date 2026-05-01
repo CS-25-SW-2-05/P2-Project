@@ -21,6 +21,7 @@ export default class Algorithm {
 
     /**
      * @param {GameState} game the current game state
+     * @param {Objective} objective the current objective
      * @param {Building} buildings a list of all buildings, in their current state
      * @returns {Decision} the next decision to be performed, if it is valid.
      */
@@ -47,59 +48,57 @@ export default class Algorithm {
             let iterations = 0;
             const awaitIteration = 500;
 
-            while (true) {
-                if (signal.aborted) {
-                    this.#isRunning = false;
-                    this.#runPromise = null;
-                    return data;
-                }
+            try {
+                while (true) {
+                    if (signal.aborted) return data;
 
-                // This now checks, if the objective is completed, and breaks if it is.
-                if (objective.isCompleted(gameState)) {
-                    console.log("TEST: Objective Completed");
-                    break;
-                }
-                // Filter buildings for buildings that reached max level
-                // or reached price of infinity
-                const validBuildings = filterValid(gameState.buildings);
+                    // This now checks, if the objective is completed, and breaks if it is.
+                    if (objective.isCompleted(gameState)) {
+                        console.log("TEST: Objective Completed");
+                        break;
+                    }
+                    // Filter buildings for buildings that reached max level
+                    // or reached price of infinity
+                    const validBuildings = filterValid(gameState.buildings);
 
-                // Break the loop if no more buildings are available
-                if (Object.keys(validBuildings).length === 0) {
-                    console.log(
-                        "All buildings have reached max level or price of infinity. Terminating algorithm...",
+                    // Break the loop if no more buildings are available
+                    if (Object.keys(validBuildings).length === 0) {
+                        console.log(
+                            "All buildings have reached max level or price of infinity. Terminating algorithm...",
+                        );
+                        break;
+                    }
+
+                    // Choose a decision based on current policy/algorithm
+                    const decision = await this.getNextDecision(
+                        gameState,
+                        objective,
+                        validBuildings,
+                        signal,
                     );
-                    break;
+
+                    // Break the loop if the decision i invalid
+                    if (!decision.isValid) {
+                        console.log(
+                            "Error: Invalid decision. Terminating algorithm...",
+                        );
+                        break;
+                    }
+
+                    // Perform the decision
+                    decision.perform();
+
+                    const gameStateCopy = gameState.copy();
+                    data.push({ decision: decision, gameState: gameStateCopy });
+
+                    const shouldYield = iterations % awaitIteration === 0;
+                    if (shouldYield) await yieldFrame();
+                    iterations++;
                 }
-
-                // Choose a decision based on current policy/algorithm
-                const decision = await this.getNextDecision(
-                    gameState,
-                    objective,
-                    validBuildings,
-                    signal,
-                );
-
-                // Break the loop if the decision i invalid
-                if (!decision.isValid) {
-                    console.log(
-                        "Error: Invalid decision. Terminating algorithm...",
-                    );
-                    break;
-                }
-
-                // Perform the decision
-                decision.perform();
-
-                const gameStateCopy = gameState.copy();
-                data.push({ decision: decision, gameState: gameStateCopy });
-
-                const shouldYield = iterations % awaitIteration === 0;
-                if (shouldYield) await yieldFrame();
-                iterations++;
+            } finally {
+                this.#isRunning = false;
+                this.#runPromise = null;
             }
-
-            this.#isRunning = false;
-            this.#runPromise = null;
 
             return data;
         })();

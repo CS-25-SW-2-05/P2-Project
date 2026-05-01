@@ -23,11 +23,6 @@ export default class BruteForceSegmented extends Algorithm {
     #index = 0;
     #solution = null;
 
-    /**
-     * @param {GameState} game the current game state
-     * @param {Building} buildings a list of all buildings, in their current state
-     * @returns {Decision} the next decision to be performed, if it is valid.
-     */
     async getNextDecision(gameState, objective, buildings, signal) {
         if (gameState.simulationTime === 0) {
             this.#index = 0;
@@ -562,7 +557,9 @@ export default class BruteForceSegmented extends Algorithm {
                 objective,
                 referenceGameState,
                 bestSolutionGameState,
+                signal,
             );
+            if (segmentSolutionData === null) return null;
 
             const isBestSolutionHigher =
                 referenceGameState.buildingCpS <

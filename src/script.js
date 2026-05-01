@@ -501,16 +501,17 @@ form.addEventListener("submit", async (e) => {
         const controller = new AbortController();
         const signal = controller.signal;
 
-        stopBtn.addEventListener("click", () => {
-            console.log("Cancelling...");
+        stopBtn.addEventListener(
+            "click",
+            () => {
+                console.log("Cancelling...");
 
-            if (!isRunning) return;
-            stopBtn.setAttribute("disabled", "disabled");
-            stopBtn.textContent = "Stopping...";
-            show("Stopping", "Benchmark will halt after the current step...");
-            controller.abort();
-            show("Stopped", "Benchmark was stopped before completion.");
-        });
+                if (!isRunning) return;
+                controller.abort();
+                show("Stopped", "Benchmark was stopped before completion.");
+            },
+            { once: true },
+        );
 
         for (const algorithm of Algorithm.derived) {
             const active =

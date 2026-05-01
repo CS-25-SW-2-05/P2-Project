@@ -12,11 +12,6 @@ export default class BuyCheapest extends Algorithm {
         instance: new BuyCheapest(),
     });
 
-    /**
-     * @param {GameState} game the current game state
-     * @param {Building} buildings a list of all buildings, in their current state
-     * @returns {Decision} the next decision to be performed, if it is valid.
-     */
     getNextDecision(gameState, objective, buildings) {
         let cheapestBuilding = null;
         let cheapestPrice = Infinity;
