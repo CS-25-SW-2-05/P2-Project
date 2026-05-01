@@ -4,7 +4,7 @@ import Building, {
     filterValid,
     logBuildingStats,
 } from "../cookie-clicker/purchasables/building.js";
-import { yieldFrame } from "../utils.js";
+import { toast, yieldFrame } from "../utils.js";
 import Algorithm from "./algorithm.js";
 import Decision from "./decisions/decision.js";
 import PurchaseDecision from "./decisions/purchase-decision.js";
@@ -124,11 +124,14 @@ export default class BruteForceSegmented extends Algorithm {
             return;
         }
 
-        if (memoryLimitActive) {
-            if (memoryAllocatedNow >= memoryLimit) {
-                throw new Error("Memory limit reached");
-            }
-        }
+        if (!memoryLimitActive) return;
+        if (memoryAllocatedNow < memoryLimit) return;
+
+        toast(
+            "Memory Limit Exceeded",
+            "The memory limit was exceeded while performing the segmented brute force.",
+        );
+        throw new Error("Memory limit reached");
     }
 
     /**
@@ -150,6 +153,10 @@ export default class BruteForceSegmented extends Algorithm {
 
         // hard-coded permutation limit to stop out of memory errors
         if (Math.pow(decisions.length, segmentedSearchDepth) >= 20000000) {
+            toast(
+                "Permutation Limit Exceeded",
+                "The segmented brute force permutation exceeded the upper limit.",
+            );
             throw new Error(
                 "The number of permutations is too high. Try lowering the brute force horizon or the number of buildings",
             );
@@ -483,6 +490,10 @@ export default class BruteForceSegmented extends Algorithm {
         console.log("search depth:", segmentedSearchDepth);
 
         if (segmentedSearchDepth <= 1) {
+            toast(
+                "Depth Too Low",
+                "The brute force horizon may not be lower than one.",
+            );
             throw new Error(`Please select a search depth higher than 1`);
         }
 
@@ -513,9 +524,12 @@ export default class BruteForceSegmented extends Algorithm {
                     referenceGameState.buildingCpS >=
                     segmentSolutionData[1].buildingCpS
                 ) {
+                    toast(
+                        "Worse Better Solution?",
+                        "The new best solution is worse than last iteration.",
+                    );
                     throw new Error(
-                        `Best solution game state is somehow lower than last iteration, 
-			                indicating inconsistency in game state transfer`,
+                        "Best solution game state is somehow lower than last iteration, indicating inconsistency in game state transfer",
                     );
                 }
 
@@ -530,8 +544,12 @@ export default class BruteForceSegmented extends Algorithm {
                     referenceGameState.buildingCpS !==
                     segmentSolutionData[1].buildingCpS
                 ) {
+                    toast(
+                        "Failed to Copy Game State",
+                        "The best solution game state did not get copied correctly.",
+                    );
                     throw new Error(
-                        `Best solution game state did not get copied to reference game state correctly`,
+                        "Best solution game state did not get copied to reference game state correctly",
                     );
                 }
 
@@ -566,6 +584,10 @@ export default class BruteForceSegmented extends Algorithm {
                 segmentSolutionData[1].buildingCpS;
 
             if (!isBestSolutionHigher) {
+                toast(
+                    "Worse Better Solution?",
+                    "The new best solution is worse than last iteration.",
+                );
                 throw new Error(
                     "Best solution game state is somehow lower than last iteration, indicating inconsistency in game state transfer",
                 );
@@ -581,6 +603,10 @@ export default class BruteForceSegmented extends Algorithm {
                 segmentSolutionData[1].buildingCpS;
 
             if (wasSolutionGameStateCopied) {
+                toast(
+                    "Failed to Copy Game State",
+                    "The best solution game state did not get copied correctly.",
+                );
                 throw new Error(
                     "Best solution game state did not get copied to reference game state correctly",
                 );

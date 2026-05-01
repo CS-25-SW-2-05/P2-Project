@@ -7,6 +7,7 @@ import {
     formatLabel,
     formatTime,
     safeDivide,
+    toast,
 } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
@@ -45,9 +46,6 @@ const runBtn = form.querySelector("button[type='submit']");
 const stopBtn = document.querySelector("#stop-btn");
 
 const channel = new BroadcastChannel("cookie_timeline");
-const toast = document.querySelector(".toast");
-const toastTitle = toast.querySelector("h2");
-const toastMsg = toast.querySelector("p");
 const resultSection = document.querySelector(".results-section");
 const expandButton = document.querySelector(".expand-button");
 const inputForm = document.querySelector(".input-form");
@@ -415,24 +413,6 @@ function displayResults(results, objective) {
     }
 }
 
-/**
- * Show a toast in the lower-right corner of the screen.
- * @param {string} title title of the toast.
- * @param {string} msg message of the toast.
- */
-let toastCounter = 0;
-function show(title, msg) {
-    toastCounter++;
-    toastTitle.textContent = title;
-    toastMsg.textContent = msg;
-    toast.classList.add("show");
-    setTimeout(() => {
-        toastCounter--;
-        if (toastCounter !== 0) return;
-        toast.classList.remove("show");
-    }, 4000);
-}
-
 // Initialize
 for (const algorithm of Algorithm.derived) {
     const activeByDefault =
@@ -508,7 +488,7 @@ form.addEventListener("submit", async (e) => {
 
                 if (!isRunning) return;
                 controller.abort();
-                show("Stopped", "Benchmark was stopped before completion.");
+                toast("Stopped", "Benchmark was stopped before completion.");
             },
             { once: true },
         );
@@ -564,7 +544,7 @@ form.addEventListener("submit", async (e) => {
 });
 
 form.addEventListener("reset", () => {
-    show("Reset", "The form has been reset...");
+    toast("Reset", "The form has been reset...");
 
     // Timeout to push the execution to after values has been reset
     setTimeout(() => {
