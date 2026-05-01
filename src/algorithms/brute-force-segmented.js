@@ -152,6 +152,8 @@ export default class BruteForceSegmented extends Algorithm {
             memoryLimit,
         );
 
+        console.log(permutationArr);
+
         let saveUpTime = 0;
         let paybackSaveUpTime = 0;
         let objectiveWaitTime = 0;
@@ -312,6 +314,8 @@ export default class BruteForceSegmented extends Algorithm {
                     0.00000001 -
                     referenceGameState.simulationTime);
 
+            console.log(i + " " + cpsPerTime);
+
             tempSolution = [
                 permutationArr[i],
                 usePaybackSaveUp ? paybackSaveUpTime : cpsPerTime,
@@ -390,10 +394,9 @@ export default class BruteForceSegmented extends Algorithm {
             if (
                 tempSolution[0][tempSolution[0].length - 1] ===
                     decisions.length ||
-                bestSolution[0][bestSolution[0].length - 1] ===
-                    decisions.length ||
-                currentGameState.buildingCpS < objective.value
+                bestSolution[0][bestSolution[0].length - 1] === decisions.length
             ) {
+                console.log("point reached");
                 // lowest simulationTime
                 if (tempSolution[2] < bestSolution[2]) {
                     bestSolution[0] = tempSolution[0];
@@ -414,6 +417,9 @@ export default class BruteForceSegmented extends Algorithm {
 
             // highest cpsPerTime
             if (tempSolution[1] > bestSolution[1]) {
+                console.log(
+                    tempSolution[1] + " is bigger than" + bestSolution[1],
+                );
                 bestSolution[0] = tempSolution[0];
                 bestSolution[1] = tempSolution[1];
                 bestSolution[2] = tempSolution[2];

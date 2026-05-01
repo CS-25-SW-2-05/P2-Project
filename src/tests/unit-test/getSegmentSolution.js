@@ -59,7 +59,7 @@ export default class GetSegmentSolutionTest extends UnitTest {
 
         segmentSolution = returnValue[0];
 
-        let expectedSegmentSolution = [1, 0];
+        let expectedSegmentSolution = [0, 1];
 
         console.log(expectedSegmentSolution);
 
