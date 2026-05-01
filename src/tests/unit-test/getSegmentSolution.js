@@ -1,15 +1,16 @@
 import UnitTest from "./unit-test.js";
 import { sleep } from "../../utils.js";
-import GameState from "/src/cookie-clicker/game-state.js";
+import GameState from "../../cookie-clicker/game-state.js";
 import Building, {
     filterValid,
     logBuildingStats,
     cloneBuildings,
-} from "/src/cookie-clicker/purchasables/building.js";
-import Decision from "/src/algorithms/decisions/decision.js";
-import PurchaseDecision from "/src/algorithms/decisions/purchase-decision.js";
-import WaitDecision from "/src/algorithms/decisions/wait-decision.js";
-import Objective from "/src/algorithms/objective.js";
+    loadBuildings,
+} from "../../cookie-clicker/purchasables/building.js";
+import Decision from "../../algorithms/decisions/decision.js";
+import PurchaseDecision from "../../algorithms/decisions/purchase-decision.js";
+import WaitDecision from "../../algorithms/decisions/wait-decision.js";
+import Objective from "../../algorithms/objective.js";
 import Algorithm from "../../algorithms/algorithm.js";
 import BruteForceSegmented from "../../algorithms/brute-force-segmented.js";
 
@@ -21,18 +22,33 @@ export default class GetSegmentSolutionTest extends UnitTest {
     });
 
     async run() {
-        let segmentSolutionData = [];
+        let testPassed = true;
+        let returnValue = [];
         let segmentSolution = [];
-        let solution = [];
+        let segmentSolutionGameState = 0;
+        let segmentedSearchDepth = 2;
+        let decisions = [];
+        let i = 0;
+
+        await loadBuildings(2);
         let currentGameState = new GameState();
         let referenceGameState = currentGameState.copy();
         let bestSolutionGameState = referenceGameState.copy();
-        let segmentedSearchDepth = 2;
-        const decisions = ["cursor", "grandma"];
-        const objective = new Objective("production", 10);
+
+        console.log(currentGameState);
+
+        for (let key in currentGameState.buildings) {
+            decisions[i] = key;
+            i++;
+        }
+
+        console.log(decisions[0]);
+        const objective = new Objective("production", 2);
+
+        //throw new Error("bruh");
 
         const bruteForceTest = new BruteForceSegmented();
-        segmentSolutionData = await bruteForceTest.getSegmentSolution(
+        returnValue = await bruteForceTest.getSegmentSolution(
             currentGameState,
             decisions,
             segmentedSearchDepth,
@@ -41,6 +57,17 @@ export default class GetSegmentSolutionTest extends UnitTest {
             bestSolutionGameState,
         );
 
-        return false;
+        segmentSolution = returnValue[0];
+
+        let expectedSegmentSolution = [1, 0];
+
+        console.log(expectedSegmentSolution);
+
+        console.log(segmentSolution);
+        if (expectedSegmentSolution.toString() !== segmentSolution.toString()) {
+            testPassed = false;
+        }
+
+        return testPassed;
     }
 }
