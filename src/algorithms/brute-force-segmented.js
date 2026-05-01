@@ -231,7 +231,7 @@ export default class BruteForceSegmented extends Algorithm {
             if (progressPrint) {
                 if (i % Math.floor(permutations.length / 4) === 0) {
                     const progress = Math.ceil((i / permutations.length) * 100);
-                    console.log(`Segment solution progress: ` + progress + `%`);
+                    console.log("Segment solution progress:", progress + "%");
                 }
             }
 
@@ -349,7 +349,7 @@ export default class BruteForceSegmented extends Algorithm {
             ];
 
             if (testPrint) {
-                console.log(`Temp segment solution:`, permutations[i]);
+                console.log("Temp segment solution:", permutations[i]);
                 console.log(currentGameState);
             }
 
@@ -361,7 +361,7 @@ export default class BruteForceSegmented extends Algorithm {
                 bestSolution[3] = tempSolution[3];
                 bestSolutionGameState = currentGameState.copy();
                 if (testPrint) {
-                    console.log(`Temp BEST segment solution:`, permutations[i]);
+                    console.log("Temp BEST segment solution:", permutations[i]);
                 }
                 continue;
             }
@@ -570,15 +570,14 @@ export default class BruteForceSegmented extends Algorithm {
 
             if (!isBestSolutionHigher) {
                 throw new Error(
-                    `Best solution game state is somehow lower than last iteration, 
-			                indicating inconsistency in game state transfer`,
+                    "Best solution game state is somehow lower than last iteration, indicating inconsistency in game state transfer",
                 );
             }
 
             segmentSolution = segmentSolutionData[0];
             referenceGameState = segmentSolutionData[1].copy();
 
-            console.log(`Segment solution ` + (i + 1) + `: ` + segmentSolution);
+            console.log("Segment solution", i + 1, ":", segmentSolution);
 
             const wasSolutionGameStateCopied =
                 referenceGameState.buildingCpS !==
@@ -586,7 +585,7 @@ export default class BruteForceSegmented extends Algorithm {
 
             if (wasSolutionGameStateCopied) {
                 throw new Error(
-                    `Best solution game state did not get copied to reference game state correctly`,
+                    "Best solution game state did not get copied to reference game state correctly",
                 );
             }
 
