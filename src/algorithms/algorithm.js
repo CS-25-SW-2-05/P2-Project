@@ -23,6 +23,7 @@ export default class Algorithm {
      * @param {GameState} game the current game state
      * @param {Objective} objective the current objective
      * @param {Building} buildings a list of all buildings, in their current state
+     * @param {AbortSignal} signal the signal to indicate whether the process has been aborted
      * @returns {Decision} the next decision to be performed, if it is valid.
      */
     async getNextDecision(gameState, objective, buildings, signal) {
