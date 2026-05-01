@@ -24,7 +24,6 @@ import {
     createBuildingChartCanvas,
 } from "./benchmark/building-chart.js";
 import Chart from "https://esm.sh/chart.js/auto";
-import BruteForceSegmented from "./algorithms/brute-force-segmented.js";
 
 // References
 /** @type {HTMLCanvasElement} */

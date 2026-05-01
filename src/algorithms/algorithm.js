@@ -42,7 +42,6 @@ export default class Algorithm {
         this.#isRunning = true;
         const gameState = new GameState(baseCpS);
 
-        const isBruteForce = this.constructor.name === "BruteForceSegmented";
         this.#runPromise = (async () => {
             const data = [];
             let iterations = 0;
