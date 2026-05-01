@@ -1,5 +1,4 @@
 import UnitTest from "./unit-test/unit-test.js";
-import "./unit-test/random.js";
 import "./unit-test/buy-cheapest-test.js";
 import "./unit-test/permutations-test.js";
 
