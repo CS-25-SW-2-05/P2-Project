@@ -251,14 +251,6 @@ function displayResults(results, objective) {
                 ${formatTime(round(r.benchmarkTime, 0), "ms")} 
                 ${formatFactorDifference(benchmarkTimeFactor, "+")}</td>
 
-                <td style="color: ${getStatColor(r.data.length, lowestIterations, highestIterations)};">
-                ${numberformat.format(r.data.length)} 
-                ${formatFactorDifference(iterationsFactor, "+")}</td>
-    
-                <td style="color: ${getStatColor(iterationTime, lowestIterationTime, highestIterationTime)};">
-                ${formatTime(iterationTime, "us")} 
-                ${formatFactorDifference(iterationTimeFactor, "+")}</td>
-    
                 <td style="color: ${getStatColor(lastData.gameState.buildingCpS, highestCPS, lowestCPS)};">
                 ${numberformat.format(lastData.gameState.buildingCpS)} 
                 ${formatFactorDifference(cpsFactor, "-")}</td>
@@ -266,11 +258,19 @@ function displayResults(results, objective) {
                 <td style="color: ${getStatColor(lastData.gameState.cookies, highestCookies, lowestCookies)};">
                 ${numberformat.format(lastData.gameState.cookies)} 
                 ${formatFactorDifference(cookiesFactor, "-")}</td>
-    
-                <td style="color: ${getStatColor(lastData.gameState.totalCookies, highestTotalCookies, lowestTotalCookies)};">
+
+				<td style="color: ${getStatColor(lastData.gameState.totalCookies, highestTotalCookies, lowestTotalCookies)};">
                 ${numberformat.format(lastData.gameState.totalCookies)} 
                 ${formatFactorDifference(totalCookiesFactor, "-")}</td>
+
+                <td style="color: ${getStatColor(r.data.length, lowestIterations, highestIterations)};">
+                ${numberformat.format(r.data.length)} 
+                ${formatFactorDifference(iterationsFactor, "+")}</td>
     
+                <td style="color: ${getStatColor(iterationTime, lowestIterationTime, highestIterationTime)};">
+                ${formatTime(iterationTime, "us")} 
+                ${formatFactorDifference(iterationTimeFactor, "+")}</td>
+       
             </tr>
             `;
     }

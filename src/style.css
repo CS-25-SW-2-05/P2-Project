@@ -437,9 +437,9 @@ button[type="submit"] {
 }
 
 #stop-btn {
-	background-color: var(--destructive);
-	color: var(--secondary-foreground);
-	border: none;
+    background-color: var(--destructive);
+    color: var(--secondary-foreground);
+    border: none;
 }
 
 button[type="reset"] {
@@ -566,8 +566,10 @@ kbd {
 
 #tests {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 12px;
 }
 
 .test {
@@ -577,6 +579,8 @@ kbd {
     align-items: center;
     gap: 24px;
     padding: 12px;
+    margin: 0;
+    width: 100%;
 }
 
 .test button {
