@@ -100,6 +100,28 @@ export function formatLabel(str) {
     );
 }
 
+let toastCounter = 0;
+/**
+ * Show a toast in the lower-right corner of the screen.
+ * @param {string} title title of the toast.
+ * @param {string} msg message of the toast.
+ */
+export function toast(title, msg) {
+    const toast = document.querySelector(".toast");
+    const toastTitle = toast.querySelector("h2");
+    const toastMsg = toast.querySelector("p");
+
+    toastCounter++;
+    toastTitle.textContent = title;
+    toastMsg.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => {
+        toastCounter--;
+        if (toastCounter !== 0) return;
+        toast.classList.remove("show");
+    }, 4000);
+}
+
 export function safeDivide(numerator, denominator, fallback = 1) {
     return denominator === 0 || !Number.isFinite(denominator)
         ? fallback

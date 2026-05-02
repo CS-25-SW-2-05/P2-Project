@@ -7,6 +7,7 @@ import {
     formatLabel,
     formatTime,
     safeDivide,
+    toast,
 } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
@@ -45,15 +46,11 @@ const runBtn = form.querySelector("button[type='submit']");
 const stopBtn = document.querySelector("#stop-btn");
 
 const channel = new BroadcastChannel("cookie_timeline");
-const toast = document.querySelector(".toast");
-const toastTitle = toast.querySelector("h2");
-const toastMsg = toast.querySelector("p");
 const resultSection = document.querySelector(".results-section");
 const expandButton = document.querySelector(".expand-button");
 const inputForm = document.querySelector(".input-form");
 
 let isRunning = false;
-let stopRequested = false;
 let selectedCanvas = null;
 
 let mainChart = null;
@@ -416,24 +413,6 @@ function displayResults(results, objective) {
     }
 }
 
-/**
- * Show a toast in the lower-right corner of the screen.
- * @param {string} title title of the toast.
- * @param {string} msg message of the toast.
- */
-let toastCounter = 0;
-function show(title, msg) {
-    toastCounter++;
-    toastTitle.textContent = title;
-    toastMsg.textContent = msg;
-    toast.classList.add("show");
-    setTimeout(() => {
-        toastCounter--;
-        if (toastCounter !== 0) return;
-        toast.classList.remove("show");
-    }, 4000);
-}
-
 // Initialize
 for (const algorithm of Algorithm.derived) {
     const activeByDefault =
@@ -473,20 +452,12 @@ for (const tt of tooltips) {
 
 console.log("Algorithms", Algorithm.derived);
 
-// Subscribe to events
-stopBtn.addEventListener("click", () => {
-    if (!isRunning) return;
-    stopRequested = true;
-    stopBtn.setAttribute("disabled", "disabled");
-    stopBtn.textContent = "Stopping...";
-    show("Stopping", "Benchmark will halt after the current step...");
-});
-
 form.addEventListener("submit", async (e) => {
+    console.log("Submit");
+
     e.preventDefault();
 
     isRunning = true;
-    stopRequested = false;
 
     // Read the form and create an Objective instance right when the user clicks "Run"
     const objective = Objective.fromForm();
@@ -505,62 +476,62 @@ form.addEventListener("submit", async (e) => {
     await loadBuildings(buildingLength);
     const baseCpS = clicksPerSecondInput.valueAsNumber;
 
-    const shouldStop = () => stopRequested;
     const results = [];
     try {
-        for (const algorithm of Algorithm.derived) {
-            if (stopRequested) break;
+        const controller = new AbortController();
+        const signal = controller.signal;
 
+        stopBtn.addEventListener(
+            "click",
+            () => {
+                console.log("Cancelling...");
+
+                if (!isRunning) return;
+                controller.abort();
+                toast("Stopped", "Benchmark was stopped before completion.");
+            },
+            { once: true },
+        );
+
+        for (const algorithm of Algorithm.derived) {
             const active =
                 document.querySelector(`#${algorithm.name}:checked`) !== null;
-
             if (!active) continue;
 
             // Check whether Brute force segmented is selected
-            let isBruteForce = false;
-            if (algorithm.name === `BruteForceSegmented`) {
-                isBruteForce = true;
-            }
+            const isBruteForce = algorithm.name === "BruteForceSegmented";
 
-            // Abort if the algorithm is bruteforce and the objective is
+            // Abort if the algorithm is brute force and the objective is
             // fixed horizon (not supported)
-            if (
-                (isBruteForce && objective.type === "fixed-time-cookies") ||
-                (isBruteForce && objective.type === "fixed-time-production")
-            ) {
+            const isObjectiveSupportedByBruteForce =
+                !(isBruteForce && objective.type === "fixed-time-cookies") &&
+                !(isBruteForce && objective.type === "fixed-time-production");
+
+            if (!isObjectiveSupportedByBruteForce) {
                 // Remove algorithm selection
                 document.getElementById("BruteForceSegmented").checked = false;
                 continue;
             }
 
             const beforeTime = Date.now();
-            // Start the algorithm run, passing the objective in.
-
             const data = await algorithm.instance.run(
                 objective,
                 baseCpS,
-                isBruteForce,
-                shouldStop,
+                signal,
             );
             const benchmarkTime = Date.now() - beforeTime;
 
-            if (data && data.length > 0) {
-                results.push({
-                    algorithm: algorithm,
-                    benchmarkTime: benchmarkTime,
-                    data: data,
-                });
-            }
+            if (data && data.length <= 0) continue;
+            results.push({
+                algorithm: algorithm,
+                benchmarkTime: benchmarkTime,
+                data: data,
+            });
         }
 
-        if (results.length > 0) {
-            displayResults(results, objective);
-            benchmarkResults.classList.remove("hide");
-        }
-
-        if (stopRequested) {
-            show("Stopped", "Benchmark was stopped before completion.");
-        }
+        if (results.length <= 0) return;
+        displayResults(results, objective);
+        benchmarkResults.classList.remove("hide");
     } finally {
         runBtn.textContent = runBtnText;
         runBtn.removeAttribute("disabled");
@@ -569,12 +540,11 @@ form.addEventListener("submit", async (e) => {
         stopBtn.setAttribute("disabled", "disabled");
 
         isRunning = false;
-        stopRequested = false;
     }
 });
 
 form.addEventListener("reset", () => {
-    show("Reset", "The form has been reset...");
+    toast("Reset", "The form has been reset...");
 
     // Timeout to push the execution to after values has been reset
     setTimeout(() => {

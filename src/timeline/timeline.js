@@ -1,4 +1,4 @@
-import { round } from "../utils.js";
+import { formatLabel, round } from "../utils.js";
 import {
     gameStateToDataset,
     getBuildingGraphData,
@@ -58,7 +58,7 @@ function display() {
     console.log("Decision:", decision);
     console.log("Game State:", gameState);
 
-    titleHeader.innerText = algorithm.title;
+    titleHeader.innerText = formatLabel(algorithm.title);
 
     const isPurchase =
         Object.keys(decision).findIndex((k) => k === "purchaseable") !== -1;

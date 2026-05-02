@@ -13,12 +13,7 @@ export default class ShortestPaybackPlusSaveUp extends Algorithm {
         instance: new ShortestPaybackPlusSaveUp(),
     });
 
-    /**
-     * @param {GameState} game the current game state
-     * @param {Building} buildings a list of all buildings, in their current state
-     * @returns {Decision} the next decision to be performed, if it is valid.
-     */
-    getNextDecision(gameState, buildings, objective) {
+    getNextDecision(gameState, objective, buildings) {
         let bestDecisionBuilding = buildings["cursor"];
         let bestPaybackSaveUpTime = 0;
         let tempBuilding = buildings["cursor"];
