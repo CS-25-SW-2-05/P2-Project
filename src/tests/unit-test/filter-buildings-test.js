@@ -8,43 +8,50 @@ function runSingleTest(test) {
     console.log(test.testName);
     console.log({ test });
 
-    // Filter the buildings specefied in the test
-    const result = filterValid(test.buildings);
+    // Filter the buildings specified in the test
+    const validBuildings = filterValid(test.buildings);
 
     // Save the keys of the result in an array
-    const resultKeys = Object.keys(result);
-    console.log({ result });
+    const validBuildingKeys = Object.keys(validBuildings);
+    console.log({ result: validBuildings });
 
     // Loop throgh expectet keys of buildings,
     // to see if they are included in the result
     for (const expectedKey of test.expectedKeys) {
-        if (!resultKeys.includes(expectedKey)) {
+        // Print an error if the valid building key
+        // doesn't match the expected key
+        if (!validBuildingKeys.includes(expectedKey)) {
             console.log(`✖ Failed: Expected ${expectedKey} to be included`);
-            console.log("Actual keys:", resultKeys);
+            console.log("Actual keys:", validBuildingKeys);
             return false;
         }
     }
 
     // Loop throgh keys of buildings not expected,
     // to see if they are included in the result
+    // Use an empty array, if unexpectedKeys isn't defined in the test
     for (const unexpectedKey of test.unexpectedKeys ?? []) {
-        if (resultKeys.includes(unexpectedKey)) {
+        // If the valid building keys includes buildings not exptected,
+        // log an error
+        if (validBuildingKeys.includes(unexpectedKey)) {
             console.log(
                 `✖ Failed: Expected ${unexpectedKey} to be filtered out`,
             );
-            console.log("Actual keys:", resultKeys);
+            console.log("Actual keys:", validBuildingKeys);
             return false;
         }
     }
 
-    // Log an error, if there is a mismatch
-    if (resultKeys.length !== test.expectedKeys.length) {
+    // Log an error, if there is a mismatch in the number of valid buildings
+    // and the expectet valid buildings
+    if (validBuildingKeys.length !== test.expectedKeys.length) {
         console.log("✖ Failed: Wrong number of buildings returned");
         console.log("Expected:", test.expectedKeys);
-        console.log("Actual:", resultKeys);
+        console.log("Actual:", validBuildingKeys);
         return false;
     }
 
+    // If no error is detected, log the test succes
     console.log("✔ Passed: Correct buildings returned");
     console.log(`✅ Test passed`);
     return true;
@@ -154,17 +161,22 @@ export default class FilterValidTest extends UnitTest {
             },
         ];
 
+        // A variable that is true, as long as no tests has failed
         let allTestsPassed = true;
 
+        // Loop through the tests
         for (const test of tests) {
+            // Use the helper function to run tests
             const passed = runSingleTest(test);
 
+            // If a test fails, update "allTestPassed"
             if (!passed) {
                 console.log(`❌ Test failed`);
                 allTestsPassed = false;
             }
         }
 
+        // Return wether a test has failed
         return allTestsPassed;
     }
 }
