@@ -272,6 +272,35 @@ function displayResults(results, objective) {
             `;
     }
 
+    // Open Timeline
+    const openBtns = document.querySelectorAll(".result-data td > div > a");
+    for (let i = 0; i < openBtns.length; i++) {
+        openBtns[i].addEventListener("click", () => {
+            channel.onmessage = (event) => {
+                console.log("Data received:", event.data);
+                const type = event.data.type;
+                const payload = event.data.payload;
+
+                switch (type) {
+                    case "RESULT_DATA_REQ":
+                        channel.postMessage({
+                            type: "RESULT_DATA_RES",
+                            payload: results,
+                        });
+                        break;
+                }
+            };
+
+            const url = new URL(
+                "/src/timeline/timeline.html",
+                window.location.origin,
+            );
+            url.searchParams.set("algorithm", i);
+            url.searchParams.set("decision", 0);
+            window.open(url, "newwindow", "width=800,height=600");
+        });
+    }
+
     // Chart Results
     const cpsCanvas = document.querySelector("#cps-chart");
     const cookieCanvas = document.querySelector("#cookie-chart");
@@ -283,6 +312,7 @@ function displayResults(results, objective) {
         "Time (s)",
         "Production (CpS)",
         objective.type === "production" ? objective.value : null,
+        chartCanvas,
     );
     const cookieChart = new LineChart(
         cookieCanvas,
@@ -290,10 +320,10 @@ function displayResults(results, objective) {
         "Time (s)",
         "Cookies",
         objective.type === "cookies" ? objective.value : null,
+        chartCanvas,
     );
 
     // Destroy mainchart or buildinggraph if they exist
-
     if (mainChart) {
         mainChart.destroy();
         mainChart = null;
@@ -363,53 +393,22 @@ function displayResults(results, objective) {
         cookieChart.add(label, x, y);
     }
 
-    if (selectedCanvas == null) selectedCanvas = cpsCanvas;
-    cpsChart.draw();
-    cookieChart.draw();
-    chartContext.drawImage(selectedCanvas, 0, 0);
-
-    // Open Timeline
-    const openBtns = document.querySelectorAll(".result-data td > div > a");
-    for (let i = 0; i < openBtns.length; i++) {
-        openBtns[i].addEventListener("click", () => {
-            channel.onmessage = (event) => {
-                console.log("Data received:", event.data);
-                const type = event.data.type;
-                const payload = event.data.payload;
-
-                switch (type) {
-                    case "RESULT_DATA_REQ":
-                        channel.postMessage({
-                            type: "RESULT_DATA_RES",
-                            payload: results,
-                        });
-                        break;
-                }
-            };
-
-            const url = new URL(
-                "/src/timeline/timeline.html",
-                window.location.origin,
-            );
-            url.searchParams.set("algorithm", i);
-            url.searchParams.set("decision", 0);
-            window.open(url, "newwindow", "width=800,height=600");
-        });
-    }
-
-    if (selectedCanvas == null) selectedCanvas = cpsCanvas;
-
     // Update line charts
     cpsChart.draw();
     cookieChart.draw();
-    chartContext.drawImage(selectedCanvas, 0, 0);
 
-    // Update building graph in main chart if it is selected
-    if (selectedCanvas === buildingCanvas) {
-        mainChart = new Chart(chartCanvas, {
-            ...latestBuildingGraphConfig,
-        });
-        chartCanvas.style.removeProperty("display");
+    switch (selectedCanvas) {
+        case buildingCanvas:
+            mainChart = new Chart(chartCanvas, {
+                ...latestBuildingGraphConfig,
+            });
+            chartCanvas.style.removeProperty("display");
+            break;
+        case cookieCanvas:
+            cookieCanvas.click();
+            break;
+        default:
+            cpsCanvas.click();
     }
 }
 
@@ -481,17 +480,13 @@ form.addEventListener("submit", async (e) => {
         const controller = new AbortController();
         const signal = controller.signal;
 
-        stopBtn.addEventListener(
-            "click",
-            () => {
-                console.log("Cancelling...");
+        stopBtn.onclick = () => {
+            console.log("Cancelling...");
 
-                if (!isRunning) return;
-                controller.abort();
-                toast("Stopped", "Benchmark was stopped before completion.");
-            },
-            { once: true },
-        );
+            if (!isRunning) return;
+            controller.abort();
+            toast("Stopped", "Benchmark was stopped before completion.");
+        };
 
         for (const algorithm of Algorithm.derived) {
             const active =
@@ -567,30 +562,27 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
             mainChart = null;
         }
 
+        selectedCanvas = canvas;
         chartContext.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
 
+        // Update buildingGraphSelected
+        buildingGraphIsSelected = canvas.id === "building-graph";
+
         // If the canvas is the building-graph, then draw chart
-        if (canvas.id === "building-graph") {
-            // Update buildingGraphSelected
-            buildingGraphIsSelected = true;
+        if (!buildingGraphIsSelected) return;
 
-            mainChart = new Chart(chartCanvas, {
-                ...latestBuildingGraphConfig,
-            });
-
-            // Remove unwanted display property generated by chart.js library
-            chartCanvas.style.removeProperty("display");
-
-            selectedCanvas = canvas;
-            return;
-        }
+        chartCanvas.onclick = null;
+        chartCanvas.onmousemove = null;
 
         // Update buildingGraphSelected
-        buildingGraphIsSelected = false;
+        buildingGraphIsSelected = true;
 
-        // Else draw image
-        chartContext.drawImage(canvas, 0, 0);
-        selectedCanvas = canvas;
+        mainChart = new Chart(chartCanvas, {
+            ...latestBuildingGraphConfig,
+        });
+
+        // Remove unwanted display property generated by chart.js library
+        chartCanvas.style.removeProperty("display");
     });
 });
 
@@ -619,7 +611,6 @@ chartCanvas.addEventListener("click", () => {
     else {
         zoomedChart = chartCanvas.cloneNode();
         zoomedChart.removeAttribute("id");
-        zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
     }
 
     // Hide input form and result section when displaying zoomed chart
@@ -654,9 +645,13 @@ expandButton.addEventListener("click", () => {
     resultSection.classList.toggle("expanded");
 
     // Hide input form if result section is expanded
-    if (resultSectionIsExpanded) inputForm.classList.add("hide");
+    if (resultSectionIsExpanded) {
+        inputForm.classList.add("hide");
+        return;
+    }
+
     // Otherwise, show it
-    else inputForm.classList.remove("hide");
+    inputForm.classList.remove("hide");
 });
 
 form.addEventListener("change", updateForm);

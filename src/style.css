@@ -242,6 +242,14 @@ section {
     align-items: center;
 }
 
+.results-section.expanded .expand-icon {
+    display: none;
+}
+
+.results-section:not(.expanded) .collapse-icon {
+    display: none;
+}
+
 .results-section.expanded #chart {
     max-height: 46dvh;
     max-width: calc(46dvh * 16 / 9);
@@ -261,7 +269,7 @@ h2 {
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--color-text-secondary);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .field {
@@ -588,4 +596,14 @@ kbd {
     justify-content: center;
     align-items: center;
     padding: 4px;
+}
+
+.chart-data {
+    position: fixed;
+    z-index: 10000;
+    pointer-events: none;
+    background-color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px;
 }
