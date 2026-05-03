@@ -56,7 +56,6 @@ export default class GetSegmentSolutionTest extends UnitTest {
 
     async runSingleTest(test) {
         let didTestPass = true;
-        let returnValue = [];
         let decisions = [];
         let i = 0;
         const expectedSolution = test.expectedSolution;
@@ -72,6 +71,9 @@ export default class GetSegmentSolutionTest extends UnitTest {
             decisions[i] = key;
             i++;
         }
+        if (test.objectiveType === "cookies") {
+            decisions[i] = "wait";
+        }
 
         const objective = new Objective(
             test.objectiveType,
@@ -79,7 +81,7 @@ export default class GetSegmentSolutionTest extends UnitTest {
         );
         const bruteForceTest = new BruteForceSegmented();
 
-        returnValue = await bruteForceTest.getSegmentSolution(
+        const returnValue = await bruteForceTest.getSegmentSolution(
             currentGameState,
             decisions,
             searchDepth,
@@ -109,7 +111,7 @@ export default class GetSegmentSolutionTest extends UnitTest {
 
     async run() {
         let testPassed = true;
-        let Tests = [
+        const Tests = [
             {
                 testNr: 1,
                 objectiveType: "production",
@@ -124,6 +126,36 @@ export default class GetSegmentSolutionTest extends UnitTest {
                     },
                     buildingCpS: 1.1,
                     simulationTime: 105.91,
+                },
+            },
+            {
+                testNr: 2,
+                objectiveType: "production",
+                objectiveValue: 0.1,
+                decisionAmount: 2,
+                searchDepth: 2,
+                expectedSolution: [0, 2],
+                expectedSolutionGameState: {
+                    buildingsOwned: {
+                        cursor: 1,
+                    },
+                    buildingCpS: 0.1,
+                    simulationTime: 15,
+                },
+            },
+            {
+                testNr: 3,
+                objectiveType: "cookies",
+                objectiveValue: 1,
+                decisionAmount: 2,
+                searchDepth: 2,
+                expectedSolution: [2],
+                expectedSolutionGameState: {
+                    buildingsOwned: {
+                        cursor: 0,
+                    },
+                    buildingCpS: 0,
+                    simulationTime: 1,
                 },
             },
         ];
