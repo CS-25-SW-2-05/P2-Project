@@ -21,51 +21,117 @@ export default class GetSegmentSolutionTest extends UnitTest {
         instance: new GetSegmentSolutionTest(),
     });
 
-    async run() {
-        let testPassed = true;
-        let returnValue = [];
-        let segmentSolution = [];
-        let segmentSolutionGameState = 0;
-        let segmentedSearchDepth = 2;
-        let decisions = [];
+    doesGameStateMatch(solutionGameState, expectedSolutionGameState) {
+        let doTheyMatch = true;
         let i = 0;
 
-        await loadBuildings(2);
+        const solutionGameStateBuildings = Object.entries(
+            solutionGameState.buildings,
+        );
+        const expectedSolutionGameStateBuildings = Object.entries(
+            expectedSolutionGameState.buildingsOwned,
+        );
+
+        for (let buildings in expectedSolutionGameState.buildingsOwned) {
+            if (
+                expectedSolutionGameStateBuildings[i][1] !==
+                solutionGameStateBuildings[i][1].owned
+            ) {
+                doTheyMatch = false;
+            }
+            i++;
+        }
+
+        if (
+            expectedSolutionGameState.buildingCpS !==
+                solutionGameState.buildingCpS ||
+            expectedSolutionGameState.simulationTime !==
+                Number(solutionGameState.simulationTime.toFixed(2))
+        ) {
+            doTheyMatch = false;
+        }
+
+        return doTheyMatch;
+    }
+
+    async runSingleTest(test) {
+        let didTestPass = true;
+        let returnValue = [];
+        let decisions = [];
+        let i = 0;
+        const expectedSolution = test.expectedSolution;
+        const searchDepth = test.searchDepth;
+        const expectedSolutionGameState = test.expectedSolutionGameState;
+
+        await loadBuildings(test.decisionAmount);
         let currentGameState = new GameState();
         let referenceGameState = currentGameState.copy();
         let bestSolutionGameState = referenceGameState.copy();
-
-        console.log(currentGameState);
 
         for (let key in currentGameState.buildings) {
             decisions[i] = key;
             i++;
         }
 
-        console.log(decisions[0]);
-        const objective = new Objective("production", 2);
-
-        //throw new Error("bruh");
-
+        const objective = new Objective(
+            test.objectiveType,
+            test.objectiveValue,
+        );
         const bruteForceTest = new BruteForceSegmented();
+
         returnValue = await bruteForceTest.getSegmentSolution(
             currentGameState,
             decisions,
-            segmentedSearchDepth,
+            searchDepth,
             objective,
             referenceGameState,
             bestSolutionGameState,
         );
 
-        segmentSolution = returnValue[0];
+        const solution = returnValue[0];
+        const solutionGameState = returnValue[1];
 
-        let expectedSegmentSolution = [0, 1];
+        if (expectedSolution.toString() !== solution.toString()) {
+            didTestPass = false;
+        }
 
-        console.log(expectedSegmentSolution);
+        if (
+            !this.doesGameStateMatch(
+                solutionGameState,
+                expectedSolutionGameState,
+            )
+        ) {
+            didTestPass = false;
+        }
 
-        console.log(segmentSolution);
-        if (expectedSegmentSolution.toString() !== segmentSolution.toString()) {
-            testPassed = false;
+        return didTestPass;
+    }
+
+    async run() {
+        let testPassed = true;
+        let Tests = [
+            {
+                testNr: 1,
+                objectiveType: "production",
+                objectiveValue: 2,
+                decisionAmount: 2,
+                searchDepth: 2,
+                expectedSolution: [0, 1],
+                expectedSolutionGameState: {
+                    buildingsOwned: {
+                        cursor: 1,
+                        grandma: 1,
+                    },
+                    buildingCpS: 1.1,
+                    simulationTime: 105.91,
+                },
+            },
+        ];
+
+        for (let test in Tests) {
+            if (!(await this.runSingleTest(Tests[test]))) {
+                testPassed = false;
+            }
         }
 
         return testPassed;
