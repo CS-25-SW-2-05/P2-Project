@@ -1,5 +1,6 @@
 import UnitTest from "./unit-test/unit-test.js";
 import "./unit-test/buy-cheapest-test.js";
+import "./unit-test/smart-payback-test.js";
 import "./unit-test/permutations-test.js";
 
 const testsWrapper = document.querySelector("#tests");
