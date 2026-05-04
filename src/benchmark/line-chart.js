@@ -28,6 +28,8 @@ export default class LineChart {
     #yGoal = null;
 
     #margin = { t: 156, b: 256, l: 256, r: 128 };
+    #graphColors = ["#1447e6", "#00bc7d", "#fe9a00", "#ad46ff", "#ff2056"];
+
     #bounds = null;
     get bounds() {
         if (this.#bounds === null) {
@@ -88,9 +90,10 @@ export default class LineChart {
             const zoomed = document.querySelector(".zoomed");
             this.copy(zoomed);
 
-            const span = document.querySelector(".chart-data");
-            if (span === null) return;
-            span.style.display = "none";
+            const span = document.getElementById("chart-data");
+            if (span !== null) span.style.display = "none";
+            const point = document.getElementById("line-chart-point");
+            if (point !== null) point.style.display = "none";
         };
 
         canvas.onmousemove = (e) => {
@@ -119,6 +122,7 @@ export default class LineChart {
 
                     minSqrDistance = sqrDist;
                     closestData = {
+                        index: i,
                         label: d.label,
                         dataX: dx,
                         dataY: dy,
@@ -128,35 +132,59 @@ export default class LineChart {
                 }
             }
 
-            let span = document.querySelector(".chart-data");
-            if (span === null) {
-                span = document.createElement("span");
-                span.classList.add("chart-data");
-                document.body.appendChild(span);
-            }
+            const getOrCreate = (tagName, id) => {
+                let element = document.getElementById(id);
+                if (element !== null) return element;
+
+                element = document.createElement(tagName);
+                element.id = id;
+                document.body.appendChild(element);
+                return element;
+            };
+
+            const span = getOrCreate("span", "chart-data");
+            const point = getOrCreate("div", "line-chart-point");
 
             const tooBigDistance = 64;
             const isDistanceTooBig =
                 minSqrDistance > tooBigDistance * tooBigDistance;
             if (isDistanceTooBig) {
                 span.style.display = "none";
+                point.style.display = "none";
                 return;
             }
 
             span.innerHTML = `
                 <h2>${closestData.label}</h2>
-                x: ${round(closestData.dataX, 1)}<br>
-                y: ${round(closestData.dataY, 1)}
+                ${xLabel}: ${round(closestData.dataX, 1)}<br>
+                ${yLabel}: ${round(closestData.dataY, 1)}
             `;
             span.style.display = "block";
             span.style.left = e.clientX + "px";
             span.style.top = e.clientY + "px";
+
+            const pointClientX =
+                closestData.canvasX * (rect.width / canvas.width) + rect.left;
+            const pointClientY =
+                closestData.canvasY * (rect.height / canvas.height) + rect.top;
+
+            point.style.display = "block";
+            point.style.left = pointClientX + "px";
+            point.style.top = pointClientY + "px";
+
+            const pointSize = rect.width * 0.008;
+            point.style.width = pointSize + "px";
+            point.style.height = pointSize + "px";
+            point.style.transform = `translate(${-pointSize / 2}px, ${-pointSize / 2}px)`;
+            point.style.borderWidth = rect.width * 0.002 + "px";
+            point.style.borderColor = this.#graphColors[closestData.index];
         };
 
         canvas.onmouseleave = () => {
-            const span = document.querySelector(".chart-data");
-            if (span === null) return;
-            span.style.display = "none";
+            const span = document.getElementById("chart-data");
+            if (span !== null) span.style.display = "none";
+            const point = document.getElementById("line-chart-point");
+            if (point !== null) point.style.display = "none";
         };
     }
 
@@ -191,14 +219,6 @@ export default class LineChart {
         if (this.#data.length === 0) return;
 
         const ctx = canvas.getContext("2d");
-
-        const graphColors = [
-            "#1447e6",
-            "#00bc7d",
-            "#fe9a00",
-            "#ad46ff",
-            "#ff2056",
-        ];
 
         const height = ctx.canvas.height;
         const width = ctx.canvas.width;
@@ -362,7 +382,7 @@ export default class LineChart {
                 const x = width / 2 - labelsWidth / 2 + labelCurrentOffset;
                 const y = height - measure.actualBoundingBoxDescent - 24;
 
-                ctx.fillStyle = graphColors[i];
+                ctx.fillStyle = this.#graphColors[i];
                 ctx.fillRect(
                     x,
                     y,
@@ -384,14 +404,12 @@ export default class LineChart {
 
             for (let i = 0; i < dataSetCount; i++) {
                 const d = this.#data[i];
-                const points = [];
 
                 for (let j = 0; j < d.x.length; j++) {
                     const dy = d.y[j];
                     const dx = d.x[j];
 
                     const { x, y } = this.#getCanvasCoords(dx, dy);
-                    points.push({ x, y });
 
                     if (j === 0) {
                         ctx.beginPath();
@@ -402,20 +420,8 @@ export default class LineChart {
                     ctx.lineTo(x, y);
                 }
 
-                ctx.strokeStyle = graphColors[i];
+                ctx.strokeStyle = this.#graphColors[i];
                 ctx.stroke();
-
-                // Draw circles for this dataset's points
-                for (const p of points) {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI);
-                    ctx.fillStyle =
-                        getComputedStyle(canvas)
-                            .getPropertyValue("--accent")
-                            .trim() || "black";
-                    ctx.fill();
-                    ctx.stroke();
-                }
             }
         };
 

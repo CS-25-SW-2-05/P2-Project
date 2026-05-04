@@ -128,7 +128,7 @@ footer {
     padding: 12px;
 }
 
-.back-btn{
+.back-btn {
     padding: 8px 12px;
     background-color: var(--input);
     color: var(--accent-foreground);
@@ -612,7 +612,7 @@ kbd {
     padding: 4px;
 }
 
-.chart-data {
+#chart-data {
     position: fixed;
     z-index: 10000;
     pointer-events: none;
@@ -620,4 +620,13 @@ kbd {
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 12px;
+}
+
+#line-chart-point {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    background-color: var(--accent);
+    border-style: solid;
+    border-radius: 9999px;
 }
