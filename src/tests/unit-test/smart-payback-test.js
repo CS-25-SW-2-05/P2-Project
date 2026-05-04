@@ -2,36 +2,13 @@ import UnitTest from "./unit-test.js";
 import GreedySmart from "../../algorithms/greedy-payback-time.js";
 import PurchaseDecision from "../../algorithms/decisions/purchase-decision.js";
 import WaitDecision from "../../algorithms/decisions/wait-decision.js";
+import { createBuildings } from "./unit-test.js";
 
 // Calculates the payback + save-up score used by the algorithm
 function calcPaybackSaveUp(building, gameState) {
     const saveUpTime = (building.cost - gameState.cookies) / gameState.cps;
     const paybackTime = building.cost / building.baseCpS;
     return saveUpTime + paybackTime;
-}
-
-// Helper function for creating buildings object
-function createBuildings(buildingsInput) {
-    const buildings = {};
-
-    // Loop through each building name (key)
-    for (const key in buildingsInput) {
-        const building = buildingsInput[key];
-
-        // Create a building object
-        buildings[key] = {
-            // Use the key as the name
-            name: key,
-            // Set cost
-            cost: building.cost,
-            // Optional CPS (default = 0)
-            baseCpS: building.baseCpS ?? 0,
-            // Required by PurchaseDecision
-            canPurchase: building.canPurchase ?? (() => true),
-        };
-    }
-
-    return buildings;
 }
 
 // Helper function for running one test case
