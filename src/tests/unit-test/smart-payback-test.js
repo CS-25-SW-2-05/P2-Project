@@ -50,8 +50,8 @@ function runSingleTest(algorithm, test) {
     // Perform the decision
     const decision = algorithm.getNextDecision(
         test.gameState,
-        test.buildings,
         test.objective,
+        test.buildings,
     );
 
     // Get the expected decision type (purchase/wait)
