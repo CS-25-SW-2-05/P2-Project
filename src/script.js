@@ -1,7 +1,14 @@
 import { loadBuildings } from "./cookie-clicker/purchasables/building.js";
 import Algorithm from "./algorithms/algorithm.js";
 import Objective from "./algorithms/objective.js";
-import { getPlural, round, formatLabel, formatTime } from "./utils.js";
+import {
+    getPlural,
+    round,
+    formatLabel,
+    formatTime,
+    safeDivide,
+    toast,
+} from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
 import "./algorithms/greedy-payback-time.js";
@@ -35,11 +42,10 @@ const benchmarkResults = document.querySelector(".benchmark-results");
 const form = document.querySelector("form");
 /** @type {HTMLButtonElement} */
 const runBtn = form.querySelector("button[type='submit']");
+/** @type {HTMLButtonElement} */
+const stopBtn = document.querySelector("#stop-btn");
 
 const channel = new BroadcastChannel("cookie_timeline");
-const toast = document.querySelector(".toast");
-const toastTitle = toast.querySelector("h2");
-const toastMsg = toast.querySelector("p");
 const resultSection = document.querySelector(".results-section");
 const expandButton = document.querySelector(".expand-button");
 const inputForm = document.querySelector(".input-form");
@@ -80,10 +86,10 @@ function getStatColor(value, bestValue, worstValue) {
     return "white";
 }
 
-function formatFactorDifference(factor) {
+function formatFactorDifference(factor, sign) {
     if (factor <= 1) return "";
 
-    return "(+" + round(factor - 1, 2) + "x)";
+    return "(" + sign + round(factor - 1, 2) + "x)";
 }
 
 /**
@@ -120,7 +126,11 @@ function displayResults(results, objective) {
     for (const r of results || []) {
         const lastData = r.data.at(-1);
 
-        const iterationTime = (r.benchmarkTime * 1000) / r.data.length;
+        const iterationTime = safeDivide(
+            r.benchmarkTime * 1000,
+            r.data.length,
+            0,
+        );
 
         // Update lowest values:
         // Number of iterations
@@ -180,28 +190,44 @@ function displayResults(results, objective) {
 
         // Calculate factor difference from lowest:
         // Number of iterations
-        const iterationsFactor = r.data.length / lowestIterations;
+        const iterationsFactor = safeDivide(r.data.length, lowestIterations);
+
         // Iteration time
-        const iterationTimeFactor = iterationTime / lowestIterationTime;
+        const iterationTimeFactor = safeDivide(
+            iterationTime,
+            lowestIterationTime,
+        );
+
         // Benchmark time
-        const benchmarkTimeFactor = r.benchmarkTime / lowestBenchmarkTime;
+        const benchmarkTimeFactor = safeDivide(
+            r.benchmarkTime,
+            lowestBenchmarkTime,
+        );
+
         // Simulation time
-        const simulationTimeFactor =
-            lastData.gameState.simulationTime / lowestSimulationTime;
+        const simulationTimeFactor = safeDivide(
+            lastData.gameState.simulationTime,
+            lowestSimulationTime,
+        );
 
         // From highest:
         // Building CPS
-        const cpsFactor = highestCPS / lastData.gameState.buildingCpS;
+        const cpsFactor = safeDivide(
+            highestCPS,
+            lastData.gameState.buildingCpS,
+        );
+
         // Cookies
-        const cookiesFactor =
-            highestCookies === 0 || lastData.gameState.cookies === 0
-                ? 1
-                : highestCookies / lastData.gameState.cookies;
+        const cookiesFactor = safeDivide(
+            highestCookies,
+            lastData.gameState.cookies,
+        );
+
         // Total cookies
-        const totalCookiesFactor =
-            highestTotalCookies === 0 || lastData.gameState.totalCookies === 0
-                ? 1
-                : highestTotalCookies / lastData.gameState.totalCookies;
+        const totalCookiesFactor = safeDivide(
+            highestTotalCookies,
+            lastData.gameState.totalCookies,
+        );
 
         tbody.innerHTML += `
             <tr>
@@ -216,34 +242,63 @@ function displayResults(results, objective) {
                 
                 <td style="color: ${getStatColor(lastData.gameState.simulationTime, lowestSimulationTime, highestSimulationTime)};">
                 ${formatTime(lastData.gameState.simulationTime, "s")} 
-                ${formatFactorDifference(simulationTimeFactor)}</td>
+                ${formatFactorDifference(simulationTimeFactor, "+")}</td>
 
                 <td style="color: ${getStatColor(r.benchmarkTime, lowestBenchmarkTime, highestBenchmarkTime)};">
                 ${formatTime(round(r.benchmarkTime, 0), "ms")} 
-                ${formatFactorDifference(benchmarkTimeFactor)}</td>
+                ${formatFactorDifference(benchmarkTimeFactor, "+")}</td>
 
-                <td style="color: ${getStatColor(r.data.length, lowestIterations, highestIterations)};">
-                ${numberformat.format(r.data.length)} 
-                ${formatFactorDifference(iterationsFactor)}</td>
-    
-                <td style="color: ${getStatColor(iterationTime, lowestIterationTime, highestIterationTime)};">
-                ${formatTime(iterationTime, "us")} 
-                ${formatFactorDifference(iterationTimeFactor)}</td>
-    
                 <td style="color: ${getStatColor(lastData.gameState.buildingCpS, highestCPS, lowestCPS)};">
                 ${numberformat.format(lastData.gameState.buildingCpS)} 
-                ${formatFactorDifference(cpsFactor)}</td>
+                ${formatFactorDifference(cpsFactor, "-")}</td>
     
                 <td style="color: ${getStatColor(lastData.gameState.cookies, highestCookies, lowestCookies)};">
                 ${numberformat.format(lastData.gameState.cookies)} 
-                ${formatFactorDifference(cookiesFactor)}</td>
-    
-                <td style="color: ${getStatColor(lastData.gameState.totalCookies, highestTotalCookies, lowestTotalCookies)};">
+                ${formatFactorDifference(cookiesFactor, "-")}</td>
+
+				<td style="color: ${getStatColor(lastData.gameState.totalCookies, highestTotalCookies, lowestTotalCookies)};">
                 ${numberformat.format(lastData.gameState.totalCookies)} 
-                ${formatFactorDifference(totalCookiesFactor)}</td>
+                ${formatFactorDifference(totalCookiesFactor, "-")}</td>
+
+                <td style="color: ${getStatColor(r.data.length, lowestIterations, highestIterations)};">
+                ${numberformat.format(r.data.length)} 
+                ${formatFactorDifference(iterationsFactor, "+")}</td>
     
+                <td style="color: ${getStatColor(iterationTime, lowestIterationTime, highestIterationTime)};">
+                ${formatTime(iterationTime, "us")} 
+                ${formatFactorDifference(iterationTimeFactor, "+")}</td>
+       
             </tr>
             `;
+    }
+
+    // Open Timeline
+    const openBtns = document.querySelectorAll(".result-data td > div > a");
+    for (let i = 0; i < openBtns.length; i++) {
+        openBtns[i].addEventListener("click", () => {
+            channel.onmessage = (event) => {
+                console.log("Data received:", event.data);
+                const type = event.data.type;
+                const payload = event.data.payload;
+
+                switch (type) {
+                    case "RESULT_DATA_REQ":
+                        channel.postMessage({
+                            type: "RESULT_DATA_RES",
+                            payload: results,
+                        });
+                        break;
+                }
+            };
+
+            const url = new URL(
+                "/src/timeline/timeline.html",
+                window.location.origin,
+            );
+            url.searchParams.set("algorithm", i);
+            url.searchParams.set("decision", 0);
+            window.open(url, "newwindow", "width=800,height=600");
+        });
     }
 
     // Chart Results
@@ -257,6 +312,7 @@ function displayResults(results, objective) {
         "Time (s)",
         "Production (CpS)",
         objective.type === "production" ? objective.value : null,
+        chartCanvas,
     );
     const cookieChart = new LineChart(
         cookieCanvas,
@@ -264,10 +320,10 @@ function displayResults(results, objective) {
         "Time (s)",
         "Cookies",
         objective.type === "cookies" ? objective.value : null,
+        chartCanvas,
     );
 
     // Destroy mainchart or buildinggraph if they exist
-
     if (mainChart) {
         mainChart.destroy();
         mainChart = null;
@@ -337,72 +393,23 @@ function displayResults(results, objective) {
         cookieChart.add(label, x, y);
     }
 
-    if (selectedCanvas == null) selectedCanvas = cpsCanvas;
-    cpsChart.draw();
-    cookieChart.draw();
-    chartContext.drawImage(selectedCanvas, 0, 0);
-
-    // Open Timeline
-    const openBtns = document.querySelectorAll(".result-data td > div > a");
-    for (let i = 0; i < openBtns.length; i++) {
-        openBtns[i].addEventListener("click", () => {
-            channel.onmessage = (event) => {
-                console.log("Data received:", event.data);
-                const type = event.data.type;
-                const payload = event.data.payload;
-
-                switch (type) {
-                    case "RESULT_DATA_REQ":
-                        channel.postMessage({
-                            type: "RESULT_DATA_RES",
-                            payload: results,
-                        });
-                        break;
-                }
-            };
-
-            const url = new URL(
-                "/src/timeline/timeline.html",
-                window.location.origin,
-            );
-            url.searchParams.set("algorithm", i);
-            url.searchParams.set("decision", 0);
-            window.open(url, "newwindow", "width=800,height=600");
-        });
-    }
-
-    if (selectedCanvas == null) selectedCanvas = cpsCanvas;
-
     // Update line charts
     cpsChart.draw();
     cookieChart.draw();
-    chartContext.drawImage(selectedCanvas, 0, 0);
 
-    // Update building graph in main chart if it is selected
-    if (selectedCanvas === buildingCanvas) {
-        mainChart = new Chart(chartCanvas, {
-            ...latestBuildingGraphConfig,
-        });
-        chartCanvas.style.removeProperty("display");
+    switch (selectedCanvas) {
+        case buildingCanvas:
+            mainChart = new Chart(chartCanvas, {
+                ...latestBuildingGraphConfig,
+            });
+            chartCanvas.style.removeProperty("display");
+            break;
+        case cookieCanvas:
+            cookieCanvas.click();
+            break;
+        default:
+            cpsCanvas.click();
     }
-}
-
-/**
- * Show a toast in the lower-right corner of the screen.
- * @param {string} title title of the toast.
- * @param {string} msg message of the toast.
- */
-let toastCounter = 0;
-function show(title, msg) {
-    toastCounter++;
-    toastTitle.textContent = title;
-    toastMsg.textContent = msg;
-    toast.classList.add("show");
-    setTimeout(() => {
-        toastCounter--;
-        if (toastCounter !== 0) return;
-        toast.classList.remove("show");
-    }, 4000);
 }
 
 // Initialize
@@ -444,8 +451,9 @@ for (const tt of tooltips) {
 
 console.log("Algorithms", Algorithm.derived);
 
-// Subscribe to events
 form.addEventListener("submit", async (e) => {
+    console.log("Submit");
+
     e.preventDefault();
 
     isRunning = true;
@@ -460,51 +468,78 @@ form.addEventListener("submit", async (e) => {
     const runBtnText = runBtn.textContent;
     runBtn.textContent = "Running...";
 
+    stopBtn.textContent = "Stop";
+    stopBtn.removeAttribute("disabled");
+
     const buildingLength = buildingLengthInput.valueAsNumber;
     await loadBuildings(buildingLength);
     const baseCpS = clicksPerSecondInput.valueAsNumber;
 
     const results = [];
-    for (const algorithm of Algorithm.derived) {
-        const active =
-            document.querySelector(`#${algorithm.name}:checked`) !== null;
+    try {
+        const controller = new AbortController();
+        const signal = controller.signal;
 
-        if (!active) continue;
+        stopBtn.onclick = () => {
+            console.log("Cancelling...");
 
-        // Check whether Brute force segmented is selected
-        let isBruteForce = false;
-        if (algorithm.name === `BruteForceSegmented`) {
-            isBruteForce = true;
+            if (!isRunning) return;
+            controller.abort();
+            toast("Stopped", "Benchmark was stopped before completion.");
+        };
+
+        for (const algorithm of Algorithm.derived) {
+            const active =
+                document.querySelector(`#${algorithm.name}:checked`) !== null;
+            if (!active) continue;
+
+            // Check whether Brute force segmented is selected
+            const isBruteForce = algorithm.name === "BruteForceSegmented";
+
+            // Abort if the algorithm is brute force and the objective is
+            // fixed horizon (not supported)
+            const isObjectiveSupportedByBruteForce =
+                !(isBruteForce && objective.type === "fixed-time-cookies") &&
+                !(isBruteForce && objective.type === "fixed-time-production");
+
+            if (!isObjectiveSupportedByBruteForce) {
+                // Remove algorithm selection
+                document.getElementById("BruteForceSegmented").checked = false;
+                continue;
+            }
+
+            const beforeTime = Date.now();
+            const data = await algorithm.instance.run(
+                objective,
+                baseCpS,
+                signal,
+            );
+            const benchmarkTime = Date.now() - beforeTime;
+
+            if (data && data.length <= 0) continue;
+            results.push({
+                algorithm: algorithm,
+                benchmarkTime: benchmarkTime,
+                data: data,
+            });
         }
 
-        const beforeTime = Date.now();
-        // Start the algorithm run, passing the objective in.
+        if (results.length <= 0) return;
+        displayResults(results, objective);
+        benchmarkResults.classList.remove("hide");
+    } finally {
+        runBtn.textContent = runBtnText;
+        runBtn.removeAttribute("disabled");
 
-        const data = await algorithm.instance.run(
-            objective,
-            baseCpS,
-            isBruteForce,
-        );
-        const benchmarkTime = Date.now() - beforeTime;
+        stopBtn.textContent = "Stop";
+        stopBtn.setAttribute("disabled", "disabled");
 
-        results.push({
-            algorithm: algorithm,
-            benchmarkTime: benchmarkTime,
-            data: data,
-        });
+        isRunning = false;
     }
-
-    displayResults(results, objective);
-
-    runBtn.textContent = runBtnText;
-    runBtn.removeAttribute("disabled");
-    benchmarkResults.classList.remove("hide");
-
-    isRunning = false;
 });
 
 form.addEventListener("reset", () => {
-    show("Reset", "The form has been reset...");
+    toast("Reset", "The form has been reset...");
 
     // Timeout to push the execution to after values has been reset
     setTimeout(() => {
@@ -527,30 +562,27 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
             mainChart = null;
         }
 
+        selectedCanvas = canvas;
         chartContext.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
 
+        // Update buildingGraphSelected
+        buildingGraphIsSelected = canvas.id === "building-graph";
+
         // If the canvas is the building-graph, then draw chart
-        if (canvas.id === "building-graph") {
-            // Update buildingGraphSelected
-            buildingGraphIsSelected = true;
+        if (!buildingGraphIsSelected) return;
 
-            mainChart = new Chart(chartCanvas, {
-                ...latestBuildingGraphConfig,
-            });
-
-            // Remove unwanted display property generated by chart.js library
-            chartCanvas.style.removeProperty("display");
-
-            selectedCanvas = canvas;
-            return;
-        }
+        chartCanvas.onclick = null;
+        chartCanvas.onmousemove = null;
 
         // Update buildingGraphSelected
-        buildingGraphIsSelected = false;
+        buildingGraphIsSelected = true;
 
-        // Else draw image
-        chartContext.drawImage(canvas, 0, 0);
-        selectedCanvas = canvas;
+        mainChart = new Chart(chartCanvas, {
+            ...latestBuildingGraphConfig,
+        });
+
+        // Remove unwanted display property generated by chart.js library
+        chartCanvas.style.removeProperty("display");
     });
 });
 
@@ -579,7 +611,6 @@ chartCanvas.addEventListener("click", () => {
     else {
         zoomedChart = chartCanvas.cloneNode();
         zoomedChart.removeAttribute("id");
-        zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
     }
 
     // Hide input form and result section when displaying zoomed chart
@@ -607,16 +638,20 @@ chartCanvas.addEventListener("click", () => {
 
 // Expand result section
 expandButton.addEventListener("click", () => {
-    // Toggle wether the section is expended
+    // Toggle wether the section is expanded
     resultSectionIsExpanded = !resultSectionIsExpanded;
 
     // Mark resultsection class as expanded
     resultSection.classList.toggle("expanded");
 
     // Hide input form if result section is expanded
-    if (resultSectionIsExpanded) inputForm.classList.add("hide");
+    if (resultSectionIsExpanded) {
+        inputForm.classList.add("hide");
+        return;
+    }
+
     // Otherwise, show it
-    else inputForm.classList.remove("hide");
+    inputForm.classList.remove("hide");
 });
 
 form.addEventListener("change", updateForm);

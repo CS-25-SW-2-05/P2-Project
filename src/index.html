@@ -98,8 +98,11 @@
                                         <option value="production">
                                             Production Rate
                                         </option>
-                                        <option value="time limit">
-                                            Time Limit
+                                        <option value="fixed-time-production">
+                                            [Fixed Time] Production Rate
+                                        </option>
+                                        <option value="fixed-time-cookies">
+                                            [Fixed Time] Cookies
                                         </option>
                                     </select>
                                 </label>
@@ -119,43 +122,64 @@
                     </section>
 
                     <div class="actions">
+                        <a class="back-btn" href="/src/tests/tests.html">Unit Test</a>
                         <button type="submit" disabled>Run Benchmark</button>
+                        <button type="button" id="stop-btn" disabled>
+                            Stop
+                        </button>
                         <button type="reset">Reset</button>
                     </div>
                 </form>
                 <div class="benchmark-results hide">
                     <section class="results-section">
-                        <button class="expand-button">⤢</button>
+                        <button class="expand-button">
+                            <img
+                                src="./images/expand.svg"
+                                alt="Expand"
+                                class="expand-icon"
+                            />
+                            <img
+                                src="./images/collapse.svg"
+                                alt="Collapse"
+                                class="collapse-icon"
+                            />
+                        </button>
                         <h2>Results</h2>
-                        <canvas
-                            id="chart"
-                            class="zoom"
-                            width="2560"
-                            height="1440"
-                        ></canvas>
-                        <div class="previews">
+                        <div class="charts">
                             <canvas
-                                id="cps-chart"
+                                id="chart"
+                                class="zoom"
                                 width="2560"
                                 height="1440"
                             ></canvas>
-                            <canvas
-                                id="cookie-chart"
-                                width="2560"
-                                height="1440"
-                            ></canvas>
-                            <canvas
-                                id="building-graph"
-                                width="2560"
-                                height="1440"
-                            ></canvas>
-                        </div>
-                        <div class="labels">
-                            <p class="cps-chart-label">Production Over Time</p>
-                            <p class="cookie-chart-label">Cookies Over Time</p>
-                            <p class="building-graph-label">
-                                Building Configuration
-                            </p>
+                            <div class="previews">
+                                <canvas
+                                    id="cps-chart"
+                                    width="2560"
+                                    height="1440"
+                                ></canvas>
+                                <canvas
+                                    id="cookie-chart"
+                                    width="2560"
+                                    height="1440"
+                                ></canvas>
+                                <canvas
+                                    id="building-graph"
+                                    width="2560"
+                                    height="1440"
+                                ></canvas>
+                            </div>
+                            <div class="labels">
+                                <p class="cps-chart-label">
+                                    Production Over Time
+                                </p>
+                                <p class="cookie-chart-label">
+                                    Cookies Over Time
+                                </p>
+                                <p class="building-graph-label">
+                                    Building Configuration
+                                </p>
+                            </div>
                         </div>
                         <br />
                         <div>
@@ -165,11 +189,11 @@
                                         <th>Algorithm</th>
                                         <th>Simulation Time</th>
                                         <th>Benchmark Time</th>
-                                        <th>Iterations</th>
-                                        <th>Iteration Time</th>
                                         <th>CpS</th>
                                         <th>Cookies</th>
                                         <th>Total Cookies</th>
+                                        <th>Iterations</th>
+                                        <th>Iteration Time</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -186,7 +210,5 @@
         </span>
 
         <span id="tooltip">Tooltip</span>
-
-        <footer></footer>
     </body>
 </html>

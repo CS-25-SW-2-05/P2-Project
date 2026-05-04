@@ -27,17 +27,149 @@ export default class LineChart {
     /** @type {number | null} */
     #yGoal = null;
 
+    #margin = { t: 156, b: 256, l: 256, r: 128 };
+    #bounds = null;
+    get bounds() {
+        if (this.#bounds === null) {
+            const xs = this.#data.flatMap((d) => d.x);
+            const ys = this.#data.flatMap((d) => d.y);
+            const xMin = Math.min(...xs);
+            const xMax = Math.max(...xs);
+            const yMin = Math.min(...ys);
+            const yMax = Math.max(...ys);
+
+            this.#bounds = {
+                xMin: xMin,
+                xMax: xMax,
+                yMin: yMin,
+                yMax: yMax,
+            };
+        }
+
+        return this.#bounds;
+    }
+
+    #getCanvasCoords(dx, dy) {
+        const width = this.#canvas.width;
+        const height = this.#canvas.height;
+
+        const wPct =
+            (dx - this.bounds.xMin) / (this.bounds.xMax - this.bounds.xMin);
+        const hPct =
+            (dy - this.bounds.yMin) / (this.bounds.yMax - this.bounds.yMin);
+        const x =
+            (width - this.#margin.l - this.#margin.r) * wPct + this.#margin.l;
+        const y =
+            height -
+            this.#margin.b -
+            (height - this.#margin.t - this.#margin.b) * hPct;
+        return { x, y };
+    }
+
     /**
      * @param {HTMLCanvasElement} canvas
      * @param {string} xLabel
      * @param {string} yLabel
      */
-    constructor(canvas, title, xLabel, yLabel, yGoal) {
+    constructor(canvas, title, xLabel, yLabel, yGoal, previewForCanvas = null) {
+        if (canvas === null) return;
         this.#canvas = canvas;
         this.#title = title;
         this.#xLabel = xLabel;
         this.#yLabel = yLabel;
         this.#yGoal = yGoal;
+
+        if (previewForCanvas !== null) {
+            canvas.addEventListener("click", () => this.copy(previewForCanvas));
+            return;
+        }
+
+        canvas.onclick = () => {
+            const zoomed = document.querySelector(".zoomed");
+            this.copy(zoomed);
+
+            const span = document.querySelector(".chart-data");
+            if (span === null) return;
+            span.style.display = "none";
+        };
+
+        canvas.onmousemove = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouse = {
+                x: (e.clientX - rect.left) * (canvas.width / rect.width),
+                y: (e.clientY - rect.top) * (canvas.height / rect.height),
+            };
+
+            const ctx = canvas.getContext("2d");
+
+            let closestData = null;
+            if (this.#data.length <= 0) return;
+
+            let minSqrDistance = Infinity;
+            for (let i = 0; i < this.#data.length; i++) {
+                const d = this.#data[i];
+                for (let j = 0; j < d.x.length; j++) {
+                    const dx = d.x[j];
+                    const dy = d.y[j];
+
+                    const { x: px, y: py } = this.#getCanvasCoords(dx, dy);
+
+                    const sqrDist = (px - mouse.x) ** 2 + (py - mouse.y) ** 2;
+                    if (sqrDist > minSqrDistance) continue;
+
+                    minSqrDistance = sqrDist;
+                    closestData = {
+                        label: d.label,
+                        dataX: dx,
+                        dataY: dy,
+                        canvasX: px,
+                        canvasY: py,
+                    };
+                }
+            }
+
+            let span = document.querySelector(".chart-data");
+            if (span === null) {
+                span = document.createElement("span");
+                span.classList.add("chart-data");
+                document.body.appendChild(span);
+            }
+
+            const tooBigDistance = 64;
+            const isDistanceTooBig =
+                minSqrDistance > tooBigDistance * tooBigDistance;
+            if (isDistanceTooBig) {
+                span.style.display = "none";
+                return;
+            }
+
+            span.innerHTML = `
+                <h2>${closestData.label}</h2>
+                x: ${round(closestData.dataX, 1)}<br>
+                y: ${round(closestData.dataY, 1)}
+            `;
+            span.style.display = "block";
+            span.style.left = e.clientX + "px";
+            span.style.top = e.clientY + "px";
+        };
+
+        canvas.onmouseleave = () => {
+            const span = document.querySelector(".chart-data");
+            if (span === null) return;
+            span.style.display = "none";
+        };
+    }
+
+    copy(toCanvas) {
+        const toLineChart = new LineChart(
+            toCanvas,
+            this.#title,
+            this.#xLabel,
+            this.#yLabel,
+            this.#yGoal,
+        );
+        for (const d of this.#data) toLineChart.add(d.label, d.x, d.y);
+        toLineChart.draw();
     }
 
     /**
@@ -54,11 +186,11 @@ export default class LineChart {
         this.#data.push(dataObj);
     }
 
-    draw() {
-        if (this.#canvas == null) return;
+    draw(canvas = this.#canvas) {
+        if (canvas == null) return;
         if (this.#data.length === 0) return;
 
-        const ctx = this.#canvas.getContext("2d");
+        const ctx = canvas.getContext("2d");
 
         const graphColors = [
             "#1447e6",
@@ -70,21 +202,11 @@ export default class LineChart {
 
         const height = ctx.canvas.height;
         const width = ctx.canvas.width;
-
-        const xs = this.#data.flatMap((d) => d.x);
-        const ys = this.#data.flatMap((d) => d.y);
-
-        const xMin = Math.min(...xs);
-        const xMax = Math.max(...xs);
         const xLength = Math.max(...this.#data.flatMap((d) => d.x.length));
-        const yMin = Math.min(...ys);
-        const yMax = Math.max(...ys);
         const yLength = Math.max(...this.#data.flatMap((d) => d.y.length));
 
-        const margin = { t: 156, b: 256, l: 256, r: 128 };
-
         const clear = () => {
-            const color = getComputedStyle(this.#canvas)
+            const color = getComputedStyle(canvas)
                 .getPropertyValue("--accent")
                 .trim();
             ctx.fillStyle = color;
@@ -92,10 +214,14 @@ export default class LineChart {
         };
 
         const drawTitle = () => {
+            ctx.textBaseline = "top";
+            ctx.fillStyle = "white";
             ctx.font = "bold 64px sans-serif";
+
             const measure = ctx.measureText(this.#title);
             const x = width * 0.5 - measure.actualBoundingBoxRight * 0.5;
-            const y = margin.t * 0.5 - measure.actualBoundingBoxDescent * 0.5;
+            const y =
+                this.#margin.t * 0.5 - measure.actualBoundingBoxDescent * 0.5;
             ctx.fillText(this.#title, x, y);
         };
 
@@ -107,23 +233,27 @@ export default class LineChart {
 
             for (let i = 0; i < xCount; i++) {
                 const pct = i / (xCount - 1);
-                const y = (height - margin.t - margin.b) * pct + margin.t;
+                const y =
+                    (height - this.#margin.t - this.#margin.b) * pct +
+                    this.#margin.t;
 
                 // Horizontal Line
-                ctx.moveTo(margin.l, y);
-                ctx.lineTo(width - margin.r, y);
+                ctx.moveTo(this.#margin.l, y);
+                ctx.lineTo(width - this.#margin.r, y);
             }
 
             for (let i = 0; i < yCount; i++) {
                 const pct = i / (yCount - 1);
-                const x = (width - margin.l - margin.r) * pct + margin.l;
+                const x =
+                    (width - this.#margin.l - this.#margin.r) * pct +
+                    this.#margin.l;
 
                 // Vertical Line
-                ctx.moveTo(x, margin.t);
-                ctx.lineTo(x, height - margin.b);
+                ctx.moveTo(x, this.#margin.t);
+                ctx.lineTo(x, height - this.#margin.b);
             }
 
-            const color = getComputedStyle(this.#canvas)
+            const color = getComputedStyle(canvas)
                 .getPropertyValue("--border")
                 .trim();
             ctx.strokeStyle = color;
@@ -137,7 +267,13 @@ export default class LineChart {
             for (let i = 0; i < count; i++) {
                 const pct = i / (count - 1);
 
-                const value = remap(pct, 0, 1, xMin, xMax);
+                const value = remap(
+                    pct,
+                    0,
+                    1,
+                    this.bounds.xMin,
+                    this.bounds.xMax,
+                );
                 const valueText =
                     value >= 1000
                         ? numberformat.formatShort(value)
@@ -145,9 +281,9 @@ export default class LineChart {
                 const measure = ctx.measureText(valueText);
 
                 const x =
-                    remap(pct, 0, 1, margin.l, width - margin.r) -
+                    remap(pct, 0, 1, this.#margin.l, width - this.#margin.r) -
                     measure.actualBoundingBoxRight * 0.5;
-                const y = height - margin.b;
+                const y = height - this.#margin.b;
                 ctx.fillText(valueText, x, y);
             }
         };
@@ -158,16 +294,22 @@ export default class LineChart {
             for (let i = 0; i < count; i++) {
                 const pct = i / (count - 1);
 
-                const value = remap(pct, 0, 1, yMax, yMin);
+                const value = remap(
+                    pct,
+                    0,
+                    1,
+                    this.bounds.yMax,
+                    this.bounds.yMin,
+                );
                 const valueText =
                     value >= 1000
                         ? numberformat.formatShort(value)
                         : round(value, 0);
                 const measure = ctx.measureText(valueText);
 
-                const x = margin.l - measure.actualBoundingBoxRight - 12;
+                const x = this.#margin.l - measure.actualBoundingBoxRight - 12;
                 const y =
-                    remap(pct, 0, 1, margin.t, height - margin.b) -
+                    remap(pct, 0, 1, this.#margin.t, height - this.#margin.b) -
                     measure.actualBoundingBoxDescent * 0.5;
                 ctx.fillText(valueText, x, y);
             }
@@ -185,7 +327,7 @@ export default class LineChart {
             ctx.textAlign = "center";
 
             // x-label
-            ctx.fillText(this.#xLabel, width / 2, height - margin.b + 64);
+            ctx.fillText(this.#xLabel, width / 2, height - this.#margin.b + 64);
 
             // y-label
             ctx.save();
@@ -242,18 +384,14 @@ export default class LineChart {
 
             for (let i = 0; i < dataSetCount; i++) {
                 const d = this.#data[i];
+                const points = [];
 
                 for (let j = 0; j < d.x.length; j++) {
                     const dy = d.y[j];
                     const dx = d.x[j];
 
-                    const wPct = (dx - xMin) / (xMax - xMin);
-                    const hPct = (dy - yMin) / (yMax - yMin);
-                    const x = (width - margin.l - margin.r) * wPct + margin.l;
-                    const y =
-                        height -
-                        margin.b -
-                        (height - margin.t - margin.b) * hPct;
+                    const { x, y } = this.#getCanvasCoords(dx, dy);
+                    points.push({ x, y });
 
                     if (j === 0) {
                         ctx.beginPath();
@@ -266,6 +404,18 @@ export default class LineChart {
 
                 ctx.strokeStyle = graphColors[i];
                 ctx.stroke();
+
+                // Draw circles for this dataset's points
+                for (const p of points) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI);
+                    ctx.fillStyle =
+                        getComputedStyle(canvas)
+                            .getPropertyValue("--accent")
+                            .trim() || "black";
+                    ctx.fill();
+                    ctx.stroke();
+                }
             }
         };
 
@@ -274,11 +424,16 @@ export default class LineChart {
 
             ctx.beginPath();
 
-            const hPct = (this.#yGoal - yMin) / (yMax - yMin);
-            const y = height - margin.b - (height - margin.t - margin.b) * hPct;
+            const hPct =
+                (this.#yGoal - this.bounds.yMin) /
+                (this.bounds.yMax - this.bounds.yMin);
+            const y =
+                height -
+                this.#margin.b -
+                (height - this.#margin.t - this.#margin.b) * hPct;
 
-            ctx.moveTo(margin.l, y);
-            ctx.lineTo(width - margin.r, y);
+            ctx.moveTo(this.#margin.l, y);
+            ctx.lineTo(width - this.#margin.r, y);
 
             ctx.strokeStyle = "#ff2056";
             ctx.lineCap = "butt";
@@ -289,9 +444,6 @@ export default class LineChart {
 
         const drawGraph = () => {
             clear();
-
-            ctx.textBaseline = "top";
-            ctx.fillStyle = "white";
 
             drawGrid();
             drawDataLines();

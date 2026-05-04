@@ -78,10 +78,6 @@ export function getBuildingGraphConfig(buildingConfigGraphData, canvas) {
             responsive: true,
             animation: false,
             devicePixelRatio: window.devicePixelRatio,
-            onHover: (event, chartElements) => {
-                event.native.target.style.cursor =
-                    chartElements.length > 0 ? "pointer" : "zoom-in";
-            },
             scales: {
                 x: {
                     ticks: {
