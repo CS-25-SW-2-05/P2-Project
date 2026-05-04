@@ -2,30 +2,7 @@ import UnitTest from "./unit-test.js";
 import GreedyNaive from "../../algorithms/greedy-naive.js";
 import PurchaseDecision from "../../algorithms/decisions/purchase-decision.js";
 import WaitDecision from "../../algorithms/decisions/wait-decision.js";
-
-// Helper function for creating buildings object
-function createBuildings(buildingsInput) {
-    const buildings = {};
-
-    // Loop through each building name (key)
-    for (const key in buildingsInput) {
-        const building = buildingsInput[key];
-
-        // Create a building object
-        buildings[key] = {
-            // Use the key as the name
-            name: key,
-            // Set cost
-            cost: building.cost,
-            // Optional CPS (default = 0)
-            baseCpS: building.baseCpS ?? 0,
-            // Required by PurchaseDecision
-            canPurchase: building.canPurchase ?? (() => true),
-        };
-    }
-
-    return buildings;
-}
+import { createBuildings } from "./unit-test.js";
 
 // Helper function for running one test case
 function runSingleTest(algorithm, test) {
