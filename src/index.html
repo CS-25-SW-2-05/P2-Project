@@ -93,16 +93,16 @@
                                     <p>Objective type</p>
                                     <select id="objective-type">
                                         <option value="cookies">
-                                            Number of Cookies
+                                            Min time to X nr of cookies
                                         </option>
                                         <option value="production">
-                                            Production Rate
-                                        </option>
-                                        <option value="fixed-time-production">
-                                            [Fixed Time] Production Rate
+                                            Min time to X production rate
                                         </option>
                                         <option value="fixed-time-cookies">
-                                            [Fixed Time] Cookies
+                                            Max nr of cookies by time X
+                                        </option>
+                                        <option value="fixed-time-production">
+                                            Max production rate by time X
                                         </option>
                                     </select>
                                 </label>
@@ -122,7 +122,9 @@
                     </section>
 
                     <div class="actions">
-                        <a class="back-btn" href="/src/tests/tests.html">Unit Test</a>
+                        <a class="back-btn" href="/src/tests/tests.html"
+                            >Unit Test</a
+                        >
                         <button type="submit" disabled>Run Benchmark</button>
                         <button type="button" id="stop-btn" disabled>
                             Stop
