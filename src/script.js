@@ -7,6 +7,7 @@ import {
     formatLabel,
     formatTime,
     safeDivide,
+    toast,
 } from "./utils.js";
 import "./algorithms/greedy-naive.js";
 import "./algorithms/greedy-payback.js";
@@ -45,15 +46,11 @@ const runBtn = form.querySelector("button[type='submit']");
 const stopBtn = document.querySelector("#stop-btn");
 
 const channel = new BroadcastChannel("cookie_timeline");
-const toast = document.querySelector(".toast");
-const toastTitle = toast.querySelector("h2");
-const toastMsg = toast.querySelector("p");
 const resultSection = document.querySelector(".results-section");
 const expandButton = document.querySelector(".expand-button");
 const inputForm = document.querySelector(".input-form");
 
 let isRunning = false;
-let stopRequested = false;
 let selectedCanvas = null;
 
 let mainChart = null;
@@ -275,6 +272,35 @@ function displayResults(results, objective) {
             `;
     }
 
+    // Open Timeline
+    const openBtns = document.querySelectorAll(".result-data td > div > a");
+    for (let i = 0; i < openBtns.length; i++) {
+        openBtns[i].addEventListener("click", () => {
+            channel.onmessage = (event) => {
+                console.log("Data received:", event.data);
+                const type = event.data.type;
+                const payload = event.data.payload;
+
+                switch (type) {
+                    case "RESULT_DATA_REQ":
+                        channel.postMessage({
+                            type: "RESULT_DATA_RES",
+                            payload: results,
+                        });
+                        break;
+                }
+            };
+
+            const url = new URL(
+                "/src/timeline/timeline.html",
+                window.location.origin,
+            );
+            url.searchParams.set("algorithm", i);
+            url.searchParams.set("decision", 0);
+            window.open(url, "newwindow", "width=800,height=600");
+        });
+    }
+
     // Chart Results
     const cpsCanvas = document.querySelector("#cps-chart");
     const cookieCanvas = document.querySelector("#cookie-chart");
@@ -286,6 +312,7 @@ function displayResults(results, objective) {
         "Time (s)",
         "Production (CpS)",
         objective.type === "production" ? objective.value : null,
+        chartCanvas,
     );
     const cookieChart = new LineChart(
         cookieCanvas,
@@ -293,10 +320,10 @@ function displayResults(results, objective) {
         "Time (s)",
         "Cookies",
         objective.type === "cookies" ? objective.value : null,
+        chartCanvas,
     );
 
     // Destroy mainchart or buildinggraph if they exist
-
     if (mainChart) {
         mainChart.destroy();
         mainChart = null;
@@ -366,72 +393,23 @@ function displayResults(results, objective) {
         cookieChart.add(label, x, y);
     }
 
-    if (selectedCanvas == null) selectedCanvas = cpsCanvas;
-    cpsChart.draw();
-    cookieChart.draw();
-    chartContext.drawImage(selectedCanvas, 0, 0);
-
-    // Open Timeline
-    const openBtns = document.querySelectorAll(".result-data td > div > a");
-    for (let i = 0; i < openBtns.length; i++) {
-        openBtns[i].addEventListener("click", () => {
-            channel.onmessage = (event) => {
-                console.log("Data received:", event.data);
-                const type = event.data.type;
-                const payload = event.data.payload;
-
-                switch (type) {
-                    case "RESULT_DATA_REQ":
-                        channel.postMessage({
-                            type: "RESULT_DATA_RES",
-                            payload: results,
-                        });
-                        break;
-                }
-            };
-
-            const url = new URL(
-                "/src/timeline/timeline.html",
-                window.location.origin,
-            );
-            url.searchParams.set("algorithm", i);
-            url.searchParams.set("decision", 0);
-            window.open(url, "newwindow", "width=800,height=600");
-        });
-    }
-
-    if (selectedCanvas == null) selectedCanvas = cpsCanvas;
-
     // Update line charts
     cpsChart.draw();
     cookieChart.draw();
-    chartContext.drawImage(selectedCanvas, 0, 0);
 
-    // Update building graph in main chart if it is selected
-    if (selectedCanvas === buildingCanvas) {
-        mainChart = new Chart(chartCanvas, {
-            ...latestBuildingGraphConfig,
-        });
-        chartCanvas.style.removeProperty("display");
+    switch (selectedCanvas) {
+        case buildingCanvas:
+            mainChart = new Chart(chartCanvas, {
+                ...latestBuildingGraphConfig,
+            });
+            chartCanvas.style.removeProperty("display");
+            break;
+        case cookieCanvas:
+            cookieCanvas.click();
+            break;
+        default:
+            cpsCanvas.click();
     }
-}
-
-/**
- * Show a toast in the lower-right corner of the screen.
- * @param {string} title title of the toast.
- * @param {string} msg message of the toast.
- */
-let toastCounter = 0;
-function show(title, msg) {
-    toastCounter++;
-    toastTitle.textContent = title;
-    toastMsg.textContent = msg;
-    toast.classList.add("show");
-    setTimeout(() => {
-        toastCounter--;
-        if (toastCounter !== 0) return;
-        toast.classList.remove("show");
-    }, 4000);
 }
 
 // Initialize
@@ -473,20 +451,12 @@ for (const tt of tooltips) {
 
 console.log("Algorithms", Algorithm.derived);
 
-// Subscribe to events
-stopBtn.addEventListener("click", () => {
-    if (!isRunning) return;
-    stopRequested = true;
-    stopBtn.setAttribute("disabled", "disabled");
-    stopBtn.textContent = "Stopping...";
-    show("Stopping", "Benchmark will halt after the current step...");
-});
-
 form.addEventListener("submit", async (e) => {
+    console.log("Submit");
+
     e.preventDefault();
 
     isRunning = true;
-    stopRequested = false;
 
     // Read the form and create an Objective instance right when the user clicks "Run"
     const objective = Objective.fromForm();
@@ -505,62 +475,58 @@ form.addEventListener("submit", async (e) => {
     await loadBuildings(buildingLength);
     const baseCpS = clicksPerSecondInput.valueAsNumber;
 
-    const shouldStop = () => stopRequested;
     const results = [];
     try {
-        for (const algorithm of Algorithm.derived) {
-            if (stopRequested) break;
+        const controller = new AbortController();
+        const signal = controller.signal;
 
+        stopBtn.onclick = () => {
+            console.log("Cancelling...");
+
+            if (!isRunning) return;
+            controller.abort();
+            toast("Stopped", "Benchmark was stopped before completion.");
+        };
+
+        for (const algorithm of Algorithm.derived) {
             const active =
                 document.querySelector(`#${algorithm.name}:checked`) !== null;
-
             if (!active) continue;
 
             // Check whether Brute force segmented is selected
-            let isBruteForce = false;
-            if (algorithm.name === `BruteForceSegmented`) {
-                isBruteForce = true;
-            }
+            const isBruteForce = algorithm.name === "BruteForceSegmented";
 
-            // Abort if the algorithm is bruteforce and the objective is
+            // Abort if the algorithm is brute force and the objective is
             // fixed horizon (not supported)
-            if (
-                (isBruteForce && objective.type === "fixed-time-cookies") ||
-                (isBruteForce && objective.type === "fixed-time-production")
-            ) {
+            const isObjectiveSupportedByBruteForce =
+                !(isBruteForce && objective.type === "fixed-time-cookies") &&
+                !(isBruteForce && objective.type === "fixed-time-production");
+
+            if (!isObjectiveSupportedByBruteForce) {
                 // Remove algorithm selection
                 document.getElementById("BruteForceSegmented").checked = false;
                 continue;
             }
 
             const beforeTime = Date.now();
-            // Start the algorithm run, passing the objective in.
-
             const data = await algorithm.instance.run(
                 objective,
                 baseCpS,
-                isBruteForce,
-                shouldStop,
+                signal,
             );
             const benchmarkTime = Date.now() - beforeTime;
 
-            if (data && data.length > 0) {
-                results.push({
-                    algorithm: algorithm,
-                    benchmarkTime: benchmarkTime,
-                    data: data,
-                });
-            }
+            if (data && data.length <= 0) continue;
+            results.push({
+                algorithm: algorithm,
+                benchmarkTime: benchmarkTime,
+                data: data,
+            });
         }
 
-        if (results.length > 0) {
-            displayResults(results, objective);
-            benchmarkResults.classList.remove("hide");
-        }
-
-        if (stopRequested) {
-            show("Stopped", "Benchmark was stopped before completion.");
-        }
+        if (results.length <= 0) return;
+        displayResults(results, objective);
+        benchmarkResults.classList.remove("hide");
     } finally {
         runBtn.textContent = runBtnText;
         runBtn.removeAttribute("disabled");
@@ -569,12 +535,11 @@ form.addEventListener("submit", async (e) => {
         stopBtn.setAttribute("disabled", "disabled");
 
         isRunning = false;
-        stopRequested = false;
     }
 });
 
 form.addEventListener("reset", () => {
-    show("Reset", "The form has been reset...");
+    toast("Reset", "The form has been reset...");
 
     // Timeout to push the execution to after values has been reset
     setTimeout(() => {
@@ -597,30 +562,27 @@ document.querySelectorAll(".previews > canvas").forEach((canvas) => {
             mainChart = null;
         }
 
+        selectedCanvas = canvas;
         chartContext.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
 
+        // Update buildingGraphSelected
+        buildingGraphIsSelected = canvas.id === "building-graph";
+
         // If the canvas is the building-graph, then draw chart
-        if (canvas.id === "building-graph") {
-            // Update buildingGraphSelected
-            buildingGraphIsSelected = true;
+        if (!buildingGraphIsSelected) return;
 
-            mainChart = new Chart(chartCanvas, {
-                ...latestBuildingGraphConfig,
-            });
-
-            // Remove unwanted display property generated by chart.js library
-            chartCanvas.style.removeProperty("display");
-
-            selectedCanvas = canvas;
-            return;
-        }
+        chartCanvas.onclick = null;
+        chartCanvas.onmousemove = null;
 
         // Update buildingGraphSelected
-        buildingGraphIsSelected = false;
+        buildingGraphIsSelected = true;
 
-        // Else draw image
-        chartContext.drawImage(canvas, 0, 0);
-        selectedCanvas = canvas;
+        mainChart = new Chart(chartCanvas, {
+            ...latestBuildingGraphConfig,
+        });
+
+        // Remove unwanted display property generated by chart.js library
+        chartCanvas.style.removeProperty("display");
     });
 });
 
@@ -649,7 +611,6 @@ chartCanvas.addEventListener("click", () => {
     else {
         zoomedChart = chartCanvas.cloneNode();
         zoomedChart.removeAttribute("id");
-        zoomedChart.getContext("2d").drawImage(chartCanvas, 0, 0);
     }
 
     // Hide input form and result section when displaying zoomed chart
@@ -684,9 +645,13 @@ expandButton.addEventListener("click", () => {
     resultSection.classList.toggle("expanded");
 
     // Hide input form if result section is expanded
-    if (resultSectionIsExpanded) inputForm.classList.add("hide");
+    if (resultSectionIsExpanded) {
+        inputForm.classList.add("hide");
+        return;
+    }
+
     // Otherwise, show it
-    else inputForm.classList.remove("hide");
+    inputForm.classList.remove("hide");
 });
 
 form.addEventListener("change", updateForm);

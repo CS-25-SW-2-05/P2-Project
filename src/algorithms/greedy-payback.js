@@ -14,13 +14,7 @@ export default class ShortestPaybackAfterPurchase extends Algorithm {
         instance: new ShortestPaybackAfterPurchase(),
     });
 
-    /**
-     * @param {GameState} game the current game state
-     * @param {Building} buildings a list of all buildings, in their current state
-     * @param {Objective} objective
-     * @returns {Decision} the next decision to be performed, if it is valid.
-     */
-    getNextDecision(gameState, buildings, objective) {
+    getNextDecision(gameState, objective, buildings) {
         let paybackTime = 0;
         let numOfBuildingsAssessed = 0;
         let timeLeft = 0;
