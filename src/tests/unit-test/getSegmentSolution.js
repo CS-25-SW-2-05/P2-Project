@@ -61,6 +61,8 @@ export default class GetSegmentSolutionTest extends UnitTest {
         const expectedSolution = test.expectedSolution;
         const searchDepth = test.searchDepth;
         const expectedSolutionGameState = test.expectedSolutionGameState;
+        const controller = new AbortController();
+        const signal = controller.signal;
 
         await loadBuildings(test.decisionAmount);
         let currentGameState = new GameState();
@@ -88,6 +90,7 @@ export default class GetSegmentSolutionTest extends UnitTest {
             objective,
             referenceGameState,
             bestSolutionGameState,
+            signal,
         );
 
         const solution = returnValue[0];
