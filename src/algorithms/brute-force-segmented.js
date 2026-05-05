@@ -346,7 +346,8 @@ export default class BruteForceSegmented extends Algorithm {
             tempSolution = [
                 permutations[i],
                 usePaybackSaveUp ? paybackSaveUpTime : cpsPerTime,
-                currentGameState.simulationTime,
+                currentGameState.simulationTime -
+                    referenceGameState.simulationTime,
                 objectiveWaitTime,
             ];
 
