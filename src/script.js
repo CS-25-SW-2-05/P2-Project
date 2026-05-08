@@ -419,6 +419,7 @@ for (const algorithm of Algorithm.derived) {
             "BuyCheapest",
             "ShortestPaybackPlusSaveUp",
             "ShortestPaybackAfterPurchase",
+            "BruteForceSegmented",
         ].findIndex((i) => i === algorithm.name) !== -1;
     greedyAlgorithmsContainer.innerHTML += `
 		<div>

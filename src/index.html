@@ -93,16 +93,20 @@
                                     <p>Objective type</p>
                                     <select id="objective-type">
                                         <option value="cookies">
-                                            Number of Cookies
+                                            Minimise time to target no. of
+                                            cookies
                                         </option>
                                         <option value="production">
-                                            Production Rate
-                                        </option>
-                                        <option value="fixed-time-production">
-                                            [Fixed Time] Production Rate
+                                            Minimise time to target production
+                                            rate
                                         </option>
                                         <option value="fixed-time-cookies">
-                                            [Fixed Time] Cookies
+                                            Maximise no. of cookies by target
+                                            time
+                                        </option>
+                                        <option value="fixed-time-production">
+                                            Maximise production rate by target
+                                            time
                                         </option>
                                     </select>
                                 </label>
@@ -122,7 +126,9 @@
                     </section>
 
                     <div class="actions">
-                        <a class="back-btn" href="/src/tests/tests.html">Unit Test</a>
+                        <a class="back-btn" href="/src/tests/tests.html"
+                            >Unit Test</a
+                        >
                         <button type="submit" disabled>Run Benchmark</button>
                         <button type="button" id="stop-btn" disabled>
                             Stop
