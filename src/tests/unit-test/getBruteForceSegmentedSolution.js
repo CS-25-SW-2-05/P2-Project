@@ -25,6 +25,7 @@ export default class getBruteForceSegmentedSolutionTest extends UnitTest {
         let solution = [];
         let decisions = [];
         let i = 0;
+        const baseCpS = test.baseCpS;
         const bruteForceTest = new BruteForceSegmented();
         const expectedSolution = test.expectedSolution;
         const controller = new AbortController();
@@ -51,6 +52,7 @@ export default class getBruteForceSegmentedSolutionTest extends UnitTest {
             objective,
             decisions,
             signal,
+            baseCpS,
         );
 
         if (expectedSolution.toString() !== solution.toString()) {
@@ -67,15 +69,17 @@ export default class getBruteForceSegmentedSolutionTest extends UnitTest {
                 testNr: 1,
                 objectiveType: "production",
                 objectiveValue: 0.4,
-                numberOfBuildings: 19,
-                expectedSolution: [0, 0, 0, 0, 19],
+                numberOfBuildings: 20,
+                baseCpS: 1,
+                expectedSolution: [0, 0, 0, 0, 20],
             },
             {
                 testNr: 2,
                 objectiveType: "cookies",
                 objectiveValue: 1,
-                numberOfBuildings: 19,
-                expectedSolution: [19],
+                baseCpS: 1,
+                numberOfBuildings: 20,
+                expectedSolution: [20],
             },
         ];
 

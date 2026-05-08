@@ -23,7 +23,7 @@ export default class BruteForceSegmented extends Algorithm {
     #index = 0;
     #solution = null;
 
-    async getNextDecision(gameState, objective, buildings, signal) {
+    async getNextDecision(gameState, objective, buildings, signal, baseCpS) {
         if (gameState.simulationTime === 0) {
             this.#index = 0;
             this.#solution = null;
@@ -38,6 +38,7 @@ export default class BruteForceSegmented extends Algorithm {
                 objective,
                 decisions,
                 signal,
+                baseCpS,
             );
         }
         const invalidDecision = { isValid: false };
@@ -255,9 +256,7 @@ export default class BruteForceSegmented extends Algorithm {
 					of the permutation, which corresponds to the last decision number + 1
 					*/
                     if (currentGameState.buildingCpS >= objective.value) {
-                        for (let l = 0; l < permutationLength - (j + 1); l++) {
-                            permutations[i].pop();
-                        }
+                        permutations[i].length = j + 1;
                         permutations[i].push(Number(decisions.length));
                         break;
                     }
@@ -469,12 +468,17 @@ export default class BruteForceSegmented extends Algorithm {
     /**
      * Connects the segmented solutions together and returns the final solution.
      */
-    async getBruteForceSegmentedSolution(objective, decisions, signal) {
+    async getBruteForceSegmentedSolution(
+        objective,
+        decisions,
+        signal,
+        baseCpS,
+    ) {
         let endMarker = 0;
         let segmentSolutionData = [];
         let segmentSolution = [];
         let solution = [];
-        let currentGameState = new GameState();
+        let currentGameState = new GameState(baseCpS);
 
         let referenceGameState = currentGameState.copy();
         let bestSolutionGameState = referenceGameState.copy();

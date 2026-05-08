@@ -76,6 +76,7 @@ export default class Algorithm {
                         objective,
                         validBuildings,
                         signal,
+                        baseCpS,
                     );
 
                     // Break the loop if the decision i invalid
