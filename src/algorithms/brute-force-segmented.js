@@ -346,7 +346,8 @@ export default class BruteForceSegmented extends Algorithm {
             tempSolution = [
                 permutations[i],
                 usePaybackSaveUp ? paybackSaveUpTime : cpsPerTime,
-                currentGameState.simulationTime,
+                currentGameState.simulationTime -
+                    referenceGameState.simulationTime,
                 objectiveWaitTime,
             ];
 
@@ -418,9 +419,7 @@ export default class BruteForceSegmented extends Algorithm {
             if (
                 tempSolution[0][tempSolution[0].length - 1] ===
                     decisions.length ||
-                bestSolution[0][bestSolution[0].length - 1] ===
-                    decisions.length ||
-                currentGameState.buildingCpS < objective.value
+                bestSolution[0][bestSolution[0].length - 1] === decisions.length
             ) {
                 // lowest simulationTime
                 if (tempSolution[2] < bestSolution[2]) {
@@ -472,27 +471,28 @@ export default class BruteForceSegmented extends Algorithm {
      */
     async getBruteForceSegmentedSolution(objective, decisions, signal) {
         let endMarker = 0;
-        let totalSimulationTime = 0;
         let segmentSolutionData = [];
         let segmentSolution = [];
         let solution = [];
         let currentGameState = new GameState();
 
-        console.log(currentGameState.buildings);
-
         let referenceGameState = currentGameState.copy();
         let bestSolutionGameState = referenceGameState.copy();
 
-        let segmentedSearchDepth = document.getElementById(
-            "brute-force-horizon",
-        ).valueAsNumber;
-
-        console.log("search depth:", segmentedSearchDepth);
+        let segmentedSearchDepth = 0;
+        try {
+            segmentedSearchDepth = document.getElementById(
+                "brute-force-horizon",
+            ).valueAsNumber;
+        } catch {
+            // for unit test
+            segmentedSearchDepth = 2;
+        }
 
         if (segmentedSearchDepth <= 1) {
             toast(
                 "Depth Too Low",
-                "The brute force horizon may not be lower than one.",
+                "The brute force horizon may not be lower than two.",
             );
             throw new Error(`Please select a search depth higher than 1`);
         }
@@ -513,17 +513,11 @@ export default class BruteForceSegmented extends Algorithm {
                 );
                 if (segmentSolutionData === null) return null;
 
-                console.log(
-                    "bestSolutionGameState.buildingCpS3",
-                    segmentSolutionData[1].buildingCpS,
-                );
+                const isBestSolutionHigherOrEqual =
+                    referenceGameState.buildingCpS <=
+                    segmentSolutionData[1].buildingCpS;
 
-                console.log("Segment solution: " + segmentSolution);
-
-                if (
-                    referenceGameState.buildingCpS >=
-                    segmentSolutionData[1].buildingCpS
-                ) {
+                if (!isBestSolutionHigherOrEqual) {
                     toast(
                         "Worse Better Solution?",
                         "The new best solution is worse than last iteration.",
@@ -553,7 +547,6 @@ export default class BruteForceSegmented extends Algorithm {
                     );
                 }
 
-                totalSimulationTime += referenceGameState.simulationTime;
                 solution.push(...segmentSolution);
                 endMarker = solution[solution.length - 1];
 
@@ -579,11 +572,11 @@ export default class BruteForceSegmented extends Algorithm {
             );
             if (segmentSolutionData === null) return null;
 
-            const isBestSolutionHigher =
-                referenceGameState.buildingCpS <
+            const isBestSolutionHigherOrEqual =
+                referenceGameState.buildingCpS <=
                 segmentSolutionData[1].buildingCpS;
 
-            if (!isBestSolutionHigher) {
+            if (!isBestSolutionHigherOrEqual) {
                 toast(
                     "Worse Better Solution?",
                     "The new best solution is worse than last iteration.",
@@ -612,7 +605,6 @@ export default class BruteForceSegmented extends Algorithm {
                 );
             }
 
-            totalSimulationTime += referenceGameState.simulationTime;
             solution.push(...segmentSolution);
             endMarker = solution[solution.length - 1];
 
