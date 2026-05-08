@@ -4,6 +4,9 @@ import "./unit-test/smart-payback-test.js";
 import "./unit-test/permutations-test.js";
 import "./unit-test/filter-buildings-test.js";
 import "./unit-test/payback.js";
+import "./unit-test/getSegmentSolution.js";
+import "./unit-test/getMemoryStatus.js";
+import "./unit-test/getBruteForceSegmentedSolution.js";
 
 const testsWrapper = document.querySelector("#tests");
 const runAllBtn = document.querySelector("#run-all");
