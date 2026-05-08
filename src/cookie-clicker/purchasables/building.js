@@ -51,7 +51,7 @@ export default class Building extends Purchasable {
  */
 async function getBuildingData() {
     try {
-        const res = await fetch("./cookie-clicker/buildings.json");
+        const res = await fetch("/src/cookie-clicker/buildings.json");
 
         if (!res.ok) throw new Error(`Failed to load file: ${response.status}`);
 
