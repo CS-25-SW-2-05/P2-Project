@@ -51,8 +51,8 @@ export default class getBruteForceSegmentedSolutionTest extends UnitTest {
         solution = await bruteForceTest.getBruteForceSegmentedSolution(
             objective,
             decisions,
-            signal,
             baseCpS,
+            signal,
         );
 
         if (expectedSolution.toString() !== solution.toString()) {
