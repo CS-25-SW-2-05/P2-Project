@@ -10,16 +10,15 @@ export default class getMemoryStatusTest extends UnitTest {
     });
 
     async run() {
-        let testPassed = true;
-        let memoryTest = new BruteForceSegmented();
-        let memoryLimit = 1;
+        const memoryTest = new BruteForceSegmented();
+        const memoryLimit = 1;
 
         // calling the function should only result in an error
         try {
             memoryTest.getMemoryStatus(memoryLimit);
-            testPassed = false;
+            return false;
         } catch {}
 
-        return testPassed;
+        return true;
     }
 }

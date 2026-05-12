@@ -363,36 +363,68 @@ export default class LineChart {
             ctx.font = "42px sans-serif";
             ctx.textAlign = "left";
             const gap = 36;
-            const labelsWidth =
-                this.#data
-                    .flatMap(
-                        (d) =>
-                            ctx.measureText(
-                                d.label.replace(/\[.*?\]/g, "").trim(),
-                            ).actualBoundingBoxRight,
-                    )
-                    .reduce((sum, m) => sum + m) +
-                2.5 * gap * (this.#data.length - 1);
-            let labelCurrentOffset = 0;
 
-            for (let i = 0; i < this.#data.length; i++) {
-                const d = this.#data[i];
-                const label = d.label.replace(/\[.*?\]/g, "").trim();
-                const measure = ctx.measureText(label);
-                const x = width / 2 - labelsWidth / 2 + labelCurrentOffset;
-                const y = height - measure.actualBoundingBoxDescent - 24;
+            const rows = [];
+            let currentRow = [];
+            let currentWidth = 0;
+            const maxWidth = width - this.#margin.l - this.#margin.r + 200;
+            const labelsData = this.#data.map((d, index) => {
+                const label = d.label.trim();
+                const textWidth = ctx.measureText(label).actualBoundingBoxRight;
+                const itemWidth = textWidth + 2.5 * gap;
+                return { label, textWidth, itemWidth, index };
+            });
 
-                ctx.fillStyle = this.#graphColors[i];
-                ctx.fillRect(
-                    x,
-                    y,
-                    measure.actualBoundingBoxDescent,
-                    measure.actualBoundingBoxDescent,
-                );
-                ctx.fillStyle = "white";
-                ctx.fillText(label, x + 1.5 * gap, y);
-                labelCurrentOffset +=
-                    measure.actualBoundingBoxRight + 2.5 * gap;
+            for (const item of labelsData) {
+                const willRowOverflow =
+                    currentRow.length > 0 &&
+                    currentWidth + item.itemWidth > maxWidth;
+
+                if (willRowOverflow) {
+                    rows.push({
+                        items: currentRow,
+                        width: currentWidth - 2.5 * gap,
+                    });
+                    currentRow = [item];
+                    currentWidth = item.itemWidth;
+                    continue;
+                }
+
+                currentRow.push(item);
+                currentWidth += item.itemWidth;
+            }
+
+            if (currentRow.length > 0) {
+                rows.push({
+                    items: currentRow,
+                    width: currentWidth - 2.5 * gap,
+                });
+            }
+
+            let startY = height - 24;
+            startY -= (rows.length - 1) * 60;
+
+            for (let r = 0; r < rows.length; r++) {
+                const row = rows[r];
+                let labelCurrentOffset = 0;
+                const y = startY + r * 60;
+
+                for (const item of row.items) {
+                    const measureResult = ctx.measureText(item.label);
+                    const drawY = y - measureResult.actualBoundingBoxDescent;
+                    const x = width / 2 - row.width / 2 + labelCurrentOffset;
+
+                    ctx.fillStyle = this.#graphColors[item.index];
+                    ctx.fillRect(
+                        x,
+                        drawY,
+                        measureResult.actualBoundingBoxDescent,
+                        measureResult.actualBoundingBoxDescent,
+                    );
+                    ctx.fillStyle = "white";
+                    ctx.fillText(item.label, x + 1.5 * gap, drawY);
+                    labelCurrentOffset += item.textWidth + 2.5 * gap;
+                }
             }
         };
 

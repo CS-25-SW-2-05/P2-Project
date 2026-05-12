@@ -20,7 +20,7 @@ async function run(data) {
     data.img.src = "../images/wait.svg";
     const result = await data.test.instance.run();
     data.img.src = "../images/run.svg";
-    data.paragraph.innerText = (result ? "✅ " : "❌ ") + data.test.title;
+    data.span.innerText = result ? "✅" : "❌";
     data.button.removeAttribute("disabled");
     return result;
 }
@@ -29,7 +29,7 @@ for (const test of UnitTest.derived) {
     const template = document.createElement("template");
     template.innerHTML = `
         <section class="test">
-            <p>❔ ${test.title}</p>
+            <p><span>❔</span> ${test.title}</p>
             <button>
                 <img src="../images/run.svg" alt="Run" />
             </button>
@@ -37,13 +37,13 @@ for (const test of UnitTest.derived) {
     `.trim();
 
     const section = template.content.firstElementChild;
-    const paragraph = section.querySelector("p");
+    const span = section.querySelector("span");
     const button = section.querySelector("button");
     const img = button.querySelector("img");
 
     const data = {
         test: test,
-        paragraph: paragraph,
+        span: span,
         img: img,
         button: button,
     };
@@ -56,7 +56,10 @@ runAllBtn.addEventListener("click", async () => {
     runAllBtn.setAttribute("disabled", "disabled");
 
     const promises = [];
-    for (const test of testData) promises.push(run(test));
+    for (const data of testData) {
+        promises.push(run(data));
+    }
+
     const results = await Promise.all(promises);
 
     const count = results.length;
