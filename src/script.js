@@ -506,6 +506,10 @@ form.addEventListener("submit", async (e) => {
             if (!isObjectiveSupportedByBruteForce) {
                 // Remove algorithm selection
                 document.getElementById("BruteForceSegmented").checked = false;
+                toast(
+                    "Brute Force disabled",
+                    "Not supported for fixed time objectives.",
+                );
                 continue;
             }
 

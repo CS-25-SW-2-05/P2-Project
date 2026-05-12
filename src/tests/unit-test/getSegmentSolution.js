@@ -58,14 +58,15 @@ export default class GetSegmentSolutionTest extends UnitTest {
         let didTestPass = true;
         let decisions = [];
         let i = 0;
+        const baseCpS = test.baseCpS;
         const expectedSolution = test.expectedSolution;
         const searchDepth = test.searchDepth;
         const expectedSolutionGameState = test.expectedSolutionGameState;
         const controller = new AbortController();
         const signal = controller.signal;
 
-        await loadBuildings(test.decisionAmount);
-        let currentGameState = new GameState();
+        await loadBuildings(test.numberOfBuildings);
+        let currentGameState = new GameState(baseCpS);
         let referenceGameState = currentGameState.copy();
         let bestSolutionGameState = referenceGameState.copy();
 
@@ -113,14 +114,15 @@ export default class GetSegmentSolutionTest extends UnitTest {
     }
 
     async run() {
-        let testPassed = true;
+        let AllTestsPassed = true;
         const Tests = [
             {
                 testNr: 1,
                 objectiveType: "production",
                 objectiveValue: 2,
-                decisionAmount: 2,
+                numberOfBuildings: 2,
                 searchDepth: 2,
+                baseCpS: 1,
                 expectedSolution: [0, 1],
                 expectedSolutionGameState: {
                     buildingsOwned: {
@@ -135,9 +137,10 @@ export default class GetSegmentSolutionTest extends UnitTest {
                 testNr: 2,
                 objectiveType: "production",
                 objectiveValue: 0.1,
-                decisionAmount: 2,
+                numberOfBuildings: 20,
                 searchDepth: 2,
-                expectedSolution: [0, 2],
+                baseCpS: 1,
+                expectedSolution: [0, 20],
                 expectedSolutionGameState: {
                     buildingsOwned: {
                         cursor: 1,
@@ -150,9 +153,26 @@ export default class GetSegmentSolutionTest extends UnitTest {
                 testNr: 3,
                 objectiveType: "cookies",
                 objectiveValue: 1,
-                decisionAmount: 2,
+                numberOfBuildings: 20,
                 searchDepth: 2,
-                expectedSolution: [2],
+                baseCpS: 1,
+                expectedSolution: [20],
+                expectedSolutionGameState: {
+                    buildingsOwned: {
+                        cursor: 0,
+                    },
+                    buildingCpS: 0,
+                    simulationTime: 1,
+                },
+            },
+            {
+                testNr: 4,
+                objectiveType: "cookies",
+                objectiveValue: 10,
+                numberOfBuildings: 20,
+                searchDepth: 2,
+                baseCpS: 10,
+                expectedSolution: [20],
                 expectedSolutionGameState: {
                     buildingsOwned: {
                         cursor: 0,
@@ -165,10 +185,10 @@ export default class GetSegmentSolutionTest extends UnitTest {
 
         for (let test in Tests) {
             if (!(await this.runSingleTest(Tests[test]))) {
-                testPassed = false;
+                AllTestsPassed = false;
             }
         }
 
-        return testPassed;
+        return AllTestsPassed;
     }
 }
