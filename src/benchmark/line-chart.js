@@ -376,21 +376,24 @@ export default class LineChart {
             });
 
             for (const item of labelsData) {
-                if (
+                const willRowOverflow =
                     currentRow.length > 0 &&
-                    currentWidth + item.itemWidth > maxWidth
-                ) {
+                    currentWidth + item.itemWidth > maxWidth;
+
+                if (willRowOverflow) {
                     rows.push({
                         items: currentRow,
                         width: currentWidth - 2.5 * gap,
                     });
                     currentRow = [item];
                     currentWidth = item.itemWidth;
-                } else {
-                    currentRow.push(item);
-                    currentWidth += item.itemWidth;
+                    continue;
                 }
+
+                currentRow.push(item);
+                currentWidth += item.itemWidth;
             }
+
             if (currentRow.length > 0) {
                 rows.push({
                     items: currentRow,
