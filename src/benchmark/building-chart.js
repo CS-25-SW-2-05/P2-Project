@@ -44,7 +44,7 @@ export function getBuildingGraphData(results) {
     // for each algorithm
     for (const result of results) {
         // Get the algorithm label
-        const resultLabel = formatLabel(result.algorithm.name);
+        const resultLabel = result.algorithm.title;
 
         // Get the gamestate from the last decision
         const lastGameState = result.data[result.data.length - 1].gameState;
