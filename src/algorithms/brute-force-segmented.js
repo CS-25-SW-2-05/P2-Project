@@ -23,7 +23,7 @@ export default class BruteForceSegmented extends Algorithm {
     #index = 0;
     #solution = null;
 
-    async getNextDecision(gameState, objective, buildings, signal, baseCpS) {
+    async getNextDecision(gameState, objective, buildings, signal) {
         if (gameState.simulationTime === 0) {
             this.#index = 0;
             this.#solution = null;
@@ -37,8 +37,8 @@ export default class BruteForceSegmented extends Algorithm {
             this.#solution = await this.getBruteForceSegmentedSolution(
                 objective,
                 decisions,
+                gameState.manualCpS,
                 signal,
-                baseCpS,
             );
         }
         const invalidDecision = { isValid: false };
@@ -471,8 +471,8 @@ export default class BruteForceSegmented extends Algorithm {
     async getBruteForceSegmentedSolution(
         objective,
         decisions,
-        signal,
         baseCpS,
+        signal,
     ) {
         let endMarker = 0;
         let segmentSolutionData = [];
