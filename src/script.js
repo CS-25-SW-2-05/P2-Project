@@ -236,7 +236,7 @@ function displayResults(results, objective) {
                         <a>
                             <img src="./images/open_in_new.svg" alt="Open in New" />
                         </a>
-                        ${r.algorithm.title.replace("[Greedy]", "")}
+                        ${r.algorithm.title}
                     </div>
                 </td>
                 
