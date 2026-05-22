@@ -43,7 +43,7 @@ Then open `http://localhost:8000/src/index.html` in a Chromium-based browser for
 > **Note:** Memory measurement uses the `performance.memory` API, which is only available in Chromium-based browsers. The rest of the tool works in any modern browser.
 
 ## Project Structure
-
+```markdown
 src/
 ├── index.html                  # Main UI
 ├── style.css
@@ -94,7 +94,7 @@ src/
         |── getBruteForceSegmentedSolution.js
         |── filter-building-test.js
         └── unit-test.js
-
+```
 
 
 ## Adding a New Algorithm
