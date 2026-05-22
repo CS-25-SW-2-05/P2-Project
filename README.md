@@ -1,5 +1,5 @@
 # Cookie Clicker Benchmarking Tool
-A browser-based tool for benchmarking and comparing algorithmic strategies on a simplified model of Cookie Clicker. Developed as a 2nd semester project at Aalborg University (Software, CS-26-SW-2-05).
+A browser-based tool for benchmarking and comparing algorithmic strategies on a simplified model of Cookie Clicker. Developed as a 2nd semester project at Aalborg University (Software, CS-25-SW-2-05).
 
 ## About
 The program models Cookie Clicker as a sequential decision problem and lets the user benchmark different algorithms against each other under identical conditions. It records performance metrics for each run and visualises the results through charts, a comparison table, and a decision-by-decision timeline.
